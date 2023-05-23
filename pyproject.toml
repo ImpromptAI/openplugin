@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "openplugin"
+version = "0.0.1"
+description = ""
+authors = ["shrikant <shrikant.pm14@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+langchain = "^0.0.178"
+requests = "2.29.0"
+uvicorn = "^0.22.0"
+fastapi = "^0.95.2"
+load-dotenv = "^0.1.0"
+openai = "^0.27.7"
+pydantic = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
