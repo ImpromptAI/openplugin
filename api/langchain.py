@@ -2,6 +2,7 @@ from typing import List
 from fastapi import APIRouter
 from bindings.langchain.langchain_plugin_selector import LangchainPluginSelector
 from interfaces.plugin_selector import Message, LLM, Plugin, ToolSelectorConfig, Config
+from fastapi.responses import JSONResponse
 
 router = APIRouter(
     prefix="/langchain",
@@ -20,5 +21,9 @@ def run_plugin(
         llm: LLM,
 ):
     selector = LangchainPluginSelector(tool_selector_config, plugins, config, llm)
-    response = selector.run(messages)
-    return response
+    try:
+        response = selector.run(messages)
+        return response
+    except Exception as e:
+        print(e)
+        return JSONResponse(status_code=500, content={"message": "Failed to run plugin"})

@@ -15,6 +15,18 @@ from interfaces.plugin_selector import Config, ToolSelectorConfig, PluginOperati
 def _get_agent_type(pipeline_name: str) -> AgentType:
     if pipeline_name == "zero-shot-react-description":
         return AgentType.ZERO_SHOT_REACT_DESCRIPTION
+    elif pipeline_name == "react-docstore":
+        return AgentType.REACT_DOCSTORE
+    elif pipeline_name == "self-ask-with-search":
+        return AgentType.SELF_ASK_WITH_SEARCH
+    elif pipeline_name == "conversational-react-description":
+        return AgentType.CONVERSATIONAL_REACT_DESCRIPTION
+    elif pipeline_name == "chat-zero-shot-react-description":
+        return AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION
+    elif pipeline_name == "chat-conversational-react-description":
+        return AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION
+    elif pipeline_name == "structured-chat-zero-shot-react-description":
+        return AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION
     raise ValueError(f"Pipeline name {pipeline_name} not supported")
 
 
@@ -40,7 +52,10 @@ def _get_llm(llm: LLM, api_key: str):
         os.environ["OPENAI_API_KEY"] = api_key
         llm = ChatOpenAI(
             model_name=llm.model_name,
-            temperature=llm.temperature
+            temperature=llm.temperature,
+            max_retries=llm.max_retries,
+            n=llm.n,
+            max_tokens=llm.max_tokens
         )
         return llm
     raise ValueError(f"LLM provider {llm.provider} not supported")
@@ -55,13 +70,6 @@ class LangchainPluginSelector(PluginSelector):
             config: Config,
             llm: LLM
     ):
-        """
-        Abstract method to initialize the Tool Selector configuration.
-        Args:
-            tool_selector: The Tool Selector configuration.
-        Raises:
-            NotImplementedError: This method needs to be implemented in the concrete class.
-        """
         agent_type = _get_agent_type(tool_selector_config.pipeline_name)
         tools = load_tools(["requests_all"])
         for plugin in plugins:
@@ -77,15 +85,6 @@ class LangchainPluginSelector(PluginSelector):
         )
 
     def run(self, messages: List[Message]) -> Response:
-        """
-        Abstract method to run a single chat prompt.
-        Args:
-            prompt: The Prompt to be processed.
-        Returns:
-            The response to the Prompt.
-        Raises:
-            NotImplementedError: This method needs to be implemented in the concrete class.
-        """
         with get_openai_callback() as cb:
             start_test_case_time = time.time()
             message = messages[-1]

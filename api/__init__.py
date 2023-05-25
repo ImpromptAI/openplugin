@@ -1,4 +1,5 @@
-from . import langchain
+from api import langchain
+from api import imprompt
 from fastapi import FastAPI
 from fastapi import APIRouter
 from .http_error import http_error_handler
@@ -9,10 +10,11 @@ API_PREFIX = "/api"
 
 
 def create_app() -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(openapi_url=f"{API_PREFIX}/openapi.json")
     # add routes
     router = APIRouter()
     router.include_router(langchain.router)
+    router.include_router(imprompt.router)
     app.include_router(router, prefix=API_PREFIX)
 
     app.add_exception_handler(HTTPException, http_error_handler)
