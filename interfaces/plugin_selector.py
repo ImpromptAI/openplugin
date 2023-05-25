@@ -37,6 +37,11 @@ class PluginAPI(BaseModel):
                 values["api_endpoints"] = api_endpoints
         return values
 
+    def get_openapi_doc(self):
+        return requests.get(self.url).json()
+
+
+
 
 class Plugin(BaseModel):
     """
@@ -103,6 +108,8 @@ class LLM(BaseModel):
     presence_penalty: float = 0
     n: float = 1
     best_of: float = 1
+    max_tokens: int = 1024
+    max_retries: int = 6
 
     @validator("model_name")
     def _chk_model_name(cls, model_name: str, values, **kwargs) -> str:
@@ -126,6 +133,7 @@ class ToolSelectorProvider(str, Enum):
     """
 
     Langchain = "Langchain"
+    Imprompt = "Imprompt"
 
 
 class ToolSelectorConfig(BaseModel):
@@ -151,7 +159,7 @@ class Response(BaseModel):
 class MessageType(str, Enum):
     HumanMessage = "HumanMessage"
     AIMessage = "AIMessage"
-    SystenMessage = "SystemMessage"
+    SystemMessage = "SystemMessage"
 
 
 class Message(BaseModel):
