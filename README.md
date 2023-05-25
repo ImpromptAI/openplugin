@@ -1,6 +1,4 @@
-![Alt text](docs/openplugin_logo.jpg?raw=true "Logo")
-# OpenPlugin
-
+![Alt text](docs/openplugin_logo.jpg?raw=75x75 "Logo")
 #### Do you want to create a plugin?
 
 If you want to create a plugin, this project is NOT FOR YOU. 
