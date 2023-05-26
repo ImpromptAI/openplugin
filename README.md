@@ -1,11 +1,9 @@
 ![Alt text](docs/openplugin_logo.jpg?raw=75x75 "Logo")
-#### Do you want to create a plugin?
+### Who is this project for?
 
-If you want to create a plugin, this project is NOT FOR YOU. 
+This project is for plugin platform providers (i.e., those who want to create a container / execution environment that run the plugins). This is a Service Provider interface. In other words, we’re clearly separating ‘those who create plugins’ from ‘platforms that run plugins’. If your an application developer wanting to create a plugin, this project is likely not for you. But, you should be ensuring that the plugin framework you choose has an OpenPlugin interface. 
 
-This project is only for those who want to create a container / execution environment to run the plugins. This is a Service Provider interface. In other words, we’re clearly separating ‘those who create plugins’ from ‘platforms that run plugins’. 
-
-#### Terminology
+### Terminology
 Unfortunately, as this is an emerging space, there are lots of competing terms floating around. Specific to this project, here are the definitions we’re using:
 
 <ol>
@@ -19,7 +17,7 @@ This refers to solutions that execute the natural language and map it to an API.
 The process of mapping natural language to a tool can be modularized, and made a dedicated task. This task can be called via a RESTful API call, or locally via a language specific binding (SDK).
 </ol>
 
-#### Tool Selectors & Use with LLMs 
+# Tool Selectors & Use with LLMs 
 
 Large Language Models (LLMs) are able to provide analysis on a wide range of tasks. However, there are certain limitations. In some cases, the LLMs do poorly on multi-step tasks such as solving complex mathematical problems or analyzing a complex business problem. It is also common for the LLM to need access to data that resides inside of a database, or application. In such cases, the LLM would be fed data called by an API or a query (SQL, etc.). 
 
@@ -27,7 +25,7 @@ Hence, there is a need to create a bridge between a user’s text, the LLM, and 
 
 ![Alt text](docs/flow_img.png?raw=true "Flow")
 
-#### The Problem Statement
+## The Problem Statement
 Here’s a quick overview of the problem from a developer’s viewpoint:
 
 When people give instructions to an LLM (via chat, etc.), they use a variety of ways of describing what they want. Some technology (the tool selector) must determine what the intent of the command was (aka, intent detection). Additionally, the command might have some extra data like “in the morning”, “once per week”. All of this natural language needs to be mapped back to an API. The Tool Selector must do more than just ‘find the right tool’, it must map language to an API and call it perfectly. 
@@ -43,7 +41,7 @@ If the developer is using a composable tool selector like LangChain,  we add the
 <li>How do the accuracy, cost and latency metrics change, when you swap out LLM providers & models (Palm2, GPT4, Cohere Command, etc.)</li>
 </ol>
 
-#### Approaches to Solving the Problem 
+## Approaches to Solving the Problem 
 Using NLP terms, we’d describe the problem as ‘intent detection’ + ‘slot filling’. And normally, this would be accomplished by building/fine-tuning a model specifically for your task. But with LLMs, developers are also just asking the LLM to solve the problem. There are pros and cons to the various approaches. 
 
 
@@ -77,7 +75,7 @@ P = Parameter Filling
 </ul>
 
 
-#### Standardizing the Interface for Tool Selection
+### Standardizing the Interface for Tool Selection
 Developers want to create plugins that are consistently accurate and have low latency. And they want to avoid manually rewriting, redeploying and retesting their plugins across providers. If there was only one plugin hoster, it would be a trivial problem. But, as the number of chat sites/apps increases, quality assurance becomes a significant issue. 
 
 For this reason, we’re introducing a standard interface to test plugins / tools:
@@ -87,7 +85,7 @@ For this reason, we’re introducing a standard interface to test plugins / tool
 And bindings / SDK’s:
  - LangChain Binding
 
-#### Hosted Tool Selector API Providers
+### Hosted Tool Selector API Providers
 For demo purposes only, we’re hosting an instance of the Tool Selector API. To use the service, you’ll need to get a key from jeffrschneider[at]gmail[dot]com   
 
 The service will limit the number of calls you can make. If you’re interested in either having a 3rd party run this as a managed service or being a managed service provider, let us know. 
