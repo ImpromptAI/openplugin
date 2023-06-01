@@ -1,410 +1,431 @@
 {
-	"openapi": "3.0.2",
-	"info": {
-		"title": "OpenPlugin API",
-		"version": "0.1.0"
-	},
-	"paths": {
-		"/api/run-plugin": {
-			"post": {
-				"summary": "Run Plugin",
-				"operationId": "run_plugin_api_post",
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/Body_run_plugin_api_post"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Response"
-								}
-							}
-						}
-					},
-					"404": {
-						"description": "Not found"
-					},
-                    "500": {
-						"description": "Failed to run"
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	},
-	"components": {
-		"schemas": {
-			"Body_run_plugin_api_post": {
-				"title": "Body_run_plugin_api_post",
-				"required": [
-					"messages",
-					"tool_selector_config",
-					"plugins",
-					"config",
-					"llm"
-				],
-				"type": "object",
-				"properties": {
-					"messages": {
-						"title": "Messages",
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/Message"
-						}
-					},
-					"tool_selector_config": {
-						"$ref": "#/components/schemas/ToolSelectorConfig"
-					},
-					"plugins": {
-						"title": "Plugins",
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/Plugin"
-						}
-					},
-					"config": {
-						"$ref": "#/components/schemas/Config"
-					},
-					"llm": {
-						"$ref": "#/components/schemas/LLM"
-					}
-				}
-			},
-			"Config": {
-				"title": "Config",
-				"required": [
-					"openai_api_key"
-				],
-				"type": "object",
-				"properties": {
-					"openai_api_key": {
-						"title": "Openai Api Key",
-						"type": "string"
-					}
-				},
-				"description": "Represents the API configuration for a plugin."
-			},
-			"HTTPValidationError": {
-				"title": "HTTPValidationError",
-				"type": "object",
-				"properties": {
-					"detail": {
-						"title": "Detail",
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/ValidationError"
-						}
-					}
-				}
-			},
-			"LLM": {
-				"title": "LLM",
-				"required": [
-					"provider",
-					"model_name"
-				],
-				"type": "object",
-				"properties": {
-					"provider": {
-						"$ref": "#/components/schemas/LLMProvider"
-					},
-					"model_name": {
-						"title": "Model Name",
-						"type": "string"
-					},
-					"temperature": {
-						"title": "Temperature",
-						"type": "number",
-						"default": 0.7
-					},
-					"max_tokens": {
-						"title": "Max Tokens",
-						"type": "integer",
-						"default": 256
-					},
-					"top_p": {
-						"title": "Top P",
-						"type": "number",
-						"default": 1
-					},
-					"frequency_penalty": {
-						"title": "Frequency Penalty",
-						"type": "number",
-						"default": 0
-					},
-					"presence_penalty": {
-						"title": "Presence Penalty",
-						"type": "number",
-						"default": 0
-					},
-					"n": {
-						"title": "N",
-						"type": "number",
-						"default": 1
-					},
-					"best_of": {
-						"title": "Best Of",
-						"type": "number",
-						"default": 1
-					}
-				},
-				"description": "Represents the configuration for an LLM (Language Model) provider."
-			},
-			"LLMProvider": {
-				"title": "LLMProvider",
-				"enum": [
-					"OpenAI",
-					"OpenAIChat",
-					"GooglePalm",
-					"Cohere"
-				],
-				"type": "string",
-				"description": "Enumeration for different LLM providers."
-			},
-			"Message": {
-				"title": "Message",
-				"required": [
-					"content",
-					"message_type"
-				],
-				"type": "object",
-				"properties": {
-					"content": {
-						"title": "Content",
-						"type": "string"
-					},
-					"message_type": {
-						"$ref": "#/components/schemas/MessageType"
-					}
-				},
-				"description": "Represents a prompt to be executed."
-			},
-			"MessageType": {
-				"title": "MessageType",
-				"enum": [
-					"HumanMessage",
-					"AIMessage",
-					"SystemMessage"
-				],
-				"type": "string",
-				"description": "An enumeration."
-			},
-			"Plugin": {
-				"title": "Plugin",
-				"required": [
-					"manifest_url"
-				],
-				"type": "object",
-				"properties": {
-					"schema_version": {
-						"title": "Schema Version",
-						"type": "string"
-					},
-					"name_for_model": {
-						"title": "Name For Model",
-						"type": "string"
-					},
-					"name_for_human": {
-						"title": "Name For Human",
-						"type": "string"
-					},
-					"description_for_model": {
-						"title": "Description For Model",
-						"type": "string"
-					},
-					"description_for_human": {
-						"title": "Description For Human",
-						"type": "string"
-					},
-					"logo_url": {
-						"title": "Logo Url",
-						"type": "string"
-					},
-					"contact_email": {
-						"title": "Contact Email",
-						"type": "string"
-					},
-					"legal_info_url": {
-						"title": "Legal Info Url",
-						"type": "string"
-					},
-					"manifest_url": {
-						"title": "Manifest Url",
-						"type": "string"
-					},
-					"api": {
-						"$ref": "#/components/schemas/PluginAPI"
-					}
-				},
-				"description": "Represents a plugin configuration."
-			},
-			"PluginAPI": {
-				"title": "PluginAPI",
-				"required": [
-					"type",
-					"url"
-				],
-				"type": "object",
-				"properties": {
-					"type": {
-						"title": "Type",
-						"type": "string"
-					},
-					"url": {
-						"title": "Url",
-						"type": "string"
-					},
-					"has_user_authentication": {
-						"title": "Has User Authentication",
-						"type": "boolean",
-						"default": false
-					},
-					"api_endpoints": {
-						"title": "Api Endpoints",
-						"uniqueItems": true,
-						"type": "array",
-						"items": {
-							"type": "string"
-						}
-					}
-				},
-				"description": "Represents the API configuration for a plugin."
-			},
-			"ToolSelectorConfig": {
-				"title": "ToolSelectorConfig",
-				"required": [
-					"provider",
-					"pipeline_name"
-				],
-				"type": "object",
-				"properties": {
-					"provider": {
-						"$ref": "#/components/schemas/ToolSelectorProvider"
-					},
-					"pipeline_name": {
-						"title": "Pipeline Name",
-						"type": "string"
-					}
-				},
-				"description": "Represents the configuration for a Tool Selector."
-			},
-			"ToolSelectorProvider": {
-				"title": "ToolSelectorProvider",
-				"enum": [
-					"Langchain"
-				],
-				"type": "string",
-				"description": "Enumeration for different Tool Selector providers."
-			},
-			"PluginOperation": {
-				"title": "PluginOperation",
-				"required": [
-					"plugin"
-				],
-				"type": "object",
-				"properties": {
-					"plugin": {
-						"$ref": "#/components/schemas/Plugin"
-					},
-					"api_called": {
-						"title": "API Called",
-						"type": "string"
-					},
-					"mapped_operation_parameters": {
-						"title": "Mapped Operation Parameters",
-						"type": "object"
-					}
-				},
-				"description": "Detected plugin operations"
-			},
-			"Response": {
-				"title": "Response",
-				"required": [
-					"run_completed"
-				],
-				"type": "object",
-				"properties": {
-					"run_completed": {
-						"title": "Run Completed",
-						"type": "boolean"
-					},
-					"final_text_response": {
-						"title": "Final Text Response",
-						"type": "string"
-					},
-					"detected_plugin_operations": {
-						"title": "Detected Plugin Operations",
-						"uniqueItems": true,
-						"type": "array",
-						"items": {
-							"$ref": "#/components/schemas/PluginOperation"
-						}
-					},
-					"response_time": {
-						"title": "Response Time",
-						"type": "number"
-					},
-					"tokens_used": {
-						"title": "Tokens used",
-						"type": "integer"
-					},
-					"llm_api_cost": {
-						"title": "LLM Api Cost",
-						"type": "number"
-					}
-				},
-				"description": "Represents a response from a provider."
-			},
-			"ValidationError": {
-				"title": "ValidationError",
-				"required": [
-					"loc",
-					"msg",
-					"type"
-				],
-				"type": "object",
-				"properties": {
-					"loc": {
-						"title": "Location",
-						"type": "array",
-						"items": {
-							"anyOf": [{
-									"type": "string"
-								},
-								{
-									"type": "integer"
-								}
-							]
-						}
-					},
-					"msg": {
-						"title": "Message",
-						"type": "string"
-					},
-					"type": {
-						"title": "Error Type",
-						"type": "string"
-					}
-				}
-			}
-		}
-	}
+    "openapi": "3.0.2",
+    "info": {
+        "title": "FastAPI",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/langchain/run-plugin": {
+            "post": {
+                "tags": [
+                    "langchain"
+                ],
+                "summary": "Run Plugin",
+                "operationId": "run_plugin_api_langchain_run_plugin_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_run_plugin_api_langchain_run_plugin_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/imprompt/run-plugin": {
+            "post": {
+                "tags": [
+                    "imprompt"
+                ],
+                "summary": "Run Plugin",
+                "operationId": "run_plugin_api_imprompt_run_plugin_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_run_plugin_api_imprompt_run_plugin_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_run_plugin_api_imprompt_run_plugin_post": {
+                "title": "Body_run_plugin_api_imprompt_run_plugin_post",
+                "required": [
+                    "messages",
+                    "tool_selector_config",
+                    "plugins",
+                    "config",
+                    "llm"
+                ],
+                "type": "object",
+                "properties": {
+                    "messages": {
+                        "title": "Messages",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    },
+                    "tool_selector_config": {
+                        "$ref": "#/components/schemas/ToolSelectorConfig"
+                    },
+                    "plugins": {
+                        "title": "Plugins",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Plugin"
+                        }
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "llm": {
+                        "$ref": "#/components/schemas/LLM"
+                    }
+                }
+            },
+            "Body_run_plugin_api_langchain_run_plugin_post": {
+                "title": "Body_run_plugin_api_langchain_run_plugin_post",
+                "required": [
+                    "messages",
+                    "tool_selector_config",
+                    "plugins",
+                    "config",
+                    "llm"
+                ],
+                "type": "object",
+                "properties": {
+                    "messages": {
+                        "title": "Messages",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Message"
+                        }
+                    },
+                    "tool_selector_config": {
+                        "$ref": "#/components/schemas/ToolSelectorConfig"
+                    },
+                    "plugins": {
+                        "title": "Plugins",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Plugin"
+                        }
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "llm": {
+                        "$ref": "#/components/schemas/LLM"
+                    }
+                }
+            },
+            "Config": {
+                "title": "Config",
+                "type": "object",
+                "properties": {
+                    "openai_api_key": {
+                        "title": "Openai Api Key",
+                        "type": "string"
+                    }
+                },
+                "description": "Represents the API configuration for a plugin."
+            },
+            "HTTPValidationError": {
+                "title": "HTTPValidationError",
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "title": "Detail",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        }
+                    }
+                }
+            },
+            "LLM": {
+                "title": "LLM",
+                "required": [
+                    "provider",
+                    "model_name"
+                ],
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "$ref": "#/components/schemas/LLMProvider"
+                    },
+                    "model_name": {
+                        "title": "Model Name",
+                        "type": "string"
+                    },
+                    "temperature": {
+                        "title": "Temperature",
+                        "type": "number",
+                        "default": 0.7
+                    },
+                    "max_tokens": {
+                        "title": "Max Tokens",
+                        "type": "integer",
+                        "default": 1024
+                    },
+                    "top_p": {
+                        "title": "Top P",
+                        "type": "number",
+                        "default": 1
+                    },
+                    "frequency_penalty": {
+                        "title": "Frequency Penalty",
+                        "type": "number",
+                        "default": 0
+                    },
+                    "presence_penalty": {
+                        "title": "Presence Penalty",
+                        "type": "number",
+                        "default": 0
+                    },
+                    "n": {
+                        "title": "N",
+                        "type": "number",
+                        "default": 1
+                    },
+                    "best_of": {
+                        "title": "Best Of",
+                        "type": "number",
+                        "default": 1
+                    },
+                    "max_retries": {
+                        "title": "Max Retries",
+                        "type": "integer",
+                        "default": 6
+                    }
+                },
+                "description": "Represents the configuration for an LLM (Language Model) provider."
+            },
+            "LLMProvider": {
+                "title": "LLMProvider",
+                "enum": [
+                    "OpenAI",
+                    "OpenAIChat",
+                    "GooglePalm",
+                    "Cohere"
+                ],
+                "type": "string",
+                "description": "Enumeration for different LLM providers."
+            },
+            "Message": {
+                "title": "Message",
+                "required": [
+                    "content",
+                    "message_type"
+                ],
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "title": "Content",
+                        "type": "string"
+                    },
+                    "message_type": {
+                        "$ref": "#/components/schemas/MessageType"
+                    }
+                },
+                "description": "Represents a prompt to be executed."
+            },
+            "MessageType": {
+                "title": "MessageType",
+                "enum": [
+                    "HumanMessage",
+                    "AIMessage",
+                    "SystemMessage"
+                ],
+                "type": "string",
+                "description": "An enumeration."
+            },
+            "Plugin": {
+                "title": "Plugin",
+                "required": [
+                    "manifest_url"
+                ],
+                "type": "object",
+                "properties": {
+                    "schema_version": {
+                        "title": "Schema Version",
+                        "type": "string"
+                    },
+                    "name_for_model": {
+                        "title": "Name For Model",
+                        "type": "string"
+                    },
+                    "name_for_human": {
+                        "title": "Name For Human",
+                        "type": "string"
+                    },
+                    "description_for_model": {
+                        "title": "Description For Model",
+                        "type": "string"
+                    },
+                    "description_for_human": {
+                        "title": "Description For Human",
+                        "type": "string"
+                    },
+                    "logo_url": {
+                        "title": "Logo Url",
+                        "type": "string"
+                    },
+                    "contact_email": {
+                        "title": "Contact Email",
+                        "type": "string"
+                    },
+                    "legal_info_url": {
+                        "title": "Legal Info Url",
+                        "type": "string"
+                    },
+                    "manifest_url": {
+                        "title": "Manifest Url",
+                        "type": "string"
+                    },
+                    "api": {
+                        "$ref": "#/components/schemas/PluginAPI"
+                    }
+                },
+                "description": "Represents a plugin configuration."
+            },
+            "PluginAPI": {
+                "title": "PluginAPI",
+                "required": [
+                    "type",
+                    "url"
+                ],
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "title": "Type",
+                        "type": "string"
+                    },
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    },
+                    "has_user_authentication": {
+                        "title": "Has User Authentication",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "api_endpoints": {
+                        "title": "Api Endpoints",
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "description": "Represents the API configuration for a plugin."
+            },
+            "ToolSelectorConfig": {
+                "title": "ToolSelectorConfig",
+                "required": [
+                    "provider",
+                    "pipeline_name"
+                ],
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "$ref": "#/components/schemas/ToolSelectorProvider"
+                    },
+                    "pipeline_name": {
+                        "title": "Pipeline Name",
+                        "type": "string"
+                    }
+                },
+                "description": "Represents the configuration for a Tool Selector."
+            },
+            "ToolSelectorProvider": {
+                "title": "ToolSelectorProvider",
+                "enum": [
+                    "Langchain",
+                    "Imprompt"
+                ],
+                "type": "string",
+                "description": "Enumeration for different Tool Selector providers."
+            },
+            "ValidationError": {
+                "title": "ValidationError",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "type": "object",
+                "properties": {
+                    "loc": {
+                        "title": "Location",
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    "msg": {
+                        "title": "Message",
+                        "type": "string"
+                    },
+                    "type": {
+                        "title": "Error Type",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
 }

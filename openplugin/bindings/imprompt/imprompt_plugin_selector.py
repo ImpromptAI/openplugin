@@ -1,7 +1,7 @@
-from typing import List
-import openai, json, re
+from typing import List, Optional, Set
+import openai, json, re, time, os
 from urllib.parse import urlparse, parse_qs
-from interfaces.plugin_selector import MessageType, PluginSelector, PluginOperation, Response, Message, LLM, Plugin, \
+from openplugin import MessageType, PluginSelector, PluginOperation, Response, Message, LLM, Plugin, \
     ToolSelectorConfig, Config, LLMProvider
 
 plugin_prompt = """
@@ -50,20 +50,22 @@ class ImpromptPluginSelector(PluginSelector):
             self,
             tool_selector_config: ToolSelectorConfig,
             plugins: List[Plugin],
-            config: Config,
+            config: Optional[Config],
             llm: LLM
     ):
-        openai.api_key = config.openai_api_key
+        openai.api_key = os.environ["OPENAI_API_KEY"] if config.openai_api_key is None else config.openai_api_key
         self.llm = llm
+        self.total_tokens_used = 0
         pass
 
     def run(self, messages: List[Message]) -> Response:
+        start_test_case_time = time.time()
         plugin_operations = self.get_detected_plugin_with_operations(messages)
         response = Response(
             run_completed=True,
             final_text_response=None,
             detected_plugin_operations=plugin_operations,
-            response_time=0,
+            response_time=round(time.time() - start_test_case_time, 2),
             tokens_used=0,
             llm_api_cost=0
         )

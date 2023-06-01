@@ -9,7 +9,7 @@ class Config(BaseModel):
     """
     Represents the API configuration for a plugin.
     """
-    openai_api_key: str
+    openai_api_key: Optional[str]
 
 
 class PluginAPI(BaseModel):
@@ -39,8 +39,6 @@ class PluginAPI(BaseModel):
 
     def get_openapi_doc(self):
         return requests.get(self.url).json()
-
-
 
 
 class Plugin(BaseModel):

@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter
-from bindings.langchain.langchain_plugin_selector import LangchainPluginSelector
-from interfaces.plugin_selector import Message, LLM, Plugin, ToolSelectorConfig, Config
+from openplugin import LangchainPluginSelector
+from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config
 from fastapi.responses import JSONResponse
 
 router = APIRouter(

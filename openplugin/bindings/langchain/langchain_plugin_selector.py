@@ -8,7 +8,7 @@ from urllib.parse import urlparse, parse_qs
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
 from langchain.agents import load_tools, initialize_agent
-from interfaces.plugin_selector import Config, ToolSelectorConfig, PluginOperation, Plugin, PluginSelector, LLMProvider, \
+from openplugin import Config, ToolSelectorConfig, PluginOperation, Plugin, PluginSelector, LLMProvider, \
     Message, Response, LLM
 
 
@@ -33,7 +33,7 @@ def _get_agent_type(pipeline_name: str) -> AgentType:
 def _get_llm(llm: LLM, api_key: str):
     if llm.provider == LLMProvider.OpenAI:
         if api_key is None:
-            raise ValueError("OpenAI API key is required")
+            api_key = os.environ["OPENAI_API_KEY"]
         os.environ["OPENAI_API_KEY"] = api_key
         llm = OpenAI(
             model_name=llm.model_name,
@@ -48,7 +48,7 @@ def _get_llm(llm: LLM, api_key: str):
         return llm
     elif llm.provider == LLMProvider.OpenAIChat:
         if api_key is None:
-            raise ValueError("OpenAI API key is required")
+            api_key = os.environ["OPENAI_API_KEY"]
         os.environ["OPENAI_API_KEY"] = api_key
         llm = ChatOpenAI(
             model_name=llm.model_name,

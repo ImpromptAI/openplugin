@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from bindings.imprompt.imprompt_plugin_selector import ImpromptPluginSelector
-from interfaces.plugin_selector import LLM, LLMProvider, Config, Message, MessageType, ToolSelectorConfig, \
+from openplugin import ImpromptPluginSelector
+from openplugin import LLM, LLMProvider, Config, Message, MessageType, ToolSelectorConfig, \
     ToolSelectorProvider, Plugin
 
 
@@ -21,7 +21,7 @@ def test_klarna_plugins():
     plugin1 = Plugin(manifest_url="https://www.klarna.com/.well-known/ai-plugin.json")
     plugins = [plugin1]
     # ADD YOU OPENAI API KEY HERE
-    config = Config(openai_api_key=os.environ["OPENAPI_KEY"])
+    config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
     llm = LLM(
         provider=LLMProvider.OpenAIChat,
         model_name="gpt-3.5-turbo",

@@ -90,3 +90,32 @@ For demo purposes only, we’re hosting an instance of the Tool Selector API. To
 
 The service will limit the number of calls you can make. If you’re interested in either having a 3rd party run this as a managed service or being a managed service provider, let us know. 
 
+### Getting started
+
+#### Installation
+To install using pip, run:
+```sh
+pip install openplugin
+```
+You can verify you have openplugin installed by running:
+```sh
+openplugin --help
+```
+
+#### Credentials
+Before you run the application, be sure you have credentials configured.
+```sh
+export OPENAI_API_KEY=<your key> // if you want to use OpenAI LLM
+export COHERE_API_KEY=<your key> // if you wan to use Cohere LLM
+export GOOGLE_APPLICATION_CREDENTIALS=<credential_file_path: /usr/app/application_default_credentials.json> // if you want to use Google LLM
+export PORT=<port: 8006> // if you want to use a different port
+```
+
+#### Usage
+To start the openplugin implementation server, run:
+```sh
+openplugin start-server
+```
+
+OpenAPI Specification(In progress): https://raw.githubusercontent.com/LegendaryAI/openplugin/main/docs/openapi.json
+

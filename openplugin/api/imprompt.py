@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter
-from bindings.imprompt.imprompt_plugin_selector import ImpromptPluginSelector
-from interfaces.plugin_selector import Message, LLM, Plugin, ToolSelectorConfig, Config
+from openplugin import ImpromptPluginSelector
+from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config
 from fastapi.responses import JSONResponse
 
 router = APIRouter(
@@ -17,7 +17,7 @@ def run_plugin(
         messages: List[Message],
         tool_selector_config: ToolSelectorConfig,
         plugins: List[Plugin],
-        config: Config,
+        config: Optional[Config],
         llm: LLM,
 ):
     selector = ImpromptPluginSelector(tool_selector_config, plugins, config, llm)
@@ -27,3 +27,4 @@ def run_plugin(
     except Exception as e:
         print(e)
         return JSONResponse(status_code=500, content={"message": "Failed to run plugin"})
+

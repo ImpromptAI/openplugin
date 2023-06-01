@@ -1,5 +1,5 @@
-from api import langchain
-from api import imprompt
+from openplugin.api import langchain
+from openplugin.api import imprompt
 from fastapi import FastAPI
 from fastapi import APIRouter
 from .http_error import http_error_handler
