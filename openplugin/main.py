@@ -7,6 +7,13 @@ from typing_extensions import Annotated
 app = typer.Typer()
 
 
+@app.callback()
+def callback():
+    """
+    Permutate is an automated testing framework for LLM Plugins.
+    """
+
+
 @app.command()
 def start_server(openai_api_key: Annotated[str, typer.Option(help="OpenAI API Key",
                                                              rich_help_panel="Customization and Utils")] = None):
