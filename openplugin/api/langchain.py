@@ -1,8 +1,10 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from openplugin import LangchainPluginSelector
 from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config
 from fastapi.responses import JSONResponse
+from fastapi.security.api_key import APIKey
+from openplugin.api import auth
 
 router = APIRouter(
     prefix="/langchain",
@@ -19,7 +21,9 @@ def run_plugin(
         plugins: List[Plugin],
         config: Config,
         llm: LLM,
+        api_key: APIKey = Depends(auth.get_api_key)
 ):
+    print(api_key)
     selector = LangchainPluginSelector(tool_selector_config, plugins, config, llm)
     try:
         response = selector.run(messages)

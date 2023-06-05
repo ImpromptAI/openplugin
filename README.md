@@ -119,3 +119,32 @@ openplugin start-server
 
 OpenAPI Specification(In progress): https://raw.githubusercontent.com/LegendaryAI/openplugin/main/docs/openapi.json
 
+#### Docker
+
+Passing environment variables in the startup script:
+
+```sh
+docker run --name [container-name] -p 8006:8006 -e "OPENAI_API_KEY=<your_key>" -e "COHERE_API_KEY=<your_key>" -e "GOOGLE_APPLICATION_CREDENTIALS=<your_key>" -d shrikant14/openplugin:latest
+```
+
+Passing environment variables as a file
+
+```sh
+  nano [env-filename]
+  Add to file
+	  [variable1-name]=[value1]
+	  [variable2-name]=[value2]
+	  [variable3-name]=[value3]
+  docker run --name [container-name] -p 8006:8006 --env-file my_env.env -d shrikant14/openplugin:latest
+```
+
+If you want to pass environment variable as a file, you can use the following command:
+```sh
+nano [env-filename]
+#Add your environment variables in the file
+OPENAI_API_KEY=[value1]
+COHERE_API_KEY=[value2]
+GOOGLE_APPLICATION_CREDENTIALS=[value3]
+  
+docker run --name [container-name] -p 8006:8006 --env-file [path-to-env-file] -d shrikant14/openplugin:latest
+```

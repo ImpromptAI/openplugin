@@ -141,6 +141,5 @@ utils/boardreader/runner.py
 .idea/vcs.xml
 .idea/workspace.xml
 
-Dockerfile
 my_runner.py
-user_pass_keys.txt
+**/*user_pass_keys.env

@@ -1,8 +1,10 @@
 from typing import List, Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from openplugin import ImpromptPluginSelector
 from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config
 from fastapi.responses import JSONResponse
+from fastapi.security.api_key import APIKey
+from openplugin.api import auth
 
 router = APIRouter(
     prefix="/imprompt",
@@ -19,6 +21,7 @@ def run_plugin(
         plugins: List[Plugin],
         config: Optional[Config],
         llm: LLM,
+        api_key: APIKey = Depends(auth.get_api_key)
 ):
     selector = ImpromptPluginSelector(tool_selector_config, plugins, config, llm)
     try:
@@ -27,4 +30,3 @@ def run_plugin(
     except Exception as e:
         print(e)
         return JSONResponse(status_code=500, content={"message": "Failed to run plugin"})
-
