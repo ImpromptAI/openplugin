@@ -1,6 +1,6 @@
 import os
 import time
-from typing import List
+from typing import List, Optional
 from langchain.llms import OpenAI
 from langchain.agents import AgentType
 from langchain.tools import AIPluginTool
@@ -62,6 +62,13 @@ def _get_llm(llm: LLM, api_key: str):
 
 
 class LangchainPluginSelector(PluginSelector):
+    def __init__(
+            self,
+            tool_selector_config: ToolSelectorConfig,
+            plugins: List[Plugin],
+            config: Optional[Config],
+            llm: Optional[LLM]):
+        super().__init__(tool_selector_config, plugins, config, llm)
 
     def initialize_tool_selector(
             self,

@@ -186,7 +186,6 @@ class PluginSelector(ABC):
             config (Optional[Config]): Additional configuration for the plugin selector.
             llm (Optional[LLM]): Additional language model for the plugin selector.
         """
-        self.agent = None
         self.plugins = plugins
         self.initialize_tool_selector(tool_selector_config, plugins, config, llm)
 

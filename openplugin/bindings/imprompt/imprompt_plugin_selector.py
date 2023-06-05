@@ -45,6 +45,15 @@ def _extract_urls(text):
 
 
 class ImpromptPluginSelector(PluginSelector):
+    def __init__(
+            self,
+            tool_selector_config: ToolSelectorConfig,
+            plugins: List[Plugin],
+            config: Optional[Config],
+            llm: Optional[LLM]):
+        super().__init__(tool_selector_config, plugins, config, llm)
+        self.llm = llm
+        self.total_tokens_used = 0
 
     def initialize_tool_selector(
             self,
@@ -54,8 +63,6 @@ class ImpromptPluginSelector(PluginSelector):
             llm: LLM
     ):
         openai.api_key = os.environ["OPENAI_API_KEY"] if config.openai_api_key is None else config.openai_api_key
-        self.llm = llm
-        self.total_tokens_used = 0
         pass
 
     def run(self, messages: List[Message]) -> Response:
@@ -66,7 +73,7 @@ class ImpromptPluginSelector(PluginSelector):
             final_text_response=None,
             detected_plugin_operations=plugin_operations,
             response_time=round(time.time() - start_test_case_time, 2),
-            tokens_used=0,
+            tokens_used=self.total_tokens_used,
             llm_api_cost=0
         )
         return response
@@ -170,6 +177,7 @@ class ImpromptPluginSelector(PluginSelector):
             frequency_penalty=self.llm.frequency_penalty,
             presence_penalty=self.llm.presence_penalty
         )
+        self.add_to_tokens(response.get("usage").get("total_tokens"))
         return {
             "response": response.get("choices")[0].get("message").get("content"),
             "usage": response.get("usage")
@@ -185,7 +193,12 @@ class ImpromptPluginSelector(PluginSelector):
             frequency_penalty=self.llm.frequency_penalty,
             presence_penalty=self.llm.presence_penalty
         )
+        self.add_to_tokens(response.get("usage").get("total_tokens"))
         return {
             "response": response.get("choices")[0].get("text"),
             "usage": response.get("usage")
         }
+
+    def add_to_tokens(self, tokens):
+        if tokens:
+            self.total_tokens_used += tokens
