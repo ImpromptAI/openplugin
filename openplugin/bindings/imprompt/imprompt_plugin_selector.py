@@ -1,7 +1,8 @@
 from typing import List, Optional, Set
 import openai, json, re, time, os
 from urllib.parse import urlparse, parse_qs
-from openplugin import MessageType, PluginSelector, PluginOperation, Response, Message, LLM, Plugin, \
+from openplugin import MessageType, PluginSelector, PluginOperation, Response, Message, \
+    LLM, Plugin, \
     ToolSelectorConfig, Config, LLMProvider
 
 plugin_prompt = """
@@ -39,7 +40,8 @@ The instructions are: {prompt}
 
 
 def _extract_urls(text):
-    url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    url_pattern = re.compile(
+        r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
     urls = re.findall(url_pattern, text)
     return urls
 
@@ -62,7 +64,8 @@ class ImpromptPluginSelector(PluginSelector):
             config: Optional[Config],
             llm: LLM
     ):
-        openai.api_key = os.environ["OPENAI_API_KEY"] if config.openai_api_key is None else config.openai_api_key
+        openai.api_key = os.environ[
+            "OPENAI_API_KEY"] if config.openai_api_key is None else config.openai_api_key
         pass
 
     def run(self, messages: List[Message]) -> Response:
@@ -78,7 +81,8 @@ class ImpromptPluginSelector(PluginSelector):
         )
         return response
 
-    def get_detected_plugin_with_operations(self, messages: List[Message]) -> List[PluginOperation]:
+    def get_detected_plugin_with_operations(self, messages: List[Message]) -> List[
+        PluginOperation]:
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
@@ -95,7 +99,7 @@ class ImpromptPluginSelector(PluginSelector):
             plugin_info_prompts.append(plugin_info_prompt)
         plugin_detection_prompt = plugin_identify_prompt.format(
             all_plugin_info_prompt="".join(plugin_info_prompts),
-            all_plugin_names="".join(plugin_names),
+            all_plugin_names=", ".join(plugin_names),
             prompt=prompt
         )
         response = self.run_llm_prompt(plugin_detection_prompt)
@@ -106,9 +110,14 @@ class ImpromptPluginSelector(PluginSelector):
                     if len(val.strip()) > 0:
                         if "-" in val:
                             val = val.split("-")[0].strip()
-                        found_plugins.append(self.get_plugin_by_name(val.strip()))
+                        if ',' in val:
+                            for v in val.split(','):
+                                found_plugins.append(
+                                    self.get_plugin_by_name(v.strip()))
+                        else:
+                            found_plugins.append(self.get_plugin_by_name(val.strip()))
         detected_plugins = []
-        for plugin in self.plugins:
+        for plugin in found_plugins:
             openapi_spec_json = plugin.api.get_openapi_doc()
             formatted_plugin_operation_prompt = plugin_operation_prompt.format(
                 name_for_model=plugin.name_for_model,
@@ -125,8 +134,9 @@ class ImpromptPluginSelector(PluginSelector):
                 if formatted_url in plugin.api.api_endpoints:
                     api_called = formatted_url
                     query_dict = parse_qs(urlparse(url).query)
-                    mapped_operation_parameters = {k: v[0] if type(v) == list and len(v) == 1 else v for k, v in
-                                                   query_dict.items()}
+                    mapped_operation_parameters = {
+                        k: v[0] if type(v) == list and len(v) == 1 else v for k, v in
+                        query_dict.items()}
                     break
             detected_plugins.append(PluginOperation(
                 plugin=plugin,
