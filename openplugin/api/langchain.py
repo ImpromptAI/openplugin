@@ -23,7 +23,6 @@ def run_plugin(
         llm: LLM,
         api_key: APIKey = Depends(auth.get_api_key)
 ):
-    print(api_key)
     selector = LangchainPluginSelector(tool_selector_config, plugins, config, llm)
     try:
         response = selector.run(messages)

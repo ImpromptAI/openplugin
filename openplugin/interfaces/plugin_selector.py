@@ -114,7 +114,7 @@ class LLM(BaseModel):
         is_correct_model_name = False
         if values['provider'] == LLMProvider.OpenAI and model_name in ["text-davinci-003"]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.OpenAIChat and model_name in ["gpt-3.5-turbo"]:
+        if values['provider'] == LLMProvider.OpenAIChat and model_name in ["gpt-3.5-turbo", "gpt-4"]:
             is_correct_model_name = True
         if values['provider'] == LLMProvider.GooglePalm and model_name in ["models/text-bison-001"]:
             is_correct_model_name = True
@@ -186,7 +186,6 @@ class PluginSelector(ABC):
             config (Optional[Config]): Additional configuration for the plugin selector.
             llm (Optional[LLM]): Additional language model for the plugin selector.
         """
-        self.agent = None
         self.plugins = plugins
         self.initialize_tool_selector(tool_selector_config, plugins, config, llm)
 

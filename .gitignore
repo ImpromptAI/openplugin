@@ -143,3 +143,5 @@ utils/boardreader/runner.py
 
 my_runner.py
 **/*user_pass_keys.env
+run_langchain.py
+start_api_server.py

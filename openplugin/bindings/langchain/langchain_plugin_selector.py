@@ -1,6 +1,6 @@
-import os
+import os, re
 import time
-from typing import List
+from typing import List, Optional
 from langchain.llms import OpenAI
 from langchain.agents import AgentType
 from langchain.tools import AIPluginTool
@@ -8,8 +8,8 @@ from urllib.parse import urlparse, parse_qs
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
 from langchain.agents import load_tools, initialize_agent
-from openplugin import Config, ToolSelectorConfig, PluginOperation, Plugin, PluginSelector, LLMProvider, \
-    Message, Response, LLM
+from openplugin import Config, ToolSelectorConfig, PluginOperation, Plugin, \
+    PluginSelector, LLMProvider, Message, Response, LLM
 
 
 def _get_agent_type(pipeline_name: str) -> AgentType:
@@ -62,6 +62,13 @@ def _get_llm(llm: LLM, api_key: str):
 
 
 class LangchainPluginSelector(PluginSelector):
+    def __init__(
+            self,
+            tool_selector_config: ToolSelectorConfig,
+            plugins: List[Plugin],
+            config: Optional[Config],
+            llm: Optional[LLM]):
+        super().__init__(tool_selector_config, plugins, config, llm)
 
     def initialize_tool_selector(
             self,
@@ -88,34 +95,63 @@ class LangchainPluginSelector(PluginSelector):
         with get_openai_callback() as cb:
             start_test_case_time = time.time()
             message = messages[-1]
-            response = self.agent(message.content)
-            response_prompt = response['output']
-
             detected_plugin_operations = []
-            for step in response["intermediate_steps"]:
-                detected_plugin = self.get_plugin_by_name(step[0].tool)
-                if detected_plugin:
-                    plugin_operation = PluginOperation(plugin=detected_plugin)
-                    detected_plugin_operations.append(plugin_operation)
+            response_prompt = None
+            try:
+                response = self.agent(message.content)
+                response_prompt = response['output']
 
-            for step in response["intermediate_steps"]:
-                if step[0].tool_input:
-                    url = step[0].tool_input
-                    if url.startswith("'"):
-                        url = url[1:-1]
-                    if url.endswith("'"):
-                        url = url[:-1]
-                    if url.lower() != "none":
-                        api = url.split('?')[0].strip()
+                for step in response["intermediate_steps"]:
+                    detected_plugin = self.get_plugin_by_name(step[0].tool)
+                    if detected_plugin:
+                        plugin_operation = PluginOperation(plugin=detected_plugin)
+                        detected_plugin_operations.append(plugin_operation)
+
+                for step in response["intermediate_steps"]:
+                    if step[0].tool_input:
+                        url = step[0].tool_input
+                        if url.startswith("'"):
+                            url = url[1:-1]
+                        if url.endswith("'"):
+                            url = url[:-1]
+                        if url.lower() != "none":
+                            api = url.split('?')[0].strip()
+                            parsed_url = urlparse(url)
+                            query_dict = parse_qs(parsed_url.query)
+                            extracted_params = {
+                                k: v[0] if type(v) == list and len(v) == 1 else v for
+                                k, v in
+                                query_dict.items()}
+                            for detected_plugin_operation in detected_plugin_operations:
+                                if detected_plugin_operation.plugin.has_api_endpoint(
+                                        api):
+                                    detected_plugin_operation.api_called = api
+                                    detected_plugin_operation.mapped_operation_parameters = extracted_params
+            except Exception as e:
+                #TODO: handle this better, use callback
+                response = str(e)
+                for line in response.splitlines():
+                    if line.strip().startswith(
+                            "Action") and not line.strip().startswith("Action Input"):
+                        plugin = line.split(":")[1].strip()
+                        detected_plugin = self.get_plugin_by_name(plugin)
+                        if detected_plugin:
+                            plugin_operation = PluginOperation(plugin=detected_plugin)
+                            detected_plugin_operations.append(plugin_operation)
+                matches = re.findall(r'"([^"]*)"', response)
+                for url in matches:
+                    if url.startswith("http"):
                         parsed_url = urlparse(url)
                         query_dict = parse_qs(parsed_url.query)
-                        extracted_params = {k: v[0] if type(v) == list and len(v) == 1 else v for k, v in
-                                            query_dict.items()}
+                        extracted_params = {
+                            k: v[0] if type(v) == list and len(v) == 1 else v for
+                            k, v in
+                            query_dict.items()}
                         for detected_plugin_operation in detected_plugin_operations:
-                            if detected_plugin_operation.plugin.has_api_endpoint(api):
+                            if detected_plugin_operation.plugin.has_api_endpoint(
+                                    api):
                                 detected_plugin_operation.api_called = api
                                 detected_plugin_operation.mapped_operation_parameters = extracted_params
-
             response_obj = Response(
                 run_completed=True,
                 final_text_response=response_prompt,
