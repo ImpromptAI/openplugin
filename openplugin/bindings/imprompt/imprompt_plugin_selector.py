@@ -117,7 +117,14 @@ class ImpromptPluginSelector(PluginSelector):
                         else:
                             found_plugins.append(self.get_plugin_by_name(val.strip()))
         detected_plugins = []
+
         for plugin in found_plugins:
+            if plugin is None:
+                continue
+            api_called = None
+            mapped_operation_parameters = None
+            '''
+            #TODO Find a better way to find the API called
             openapi_spec_json = plugin.api.get_openapi_doc()
             formatted_plugin_operation_prompt = plugin_operation_prompt.format(
                 name_for_model=plugin.name_for_model,
@@ -127,8 +134,6 @@ class ImpromptPluginSelector(PluginSelector):
             )
             response = self.run_llm_prompt(formatted_plugin_operation_prompt)
             urls = _extract_urls(response.get('response'))
-            api_called = None
-            mapped_operation_parameters = None
             for url in urls:
                 formatted_url = url.split("?")[0].strip()
                 if formatted_url in plugin.api.api_endpoints:
@@ -138,11 +143,13 @@ class ImpromptPluginSelector(PluginSelector):
                         k: v[0] if type(v) == list and len(v) == 1 else v for k, v in
                         query_dict.items()}
                     break
+            '''
             detected_plugins.append(PluginOperation(
                 plugin=plugin,
                 api_called=api_called,
                 mapped_operation_parameters=mapped_operation_parameters
             ))
+
         return detected_plugins
 
     def run_llm_prompt(self, prompt):
