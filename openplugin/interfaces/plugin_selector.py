@@ -72,6 +72,114 @@ class Plugin(BaseModel):
         return False
 
 
+class FunctionProperty(BaseModel):
+    name: str
+    type: str
+    description: Optional[str]
+    enum: Optional[List[str]]
+    is_required: bool = False
+
+
+class API(BaseModel):
+    url: str
+    method: str
+
+
+class Function(BaseModel):
+    name: Optional[str]
+    api: Optional[API]
+    description: Optional[str]
+    param_type: Optional[str]
+    param_properties: Optional[List[FunctionProperty]]
+
+    def get_required_properties(self):
+        return [param_property.name for param_property in self.param_properties if
+                param_property.is_required]
+
+    def get_property_map(self):
+        map = {}
+        for param_property in self.param_properties:
+            obj = {
+                "type": param_property.type,
+                "description": param_property.description,
+            }
+            if param_property.enum:
+                obj["enum"] = param_property.enum
+            map[param_property.name] = obj
+        return map
+
+    def get_openai_function_json(self):
+        json = {
+            "name": self.name,
+            "description": self.description,
+            "parameters": {
+                "type": self.param_type,
+                "properties": self.get_property_map(),
+                "required": self.get_required_properties()
+            }
+        }
+        return json
+
+
+class Functions(BaseModel):
+    functions: List[Function] = []
+    plugin_map: dict = {}
+    function_map: dict = {}
+
+    def get_json(self):
+        json = []
+        for function in self.functions:
+            json.append(function.get_openai_function_json())
+        return json
+
+    def get_plugin_from_func_name(self, function_name):
+        return self.plugin_map.get(function_name)
+
+    def get_function_from_func_name(self, function_name):
+        return self.function_map.get(function_name)
+
+    def add_from_plugin(self, plugin: Plugin):
+        self.add_from_manifest(plugin.manifest_url, plugin)
+
+    def add_from_manifest(self, manifest_url: str, plugin: Plugin = None):
+        manifest_obj = requests.get(manifest_url).json()
+        open_api_spec_url = manifest_obj.get("api").get("url")
+        self.add_from_openapi_spec(open_api_spec_url, plugin=plugin)
+
+    def add_from_openapi_spec(self, open_api_spec_url: str, plugin: Plugin = None):
+        openapi_doc_json = requests.get(open_api_spec_url).json()
+        if openapi_doc_json is None:
+            return ValueError("Could not get OpenAPI spec from URL")
+        server_url = openapi_doc_json.get("servers")[0].get("url")
+        api_endpoints = []
+        paths = openapi_doc_json.get("paths")
+        functions = []
+        for path in paths:
+            api_endpoints.append(f"{server_url}{path}")
+            for method in paths[path]:
+                details = paths[path][method]
+                function_values = {}
+                function_values["api"] = API(url=f"{server_url}{path}", method=method)
+                function_values["name"] = f"{method}{path.replace('/', '_')}"
+                function_values["description"] = details.get("summary")
+                function_values["param_type"] = "object"
+                properties = []
+                for param in details.get("parameters"):
+                    properties_values = {}
+                    properties_values["name"] = param.get("name")
+                    properties_values["type"] = param.get("schema").get("type")
+                    properties_values["description"] = param.get("description")
+                    properties_values["is_required"] = param.get("required")
+                    properties.append(FunctionProperty(**properties_values))
+                function_values["param_properties"] = properties
+                func = Function(**function_values)
+                if plugin:
+                    self.plugin_map[func.name] = plugin
+                self.function_map[func.name] = func
+                functions.append(func)
+        self.functions.extend(functions)
+
+
 class PluginOperation(BaseModel):
     """
     Represents the result of a plugin operation.
@@ -112,16 +220,21 @@ class LLM(BaseModel):
     @validator("model_name")
     def _chk_model_name(cls, model_name: str, values, **kwargs) -> str:
         is_correct_model_name = False
-        if values['provider'] == LLMProvider.OpenAI and model_name in ["text-davinci-003"]:
+        if values['provider'] == LLMProvider.OpenAI and model_name in [
+            "text-davinci-003"]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.OpenAIChat and model_name in ["gpt-3.5-turbo", "gpt-4"]:
+        if values['provider'] == LLMProvider.OpenAIChat and model_name in [
+            "gpt-3.5-turbo", "gpt-3.5-turbo-0613", "gpt-4-0613" "gpt-4"]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.GooglePalm and model_name in ["models/text-bison-001"]:
+        if values['provider'] == LLMProvider.GooglePalm and model_name in [
+            "models/text-bison-001"]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.Cohere and model_name in ["models/text-bison-001"]:
+        if values['provider'] == LLMProvider.Cohere and model_name in [
+            "models/text-bison-001"]:
             is_correct_model_name = True
         if not is_correct_model_name:
-            raise ValueError(f"model_name {model_name} not supported for provider {values['provider']}")
+            raise ValueError(
+                f"model_name {model_name} not supported for provider {values['provider']}")
         return model_name
 
 
@@ -132,6 +245,7 @@ class ToolSelectorProvider(str, Enum):
 
     Langchain = "Langchain"
     Imprompt = "Imprompt"
+    OpenAI = "OpenAI"
 
 
 class ToolSelectorConfig(BaseModel):
@@ -158,6 +272,7 @@ class MessageType(str, Enum):
     HumanMessage = "HumanMessage"
     AIMessage = "AIMessage"
     SystemMessage = "SystemMessage"
+    FunctionMessage = "FunctionMessage"
 
 
 class Message(BaseModel):
@@ -166,6 +281,14 @@ class Message(BaseModel):
     """
     content: str
     message_type: MessageType
+
+    def get_openai_message(self):
+        if self.message_type == MessageType.HumanMessage:
+            return {"role": "user", "content": self.content}
+        elif self.message_type == MessageType.AIMessage:
+            return {"role": "assistant", "content": self.content}
+        elif self.message_type == MessageType.SystemMessage:
+            return {"role": "system", "content": self.content}
 
 
 class PluginSelector(ABC):
@@ -187,6 +310,7 @@ class PluginSelector(ABC):
             llm (Optional[LLM]): Additional language model for the plugin selector.
         """
         self.plugins = plugins
+        self.llm = llm
         self.initialize_tool_selector(tool_selector_config, plugins, config, llm)
 
     def get_plugin_by_name(self, name: str):
