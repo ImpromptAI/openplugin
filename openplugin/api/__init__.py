@@ -1,4 +1,5 @@
 from openplugin.api import langchain
+from openplugin.api import openai
 from openplugin.api import imprompt
 from fastapi import FastAPI
 from fastapi import APIRouter
@@ -15,6 +16,7 @@ def create_app() -> FastAPI:
     router = APIRouter()
     router.include_router(langchain.router)
     router.include_router(imprompt.router)
+    router.include_router(openai.router)
     app.include_router(router, prefix=API_PREFIX)
 
     app.add_exception_handler(HTTPException, http_error_handler)
