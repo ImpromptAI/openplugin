@@ -84,6 +84,15 @@ class API(BaseModel):
     url: str
     method: str
 
+    def call(self, params):
+        if self.method.lower() == "get":
+            response = requests.request(self.method.upper(), self.url, params=params,
+                                        headers={})
+        else:
+            response = requests.request(self.method.upper(), self.url, data=params,
+                                        headers={})
+        return response.json()
+
 
 class Function(BaseModel):
     name: Optional[str]
@@ -91,6 +100,12 @@ class Function(BaseModel):
     description: Optional[str]
     param_type: Optional[str]
     param_properties: Optional[List[FunctionProperty]]
+
+    def get_api_url(self):
+        return self.api.url
+
+    def call_api(self, params):
+        return self.api.call(params)
 
     def get_required_properties(self):
         return [param_property.name for param_property in self.param_properties if
