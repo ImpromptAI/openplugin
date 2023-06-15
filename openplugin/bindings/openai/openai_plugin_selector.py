@@ -52,9 +52,8 @@ class OpenAIPluginSelector(PluginSelector):
                 model=self.llm.model_name,
                 messages=f_messages,
                 functions=function_json,
-                function_call="auto",
+                function_call="auto"
             )
-            print(response)
             message = response["choices"][0]["message"]
             if message.get("function_call"):
                 is_a_function_call = True
@@ -69,7 +68,8 @@ class OpenAIPluginSelector(PluginSelector):
                 )
                 detected_plugin_operations.append(plugin_operation)
                 f_messages.append(message)
-                function_response = str(detected_function.call_api(arguments))
+                # function_response = str(detected_function.call_api(arguments))
+                function_response = f"This is a response from function {function_name}"
                 f_messages.append({
                     "role": "function",
                     "name": function_name,
