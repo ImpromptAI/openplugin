@@ -108,7 +108,7 @@ Before you run the application, be sure you have credentials configured.
 export OPENAI_API_KEY=<your key> // if you want to use OpenAI LLM
 export COHERE_API_KEY=<your key> // if you wan to use Cohere LLM
 export GOOGLE_APPLICATION_CREDENTIALS=<credential_file_path: /usr/app/application_default_credentials.json> // if you want to use Google LLM
-export PORT=<port: 8006> // if you want to use a different port
+export PORT=<port: 8012> // if you want to use a different port
 ```
 
 #### Usage
@@ -124,7 +124,7 @@ OpenAPI Specification(In progress): https://raw.githubusercontent.com/LegendaryA
 Passing environment variables in the startup script:
 
 ```sh
-docker run --name [container-name] -p 8006:8006 -e "OPENAI_API_KEY=<your_key>" -e "COHERE_API_KEY=<your_key>" -e "GOOGLE_APPLICATION_CREDENTIALS=<your_key>" -d shrikant14/openplugin:latest
+docker run --name [container-name] -p 8012:8012 -e "OPENAI_API_KEY=<your_key>" -e "COHERE_API_KEY=<your_key>" -e "GOOGLE_APPLICATION_CREDENTIALS=<your_key>" -d shrikant14/openplugin:latest
 ```
 
 Passing environment variables as a file
@@ -135,7 +135,7 @@ Passing environment variables as a file
 	  [variable1-name]=[value1]
 	  [variable2-name]=[value2]
 	  [variable3-name]=[value3]
-  docker run --name [container-name] -p 8006:8006 --env-file my_env.env -d shrikant14/openplugin:latest
+  docker run --name [container-name] -p 8012:8012 --env-file my_env.env -d shrikant14/openplugin:latest
 ```
 
 If you want to pass environment variable as a file, you can use the following command:
@@ -146,5 +146,5 @@ OPENAI_API_KEY=[value1]
 COHERE_API_KEY=[value2]
 GOOGLE_APPLICATION_CREDENTIALS=[value3]
   
-docker run --name [container-name] -p 8006:8006 --env-file [path-to-env-file] -d shrikant14/openplugin:latest
+docker run --name [container-name] -p 8012:8012 --env-file [path-to-env-file] -d shrikant14/openplugin:latest
 ```

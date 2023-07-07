@@ -29,4 +29,4 @@ def start_server(openai_api_key: Annotated[str, typer.Option(help="OpenAI API Ke
         os.environ["OPENAI_API_KEY"] = openai_api_key
 
     from openplugin.api import app
-    uvicorn.run(app, host=os.environ.get('HOST', '0.0.0.0'), port=int(os.environ.get('PORT', 8006)))
+    uvicorn.run(app, host=os.environ.get('HOST', '0.0.0.0'), port=int(os.environ.get('PORT', 8012)))

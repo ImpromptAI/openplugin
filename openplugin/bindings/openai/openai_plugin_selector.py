@@ -46,7 +46,6 @@ class OpenAIPluginSelector(PluginSelector):
         total_tokens = 0
         detected_plugin_operations = []
         while is_a_function_call and count < 5:
-            print(f"###### RUN: {count}")
             count += 1
             response = openai.ChatCompletion.create(
                 model=self.llm.model_name,
