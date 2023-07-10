@@ -6,6 +6,7 @@ from fastapi import APIRouter
 from .http_error import http_error_handler
 from starlette.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from openplugin.api import genric_selector
 
 API_PREFIX = "/api"
 
@@ -17,6 +18,7 @@ def create_app() -> FastAPI:
     router.include_router(langchain.router)
     router.include_router(imprompt.router)
     router.include_router(openai.router)
+    router.include_router(genric_selector.router)
     app.include_router(router, prefix=API_PREFIX)
 
     app.add_exception_handler(HTTPException, http_error_handler)

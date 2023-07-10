@@ -45,40 +45,40 @@ class OpenAIPluginSelector(PluginSelector):
         final_text_response = None
         total_tokens = 0
         detected_plugin_operations = []
-        while is_a_function_call and count < 5:
-            count += 1
-            response = openai.ChatCompletion.create(
-                model=self.llm.model_name,
-                messages=f_messages,
-                functions=function_json,
-                function_call="auto"
+        #while is_a_function_call and count < 5:
+        count += 1
+        response = openai.ChatCompletion.create(
+            model=self.llm.model_name,
+            messages=f_messages,
+            functions=function_json,
+            function_call="auto"
+        )
+        message = response["choices"][0]["message"]
+        if message.get("function_call"):
+            is_a_function_call = True
+            function_name = message["function_call"]["name"]
+            detected_plugin = functions.get_plugin_from_func_name(function_name)
+            detected_function = functions.get_function_from_func_name(function_name)
+            arguments = json.loads(message["function_call"]["arguments"])
+            plugin_operation = PluginOperation(
+                plugin=detected_plugin,
+                api_called=detected_function.get_api_url(),
+                mapped_operation_parameters=arguments
             )
-            message = response["choices"][0]["message"]
-            if message.get("function_call"):
-                is_a_function_call = True
-                function_name = message["function_call"]["name"]
-                detected_plugin = functions.get_plugin_from_func_name(function_name)
-                detected_function = functions.get_function_from_func_name(function_name)
-                arguments = json.loads(message["function_call"]["arguments"])
-                plugin_operation = PluginOperation(
-                    plugin=detected_plugin,
-                    api_called=detected_function.get_api_url(),
-                    mapped_operation_parameters=arguments
-                )
-                detected_plugin_operations.append(plugin_operation)
-                f_messages.append(message)
-                # function_response = str(detected_function.call_api(arguments))
-                function_response = f"This is a response from function {function_name}"
-                f_messages.append({
-                    "role": "function",
-                    "name": function_name,
-                    "content": function_response,
-                })
-            else:
-                is_a_function_call = False
-                final_text_response = response.get("choices")[0].get("message").get(
-                    "content")
-            total_tokens += response.get("usage").get("total_tokens")
+            detected_plugin_operations.append(plugin_operation)
+            f_messages.append(message)
+            # function_response = str(detected_function.call_api(arguments))
+            function_response = f"This is a response from function {function_name}"
+            f_messages.append({
+                "role": "function",
+                "name": function_name,
+                "content": function_response,
+            })
+        else:
+            is_a_function_call = False
+            final_text_response = response.get("choices")[0].get("message").get(
+                "content")
+        total_tokens += response.get("usage").get("total_tokens")
 
         response_obj = Response(
             run_completed=True,
