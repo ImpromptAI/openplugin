@@ -152,6 +152,8 @@ docker run --name [container-name] -p 8012:8012 --env-file [path-to-env-file] -d
 
 Hosted API Spec: https://api.imprompt.ai/openplugin/api/openapi.json
 
+Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
+
 Example
 ```sh
 API Endpoint: https://api.imprompt.ai/openplugin/api/run-plugin

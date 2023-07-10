@@ -12,7 +12,7 @@ API_PREFIX = "/api"
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(openapi_url=f"{API_PREFIX}/openapi.json")
+    app = FastAPI(openapi_url=f"{API_PREFIX}/openapi.json", docs_url=f"{API_PREFIX}/docs")
     # add routes
     router = APIRouter()
     # router.include_router(langchain.router)
