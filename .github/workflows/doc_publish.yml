@@ -1,4 +1,4 @@
-name: Publish Docs
+name: publish-docs
 on: [workflow_dispatch]
 permissions:
     contents: write
@@ -20,7 +20,7 @@ jobs:
           cache: "poetry"
       - name: Install dependencies
         shell: bash
-        run: poetry install --with=doc
+        run: poetry install --with=docs
       - name: Sphinx build
         shell: bash
         run: |
