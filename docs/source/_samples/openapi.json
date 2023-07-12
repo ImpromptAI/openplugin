@@ -5,18 +5,15 @@
         "version": "0.1.0"
     },
     "paths": {
-        "/api/langchain/run-plugin": {
+        "/api/run-plugin": {
             "post": {
-                "tags": [
-                    "langchain"
-                ],
                 "summary": "Run Plugin",
-                "operationId": "run_plugin_api_langchain_run_plugin_post",
+                "operationId": "run_plugin_api_run_plugin_post",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Body_run_plugin_api_langchain_run_plugin_post"
+                                "$ref": "#/components/schemas/Body_run_plugin_api_run_plugin_post"
                             }
                         }
                     },
@@ -44,92 +41,19 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "/api/imprompt/run-plugin": {
-            "post": {
-                "tags": [
-                    "imprompt"
-                ],
-                "summary": "Run Plugin",
-                "operationId": "run_plugin_api_imprompt_run_plugin_post",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Body_run_plugin_api_imprompt_run_plugin_post"
-                            }
-                        }
-                    },
-                    "required": true
                 },
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not found"
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
-                                }
-                            }
-                        }
+                "security": [
+                    {
+                        "APIKeyHeader": []
                     }
-                }
+                ]
             }
         }
     },
     "components": {
         "schemas": {
-            "Body_run_plugin_api_imprompt_run_plugin_post": {
-                "title": "Body_run_plugin_api_imprompt_run_plugin_post",
-                "required": [
-                    "messages",
-                    "tool_selector_config",
-                    "plugins",
-                    "config",
-                    "llm"
-                ],
-                "type": "object",
-                "properties": {
-                    "messages": {
-                        "title": "Messages",
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Message"
-                        }
-                    },
-                    "tool_selector_config": {
-                        "$ref": "#/components/schemas/ToolSelectorConfig"
-                    },
-                    "plugins": {
-                        "title": "Plugins",
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Plugin"
-                        }
-                    },
-                    "config": {
-                        "$ref": "#/components/schemas/Config"
-                    },
-                    "llm": {
-                        "$ref": "#/components/schemas/LLM"
-                    }
-                }
-            },
-            "Body_run_plugin_api_langchain_run_plugin_post": {
-                "title": "Body_run_plugin_api_langchain_run_plugin_post",
+            "Body_run_plugin_api_run_plugin_post": {
+                "title": "Body_run_plugin_api_run_plugin_post",
                 "required": [
                     "messages",
                     "tool_selector_config",
@@ -280,7 +204,8 @@
                 "enum": [
                     "HumanMessage",
                     "AIMessage",
-                    "SystemMessage"
+                    "SystemMessage",
+                    "FunctionMessage"
                 ],
                 "type": "string",
                 "description": "An enumeration."
@@ -388,7 +313,8 @@
                 "title": "ToolSelectorProvider",
                 "enum": [
                     "Langchain",
-                    "Imprompt"
+                    "Imprompt",
+                    "OpenAI"
                 ],
                 "type": "string",
                 "description": "Enumeration for different Tool Selector providers."
@@ -425,6 +351,13 @@
                         "type": "string"
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "APIKeyHeader": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-api-key"
             }
         }
     }

@@ -182,6 +182,31 @@ Body: {
 }
 ```
 
+```bash
+curl -X POST \
+  -H 'x-api-key: your-api-key' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "messages": [{
+        "content":"Show me 5 t shirts?",
+        "message_type":"HumanMessage"
+    }],
+    "tool_selector_config": {
+        "provider":"OpenAI",
+        "pipeline_name":"default"
+    },
+    "plugins": [{
+        "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
+    }],
+    "config": {},
+    "llm": {
+        "provider":"OpenAIChat",
+        "model_name":"gpt-3.5-turbo-0613"
+    }
+}' \
+  https://api.imprompt.ai/openplugin/api/run-plugin
+```
+
 #### API Body Parameters
 
 Represents the request body for running the plugin.
@@ -221,6 +246,9 @@ Represents the configuration for a Tool Selector.
 
 
 An enumeration for different Tool Selector providers= [ Langchain, Imprompt, OpenAI]
+1. OpenAI: OpenAI is a tool selector that uses OpenAI functions to select the best tool for the given prompt messages.
+2. Langchain: Langchain is a tool selector that uses Langchain Agent to select the best tool for the given message.
+3. Imprompt: Imprompt is a tool selector that uses a custom prompt with LLM to select the best tool for the given message.
 
 **Plugin**
 
@@ -282,3 +310,190 @@ Represents the configuration for an LLM (Language Model) provider.
 **LLMProvider**
 
 An enumeration for different LLM providers. [OpenAI, OpenAIChat, GooglePalm, Cohere]
+
+
+## For Plugin Developers
+#### Overview
+The OpenPlugin Approach
+
+
+
+**Openplugin Manifest**
+
+Openplugin Manifest contains information about the plugin and the links to the OpenAPI doc and Operation details file.
+
+Sample Openplugin Manifest
+```commandline
+schema_version: v1
+name: Klarna Shopping
+description: Search and compare prices from thousands of online shops. Only
+  available in the US.
+openapi_doc_url: https://www.klarna.com/us/shopping/public/openai/v0/api-docs/
+llm_operation_details: https://www.klarna.com/us/shopping/public/openai/v0/api-docs/
+auth:
+  type: none
+logo_url: https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg
+contact_email: openai-products@klarna.com
+legal_info_url: https://www.klarna.com/us/legal/
+```
+
+**Openplugin API Doc**
+
+This is openapi spec document for the plugin. 
+
+This is created when you generate a plugin from a bigger openapi doc.
+
+If you have 100 operations in your openapi doc, you can create 10 plugins from it.
+Each plugin will have 10 operations.
+
+You can modify the openapi doc to create a plugin with the operations you want.
+This is exactly like OPENAPI spec document but with following fields.
+
+1. info
+2. servers
+3. tags
+4. paths
+5. components
+```commandline
+info:
+  version: v0
+  title: Open AI Klarna product Api
+servers:
+- url: https://www.klarna.com/us/shopping
+tags:
+- name: open-ai-product-endpoint
+  description: Open AI Product Endpoint. Query for products.
+paths:
+  "/public/openai/v0/products":
+    get:
+      tags:
+      - open-ai-product-endpoint
+      summary: API for fetching Klarna product information
+      operationId: productsUsingGET
+      parameters:
+      - name: countryCode
+        in: query
+        description: ISO 3166 country code with 2 characters based on the user location.
+          Currently, only US, GB, DE, SE and DK are supported.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Products found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProductResponse"
+        '503':
+          description: one or more services are unavailable
+      deprecated: false
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        attributes:
+          type: array
+          items:
+            type: string
+      title: Product
+
+```
+
+**LLM Operations Details**
+
+We create a new operation details file from the OpenAPI specification document.
+
+The user can attach extra details to each operation so that LLM can generate better predictions.
+
+The operation details file is a JSON file that contains the following fields:
+
+
+```commandline
+version: 1
+operations:
+  "/api/plugin/file-manager/save-in-s3-file":
+    post:
+      extended_description: Save text to s3
+      examples:
+        'Save my article on LLM to s3: LLM stands for Large Language Models.':
+          mapped_title: Article on LLM
+          mapped_content: LLM stands for Large Language Models.
+          response: "{'status': 'success'}"
+          status: 200
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Body_create_docs_api_plugin_file_manager_save_in_s3_file_post"
+schemas:
+  Body_create_docs_api_plugin_file_manager_save_in_s3_file_post:
+    title: Body_create_docs_api_plugin_file_manager_save_in_s3_file_post
+    type: object
+    properties:
+      title:
+        extended_description: ''
+        sample_values:
+            - 'a'
+            - 'b'
+        examples:
+            prompt:"Save my article on Generative AI"
+            value: GenerativeAI
+      content:
+        extended_description: ''
+        sample_values:
+            - 'c'
+            - 'd'
+```
+
+LLM Operation Details contains following fields:
+
+| Field        | Type         | Description                                    |
+| ------------ | ------------ | ---------------------------------------------- |
+| version      | string       | The version of the operation details.          |
+| openplugin_api_doc | string  | The URL of the OpenAPI specification document. |
+| operations   | object       | The list of operations.                        |
+| schemas      | object       | The list of schemas.                           |
+    
+**Operation**
+
+Represents an operation.
+
+| Field        | Type         | Description                                    |
+| ------------ | ------------ | ---------------------------------------------- |
+| extended_description | string | The extended description of the operation.     |
+| examples     | object       | The list of examples for the operation.        |
+| requestBody  | object       | The request body for the operation.            |
+
+**Example**
+
+Represents an example.
+
+| Field        | Type         | Description                                    |
+| ------------ | ------------ | ---------------------------------------------- |
+| title        | string       | The title of the example.                      |
+| content      | string       | The content of the example.                    |
+
+**Schema**
+
+Represents a schema.
+
+| Field        | Type         | Description                                    |
+| ------------ | ------------ | ---------------------------------------------- |
+| title        | string       | The title of the schema.                       |
+| type         | string       | The type of the schema.                        |
+| properties   | object       | The list of properties for the schema.         |
+
+**Property**
+
+Represents a property.
+
+| Field        | Type         | Description                                    |
+| ------------ | ------------ | ---------------------------------------------- |
+| extended_description | string | The extended description of the property.      |
+| sample_values| array        | The list of sample values for the property.    |
+
+
+
+
