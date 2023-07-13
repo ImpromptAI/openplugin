@@ -8,8 +8,6 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
 
 **NOTE:**  To use the service, you’ll need to get a key from jeffrschneider[at]gmail[dot]com or host your own instance of the service.
 
-Examples
-
 .. tabs::
 
   .. tab:: curl
@@ -81,7 +79,7 @@ Examples
 
         Method: POST
 
-        HEADERS: {
+        Headers: {
           'x-api-key': 'your-api-key'
           'Content-Type': 'application/json'
         }
