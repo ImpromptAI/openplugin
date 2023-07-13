@@ -161,7 +161,8 @@ class Functions(BaseModel):
         open_api_spec_url = manifest_obj.get("api").get("url")
         self.add_from_openapi_spec(open_api_spec_url, plugin=plugin)
 
-    def add_from_openapi_spec(self, open_api_spec_url: str, plugin: Plugin = None):
+    def add_from_openapi_spec(self, open_api_spec_url: str, plugin: Plugin = None,
+                              header: dict = None):
         openapi_doc_json = requests.get(open_api_spec_url).json()
         if openapi_doc_json is None:
             return ValueError("Could not get OpenAPI spec from URL")
@@ -174,18 +175,47 @@ class Functions(BaseModel):
             for method in paths[path]:
                 details = paths[path][method]
                 function_values = {}
-                function_values["api"] = API(url=f"{server_url}{path}", method=method)
+                function_values["api"] = API(url=f"{server_url}{path}", method=method,
+                                             header=header)
                 function_values["name"] = f"{method}{path.replace('/', '_')}"
                 function_values["description"] = details.get("summary")
                 function_values["param_type"] = "object"
                 properties = []
-                for param in details.get("parameters"):
-                    properties_values = {}
-                    properties_values["name"] = param.get("name")
-                    properties_values["type"] = param.get("schema").get("type")
-                    properties_values["description"] = param.get("description")
-                    properties_values["is_required"] = param.get("required")
-                    properties.append(FunctionProperty(**properties_values))
+                if method.lower() == "get":
+                    for param in details.get("parameters"):
+                        properties_values = {}
+                        properties_values["name"] = param.get("name")
+                        properties_values["type"] = param.get("schema").get("type")
+                        properties_values["description"] = param.get("description")
+                        properties_values["is_required"] = param.get("required")
+                        properties.append(FunctionProperty(**properties_values))
+                elif method.lower() == "post" or method.lower() == "put":
+                    application_json_schema = details.get("requestBody").get(
+                        "content").get("application/json").get("schema")
+                    params = []
+                    required_params = {}
+                    if "properties" in application_json_schema:
+                        params = application_json_schema.get("properties")
+                        required_params = application_json_schema.get("required", {})
+                    elif "$ref" in application_json_schema:
+                        ref = application_json_schema.get("$ref")
+                        ref = ref.replace("#/components/schemas/", "")
+                        params = openapi_doc_json.get("components").get("schemas").get(
+                            ref).get("properties")
+                        required_params = openapi_doc_json.get("components").get(
+                            "schemas").get(
+                            ref).get("required", {})
+                    for param in params:
+                        properties_values = {}
+                        properties_values["name"] = param
+                        properties_values["type"] = params.get(param).get("type")
+                        properties_values["description"] = params.get(param).get(
+                            "description")
+                        if param in required_params:
+                            properties_values["is_required"] = True
+                        else:
+                            properties_values["is_required"] = False
+                        properties.append(properties_values)
                 function_values["param_properties"] = properties
                 func = Function(**function_values)
                 if plugin:

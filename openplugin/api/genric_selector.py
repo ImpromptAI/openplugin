@@ -1,7 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from openplugin import LangchainPluginSelector
-from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, ToolSelectorProvider
+from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
+    ToolSelectorProvider
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 from openplugin.api import auth
