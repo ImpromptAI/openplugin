@@ -36,7 +36,7 @@ extensions = ['sphinx_tabs.tabs']
 templates_path = ['_templates']
 exclude_patterns = []
 
-
+html_favicon = '_images/favicon.jpg'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
