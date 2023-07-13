@@ -31,7 +31,7 @@ release = version
 
 html_title = project + " " + version
 
-extensions = []
+extensions = ['sphinx_tabs.tabs']
 
 templates_path = ['_templates']
 exclude_patterns = []
