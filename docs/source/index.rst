@@ -8,7 +8,13 @@ Documentation
 
 Summary
 =========================
+This project aims to provide a standardized way to define the configuration and metadata of plugins that can be used by the tool selector service. The project introduces the openplugin manifest file format, which allows developers to specify properties and settings for their plugins such as name, version, dependencies, and supported platforms. This format enables seamless integration with the tool selector service.
 
+The project also addresses the problem of mapping natural language instructions to API calls. It involves using a tool selector to determine the intent of the command and map it to an API. The project evaluates the performance of the tool selector in terms of selecting the correct plugin, selecting the correct API operation, filling in API parameters correctly, and the cost and round-trip latency of solving the problem. Different approaches are explored, including using language models (LLMs) for intent detection and slot filling, embeddings for semantic matching, and fine-tuning LLMs with training data.
+
+The project also introduces a standardized interface for tool selection, the LLM Tool Selector API, along with bindings and SDKs. It emphasizes the need for a bridge between user text, LLMs, and structured interfaces like APIs. The project provides a hosted instance of the Tool Selector API for demo purposes, with limitations on the number of calls. There is also a possibility of running the service as a managed service or becoming a managed service provider.
+
+Overall, this project aims to simplify plugin development and improve the accuracy and performance of tool selection by providing a standardized interface and evaluating different approaches to mapping natural language to API calls.
 
 Terminology
 =========================
@@ -29,8 +35,6 @@ The process of mapping natural language to a tool can be modularized, and made a
 
 
 
-The OpenPlugin Project
-========================
 
 .. toctree::
     :titlesonly:
