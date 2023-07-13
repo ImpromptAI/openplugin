@@ -3,34 +3,6 @@ Installation & Execution
 ==================================
 
 
-Start an openplugin implementation server
-==============================================================
-
-
-1. With Python
-================
-
-
-To install using pip, run:
-
-.. code-block:: shell
-
-    pip install openplugin
-
-
-You can verify you have openplugin installed by running:
-
-.. code-block:: shell
-
-    openplugin --help
-
-
-To start the openplugin implementation server, run:
-
-.. code-block:: shell
-
-    openplugin start-server
-
 
 Setup up the environment variables
 =====================================
@@ -59,6 +31,35 @@ if you want to use a different port
 .. code-block:: shell
 
     export PORT=<port: 8012>
+
+
+Start an openplugin implementation server
+==============================================================
+
+
+1. With Python
+================
+
+
+To install using pip, run:
+
+.. code-block:: shell
+
+    pip install openplugin
+
+
+You can verify you have openplugin installed by running:
+
+.. code-block:: shell
+
+    openplugin --help
+
+
+To start the openplugin implementation server, run:
+
+.. code-block:: shell
+
+    openplugin start-server
 
 
 

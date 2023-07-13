@@ -6,7 +6,7 @@ Hosted API Spec: https://api.imprompt.ai/openplugin/api/openapi.json
 
 Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
 
-**NOTE:**  To use the service, you’ll need to get a key from jeffrschneider[at]gmail[dot]com or host your own instance of the service.
+**NOTE:**  To use the hosted service, host your own instance of the service or you’ll need to get a key from jeffrschneider[at]gmail[dot]com
 
 .. tabs::
 
