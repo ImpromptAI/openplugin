@@ -8,63 +8,102 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
 
 **NOTE:**  To use the service, you’ll need to get a key from jeffrschneider[at]gmail[dot]com or host your own instance of the service.
 
-Example
+Examples
 
-.. code-block:: sh
+.. tabs::
 
-    API Endpoint: https://api.imprompt.ai/openplugin/api/run-plugin
+  .. tab:: curl
 
-    Method: POST
+    .. code-block:: sh
 
-    HEADERS: {
-      'x-api-key': 'your-api-key'
-      'Content-Type': 'application/json'
-    }
+      curl -X POST \
+        -H 'x-api-key: your-api-key' \
+        -H 'Content-Type: application/json' \
+        -d '{
+          "messages": [{
+              "content":"Show me 5 t shirts?",
+              "message_type":"HumanMessage"
+          }],
+          "tool_selector_config": {
+              "provider":"OpenAI",
+              "pipeline_name":"default"
+          },
+          "plugins": [{
+              "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
+          }],
+          "config": {},
+          "llm": {
+              "provider":"OpenAIChat",
+              "model_name":"gpt-3.5-turbo-0613"
+          }
+      }' \
+        https://api.imprompt.ai/openplugin/api/run-plugin
 
-    Body: {
-        "messages": [{
-            "content":"Show me 5 t shirts?",
-            "message_type":"HumanMessage"
-        }],
-        "tool_selector_config": {
-            "provider":"OpenAI",
-            "pipeline_name":"default"
-        },
-        "plugins": [{
-            "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
-        }],
-        "config": {},
-        "llm": {
-            "provider":"OpenAIChat",
-            "model_name":"gpt-3.5-turbo-0613"
+  .. tab:: python
+
+    .. code-block:: python
+
+      import requests
+
+      response = requests.post(
+          "https://api.imprompt.ai/openplugin/api/run-plugin",
+          headers={
+              "x-api-key": "your-api-key",
+              "Content-Type": "application/json"
+          },
+          json={
+              "messages": [{
+                  "content":"Show me 5 t shirts?",
+                  "message_type":"HumanMessage"
+              }],
+              "tool_selector_config": {
+                  "provider":"OpenAI",
+                  "pipeline_name":"default"
+              },
+              "plugins": [{
+                  "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
+              }],
+              "config": {},
+              "llm": {
+                  "provider":"OpenAIChat",
+                  "model_name":"gpt-3.5-turbo-0613"
+              }
+          }
+      )
+
+      print(response.json())
+
+  .. tab:: REST
+
+    .. code-block:: sh
+
+        API Endpoint: https://api.imprompt.ai/openplugin/api/run-plugin
+
+        Method: POST
+
+        HEADERS: {
+          'x-api-key': 'your-api-key'
+          'Content-Type': 'application/json'
         }
-    }
 
-
-.. code-block:: sh
-
-    curl -X POST \
-      -H 'x-api-key: your-api-key' \
-      -H 'Content-Type: application/json' \
-      -d '{
-        "messages": [{
-            "content":"Show me 5 t shirts?",
-            "message_type":"HumanMessage"
-        }],
-        "tool_selector_config": {
-            "provider":"OpenAI",
-            "pipeline_name":"default"
-        },
-        "plugins": [{
-            "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
-        }],
-        "config": {},
-        "llm": {
-            "provider":"OpenAIChat",
-            "model_name":"gpt-3.5-turbo-0613"
+        Body: {
+            "messages": [{
+                "content":"Show me 5 t shirts?",
+                "message_type":"HumanMessage"
+            }],
+            "tool_selector_config": {
+                "provider":"OpenAI",
+                "pipeline_name":"default"
+            },
+            "plugins": [{
+                "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
+            }],
+            "config": {},
+            "llm": {
+                "provider":"OpenAIChat",
+                "model_name":"gpt-3.5-turbo-0613"
+            }
         }
-    }' \
-      https://api.imprompt.ai/openplugin/api/run-plugin
 
 
 
