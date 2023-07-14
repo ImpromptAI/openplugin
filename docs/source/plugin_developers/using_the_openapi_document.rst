@@ -1,23 +1,16 @@
-===============================
+==========================
 Using the OpenAPI Document
-===============================
+==========================
 
-Every manifest file should have a link to the `OpenAPI document <https://swagger.io/specification>`_.
+The Manifest File has a link to the `OpenAPI document <https://swagger.io/specification>`_ that describes your API.
 
-If you have a project level OpenAPI document containing 100s of APIs/Operations, then we suggest you to create a new OpenAPI file with only the APIs you want to expose as a plugin.
+If you have a large API with many operations, we suggest you create a small OpenAPI file with only the APIs you want to expose in your plugin.
 
-As LLM has token limitations, we suggest you to keep only the plugin related information in the OpenAPI document.
-
-We expect these fields to be present in the OpenAPI document.
-
-1. info
-2. servers
-3. tags
-4. paths
-5. components
+We expect these fields to be present in the OpenAPI document: Info, Servers, Tags, Paths and Components.
 
 Sample OpenAPI document: https://www.klarna.com/us/shopping/public/openai/v0/api-docs/
 
+Auto-Generate
+-------------
 
-We have a utility function/API to generate the OpenAPI document from the project level OpenAPI document.
-:ref:`openplugin-files-creation`
+We provide a utility to generate the OpenAPI document from the project level OpenAPI document. See: :ref:`openplugin-manifest-file`

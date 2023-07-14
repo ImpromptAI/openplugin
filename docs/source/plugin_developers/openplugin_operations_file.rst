@@ -1,6 +1,6 @@
-==================================
+==========================
 OpenPlugin Operations File
-==================================
+==========================
 
 
 We create a new operation details file from the OpenAPI specification document.
@@ -74,7 +74,7 @@ You can find more details on each of these fields below.
 
 
 Operation
-=========
+---------
 An operation is a single API call. It is defined by a combination of a path and an HTTP method as shown in the example above. It then has the following fields:
 
 .. list-table::

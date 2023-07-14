@@ -15,7 +15,6 @@ The OpenPlugin Manifest File has 3 main components:
 .. toctree::
     :titlesonly:
 
-    using_the_openapi_document
     openplugin_manifest_file
+    using_the_openapi_document
     openplugin_operations_file
-    openplugin_files_creation
