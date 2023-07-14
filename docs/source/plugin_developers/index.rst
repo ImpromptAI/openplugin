@@ -1,20 +1,13 @@
+=================
 Plugin Developers
 =================
-
-
-The OpenPlugin Manifest File has 3 main components:
-
-1. OpenPlugin Manifest File
-    This specifies properties for your plugins, such as the plugin name, version, dependencies, and supported platforms.
-2. OpenAPI Specification File
-    OpenPlugin leverages the OpenAPI specification for most of the details on your plugins.
-3. OpenPlugin Operations File
-    The OpenPlugin Operations File specifies additional details about calling API operations using natural language.
-
 
 .. toctree::
     :titlesonly:
 
-    openplugin_manifest_file
+    openplugin_manifest
     using_the_openapi_document
-    openplugin_operations_file
+
+Create a Plugin
+===============
+Creating a plugin offers users a powerful and versatile tool to enhance their applications and workflows. With the rapid advancements in artificial intelligence and natural language processing, integrating large language models with existing APIs unlock a myriad of possibilities. Whether you are looking to automate tasks, generate creative content, or improve user interactions, a plugin empowers you to leverage the state-of-the-art capabilities of AI models seamlessly.
