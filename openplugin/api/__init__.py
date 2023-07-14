@@ -1,3 +1,4 @@
+import os
 from openplugin.api import langchain
 from openplugin.api import openai
 from openplugin.api import imprompt
@@ -13,7 +14,7 @@ API_PREFIX = "/api"
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        openapi_url=f"{API_PREFIX}/openapi.json",
+        openapi_url=f"/openplugin{API_PREFIX}/openapi.json",
         servers=[{"url": "https://api.imprompt.ai/openplugin"}],
         docs_url=f"{API_PREFIX}/docs"
     )
