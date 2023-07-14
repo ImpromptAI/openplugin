@@ -84,7 +84,7 @@ OpenPlugin Manifest
 
 OpenPlugin Operations
 ---------------------
-A plugin operation is a single API call. It is defined by a combination of a path and an HTTP method as shown in the example above. The user can attach extra details to each operation so that LLM can generate better predictions.
+An OpenPlugin operation is an extension of plugin operation defined in the OpenAPI document. It is defined by a combination of a path and an HTTP method as shown in the example above. The user can attach extra details to each operation to improve LLM predictions and responses.
 
 .. list-table::
    :widths: 20 20 60
