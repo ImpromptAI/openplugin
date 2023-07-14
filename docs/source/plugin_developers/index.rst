@@ -1,19 +1,21 @@
 Plugin Developers
 =================
 
-The tool selector service accepts the openplugin manifest file format, which is used to define the configuration and metadata of plugins that can be loaded and used by the service. This file format allows developers to specify various properties and settings for their plugins, such as the plugin name, version, dependencies, and supported platforms. The openplugin manifest file format provides a standardized way to describe plugins and enables seamless integration with the tool selector service.
 
+The OpenPlugin Manifest File has 3 main components:
 
-The OpenPlugin manifest file has 3 main components:
-
-1. OpenPlugin manifest file
-2. OpenAPI specification file
-3. OpenPlugin operations file
+1. OpenPlugin Manifest File
+    This specifies properties for your plugins, such as the plugin name, version, dependencies, and supported platforms.
+2. OpenAPI Specification File
+    OpenPlugin leverages the OpenAPI specification for most of the details on your plugins.
+3. OpenPlugin Operations File
+    The OpenPlugin Operations File specifies additional details about calling API operations using natural language.
 
 
 .. toctree::
     :titlesonly:
 
+    using_the_openapi_document
     openplugin_manifest_file
     openplugin_operations_file
     openplugin_files_creation
