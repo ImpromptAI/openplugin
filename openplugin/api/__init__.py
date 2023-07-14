@@ -10,14 +10,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from openplugin.api import genric_selector
 
 API_PREFIX = "/api"
-
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        openapi_url=f"/openplugin{API_PREFIX}/openapi.json",
-        servers=[{"url": "https://api.imprompt.ai/openplugin"}],
+        title="OpenPlugin",
+        openapi_url=f"{API_PREFIX}/openapi.json",
         docs_url=f"{API_PREFIX}/docs"
     )
+    if ENVIRONMENT == 'production':
+        app.root_path = "/openplugin/"
+
     # add routes
     router = APIRouter()
     # router.include_router(langchain.router)
