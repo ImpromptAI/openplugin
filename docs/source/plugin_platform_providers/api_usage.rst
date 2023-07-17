@@ -104,9 +104,9 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
         }
 
 
-
-
-**API Body Parameters:** Represents the request body for running the plugin.
+API Body Parameters
+===================
+These parameters are used to configure the API request. The API request body is a JSON object with the following fields:
 
 .. list-table::
    :widths: 20 20 60
@@ -116,23 +116,25 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
      - Type
      - Description
    * - messages
-     - Array of Message
-     - The list of messages to be processed.
+     - array
+     - The list of messages to be processed by the LLM. This will include your plugin prompt as well as any context messages.
    * - tool_selector_config
-     - ToolSelectorConfig
-     - The configuration for the tool selector.
+     - object
+     - The configurations for the tool selector, such as the provider and pipeline name.
    * - plugins
-     - Array of Plugin
-     - The list of plugins to be executed.
+     - array
+     - The list of plugins to evaluate for tool selection.
    * - config
-     - Config
-     - The API configuration for the plugin.
+     - object
+     - The API configurations applicable for the plugins.
    * - llm
-     - LLM
-     - The configuration for the LLM (Language Model) provider.
+     - object
+     - The configurations for the LLM (Large Language Model) provider.
 
 
-**Message:** Represents a prompt to be executed.
+Messages
+--------
+Messages is an array of objects. Each object represents a message to be processed by the LLM. It has the following fields:
 
 .. list-table::
    :widths: 15 15 55
@@ -145,13 +147,15 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
      - string
      - The content of the message.
    * - message_type
-     - MessageType
-     - The type of the message.
+     - string
+     - .. line-block::
+        The type of the message.
+        **Available options include:** HumanMessage, AIMessage, SystemMessage, FunctionMessage.
 
-**MessageType** = [HumanMessage, AIMessage, SystemMessage, FunctionMessage]
 
-
-**ToolSelectorConfig**: Represents the configuration for a Tool Selector.
+Tool Selector Config
+--------------------
+The tool selector config object represents the configurations for the tool selector. It has the following fields:
 
 .. list-table::
    :widths: 15 20 55
@@ -161,22 +165,25 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
      - Type
      - Description
    * - provider
-     - ToolSelectorProvider
-     - The provider for the Tool Selector.
+     - string
+     - .. line-block::
+        The provider for the Tool Selector.
+        **Available options include:** Imprompt, OpenAI, Langchain.
    * - pipeline_name
      - string
      - The name of the pipeline for the Tool Selector.
 
-An enumeration for different Tool Selector providers= [ Langchain, Imprompt, OpenAI]
 
-1. OpenAI: OpenAI is a tool selector that uses OpenAI functions to select the best tool for the given prompt messages.
+1. **Imprompt:** Imprompt is a tool selector that uses a custom prompt with LLM to select the best tool for the given message.
 
-2. Langchain: Langchain is a tool selector that uses Langchain Agent to select the best tool for the given message.
+2. **OpenAI:** OpenAI is a tool selector that uses OpenAI functions to select the best tool for the given prompt messages.
 
-3. Imprompt: Imprompt is a tool selector that uses a custom prompt with LLM to select the best tool for the given message.
+3. **Langchain:** Langchain is a tool selector that uses Langchain Agent to select the best tool for the given message.
 
 
-**Plugin:** Represents a plugin configuration.
+Plugins
+-------
+Plugins is an array of objects. Each object represents a plugin to be evaluated by the tool selector. It has the following fields:
 
 .. list-table::
    :widths: 20 15 55
@@ -186,7 +193,7 @@ An enumeration for different Tool Selector providers= [ Langchain, Imprompt, Ope
      - Type
      - Description
    * - schema_version
-     - string
+     - integer
      - The version of the plugin schema.
    * - name_for_model
      - string
@@ -213,33 +220,13 @@ An enumeration for different Tool Selector providers= [ Langchain, Imprompt, Ope
      - string
      - The URL of the plugin manifest.
    * - api
-     - PluginAPI
-     - The API configuration for the plugin.
+     - object
+     - The API specification.
 
 
-**PluginAPI:** Represents the API configuration for a plugin.
-
-.. list-table::
-   :widths: 20 15 55
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Description
-   * - type
-     - string
-     - The type of the API.
-   * - url
-     - string
-     - The URL of the API.
-   * - has_user_authentication
-     - boolean
-     - Indicates if the API requires user authentication.
-   * - api_endpoints
-     - array of string
-     - The list of API endpoints provided by the plugin.
-
-**Config:** Represents the API configuration for a plugin.
+Config
+------
+It has the following fields:
 
 .. list-table::
    :widths: 20 15 55
@@ -252,7 +239,10 @@ An enumeration for different Tool Selector providers= [ Langchain, Imprompt, Ope
      - string
      - The OpenAI API key.
 
-**LLM:** Represents the configuration for an LLM (Language Model) provider.
+
+LLM
+---
+This contains the configurations for an LLM (Large Language Model) provider.
 
 .. list-table::
    :widths: 20 15 55
@@ -263,7 +253,9 @@ An enumeration for different Tool Selector providers= [ Langchain, Imprompt, Ope
      - Description
    * - provider
      - LLMProvider
-     - The provider for the LLM.
+     - .. line-block::
+        The provider for the LLM.
+        **Available options include:** OpenAI, OpenAIChat, GooglePalm, Cohere.
    * - model_name
      - string
      - The name of the LLM model.
@@ -291,6 +283,3 @@ An enumeration for different Tool Selector providers= [ Langchain, Imprompt, Ope
    * - max_retries
      - integer
      - The maximum number of retries for generating output.
-**LLMProvider**
-
-An enumeration for different LLM providers. [OpenAI, OpenAIChat, GooglePalm, Cohere]
