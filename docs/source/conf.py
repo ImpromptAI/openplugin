@@ -21,7 +21,7 @@ with open("../../pyproject.toml") as f:
 
 project = 'openplugin'
 copyright = '2023, Imprompt'
-author = 'Shrikant M'
+author = 'Shrikant M & Barrett J'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
