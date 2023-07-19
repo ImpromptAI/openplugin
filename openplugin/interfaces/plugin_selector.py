@@ -1,60 +1,71 @@
 import requests
 from enum import Enum
 from abc import ABC, abstractmethod
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Dict
 from pydantic import BaseModel, validator, root_validator
+import json, yaml
+from pydantic.json import pydantic_encoder
 
 
-class Config(BaseModel):
+class PluginAuth(BaseModel):
+    type: Optional[str]
+    authorization_type: Optional[str]
+    verification_tokens: Optional[Dict]
+    scope: Optional[str]
+    client_url: Optional[str]
+    authorization_url: Optional[str]
+    authorization_content_type: Optional[str]
+    token_validation_url: Optional[str]
+
+
+class PluginOperation(BaseModel):
     """
-    Represents the API configuration for a plugin.
+    Represents the result of a plugin operation.
     """
-    openai_api_key: Optional[str]
-
-
-class PluginAPI(BaseModel):
-    """
-    Represents the API configuration for a plugin.
-    """
-    type: str
-    url: str
-    has_user_authentication: Optional[bool] = False
-    # openapi_doc_json: Optional[Dict] = None
-    api_endpoints: Optional[Set[str]] = None
-
-    @root_validator(pre=True)
-    def _set_fields(cls, values: dict) -> dict:
-        """This is a validator that sets the field values based on the manifest_url"""
-        if values.get("url"):
-            openapi_doc_json = requests.get(values.get("url")).json()
-            if openapi_doc_json:
-                # values["openapi_doc_json"] = openapi_doc_json
-                server_url = openapi_doc_json.get("servers")[0].get("url")
-                api_endpoints = []
-                paths = openapi_doc_json.get("paths")
-                for key in paths:
-                    api_endpoints.append(f"{server_url}{key}")
-                values["api_endpoints"] = api_endpoints
-        return values
-
-    def get_openapi_doc(self):
-        return requests.get(self.url).json()
+    human_usage_examples: Optional[List[str]] = []
+    prompt_helpers: Optional[List[str]] = []
 
 
 class Plugin(BaseModel):
     """
     Represents a plugin configuration.
     """
+    manifest_url: str
     schema_version: Optional[str]
-    name_for_model: Optional[str]
-    name_for_human: Optional[str]
-    description_for_model: Optional[str]
-    description_for_human: Optional[str]
+    name: Optional[str]
+    description: Optional[str]
+    openapi_doc_url: Optional[str]
+    auth: Optional[PluginAuth]
     logo_url: Optional[str]
     contact_email: Optional[str]
     legal_info_url: Optional[str]
-    manifest_url: str
-    api: Optional[PluginAPI]
+    api_endpoints: Optional[Set[str]] = None
+    # first str is the path, second str is the method
+    plugin_operations: Optional[Dict[str, Dict[str, PluginOperation]]] = None
+
+    @staticmethod
+    def build_from_manifest_url(manifest_url: str):
+        manifest_obj = requests.get(manifest_url).json()
+        values = {}
+        for key in manifest_obj.keys():
+            if key not in values.keys():
+                values[key] = manifest_obj[key]
+            if values.get("openapi_doc_url") is None:
+                raise ValueError("Incompatible manifest.")
+            openapi_doc_json = requests.get(values.get("openapi_doc_url")).json()
+            if openapi_doc_json:
+                server_url = openapi_doc_json.get("servers")[0].get("url")
+                api_endpoints = []
+                paths = openapi_doc_json.get("paths")
+                for key in paths:
+                    api_endpoints.append(f"{server_url}{key}")
+                values["api_endpoints"] = api_endpoints
+            else:
+                raise ValueError("Incompatible manifest.")
+        return Plugin(**values)
+
+    def get_openapi_doc_json(self):
+        return requests.get(self.openapi_doc_url).json()
 
     @root_validator(pre=True)
     def _set_fields(cls, values: dict) -> dict:
@@ -64,12 +75,69 @@ class Plugin(BaseModel):
             for key in manifest_obj.keys():
                 if key not in values.keys():
                     values[key] = manifest_obj[key]
+            if values.get("openapi_doc_url") is None:
+                raise ValueError("Incompatible manifest.")
+            openapi_doc_json = requests.get(values.get("openapi_doc_url")).json()
+            if openapi_doc_json:
+                server_url = openapi_doc_json.get("servers")[0].get("url")
+                api_endpoints = []
+                paths = openapi_doc_json.get("paths")
+                for key in paths:
+                    api_endpoints.append(f"{server_url}{key}")
+                values["api_endpoints"] = api_endpoints
+            else:
+                raise ValueError("Incompatible manifest.")
         return values
 
     def has_api_endpoint(self, endpoint) -> bool:
-        if endpoint in self.api.api_endpoints:
+        if endpoint in self.api_endpoints:
             return True
         return False
+
+    def get_manifest_dict(self):
+        j = self.dict(exclude={"api_endpoints", "manifest_url", "auth"})
+        j["auth"] = self.auth.dict(exclude_none=True)
+        return j
+
+    def get_manifest_json(self):
+        return json.dumps(self.get_manifest_dict())
+
+    def get_manifest_yaml(self):
+        return yaml.dump(self.get_manifest_dict())
+
+    def get_plugin_pre_prompts(self):
+        pre_prompt = ""
+        index = 1
+        if self.plugin_operations:
+            for value in self.plugin_operations.values():
+                for val in value.values():
+                    for helper in val.prompt_helpers:
+                        pre_prompt += f"{index}: {helper}\n"
+                        index = index + 1
+                    for example in val.human_usage_examples:
+                        pre_prompt += f"{index}: {example}\n"
+                        index = index + 1
+        if index > 1:
+            pre_prompt = f"For plugin: {self.name}:\n" + pre_prompt
+        return pre_prompt.strip()
+
+
+class PluginDetected(BaseModel):
+    """
+    Represents the result of a plugin operation.
+    """
+    plugin: Plugin
+    api_called: Optional[str]
+    method: Optional[str]
+    mapped_operation_parameters: Optional[Dict[str, str]] = None
+
+
+class Config(BaseModel):
+    """
+    Represents the API configuration for a plugin.
+    """
+    openai_api_key: Optional[str]
+    cohere_api_key: Optional[str]
 
 
 class FunctionProperty(BaseModel):
@@ -100,9 +168,14 @@ class Function(BaseModel):
     description: Optional[str]
     param_type: Optional[str]
     param_properties: Optional[List[FunctionProperty]]
+    human_usage_examples: Optional[List[str]] = []
+    prompt_helpers: Optional[List[str]] = []
 
     def get_api_url(self):
         return self.api.url
+
+    def get_api_method(self):
+        return self.api.method
 
     def call_api(self, params):
         return self.api.call(params)
@@ -132,6 +205,7 @@ class Function(BaseModel):
                 "properties": self.get_property_map(),
                 "required": self.get_required_properties()
             }
+
         }
         return json
 
@@ -158,11 +232,25 @@ class Functions(BaseModel):
 
     def add_from_manifest(self, manifest_url: str, plugin: Plugin = None):
         manifest_obj = requests.get(manifest_url).json()
-        open_api_spec_url = manifest_obj.get("api").get("url")
-        self.add_from_openapi_spec(open_api_spec_url, plugin=plugin)
+        open_api_spec_url = manifest_obj.get("openapi_doc_url")
+        self.add_from_openapi_spec(open_api_spec_url, plugin=plugin,
+                                   plugin_operations_map=manifest_obj.get(
+                                       "plugin_operations"))
+
+    def get_helper_pre_prompt(self):
+        prompt = ""
+        index=1
+        for function in self.functions:
+            for helper in function.prompt_helpers:
+                prompt += f"prompt helper= {helper} \n"
+                index = index + 1
+            for example in function.human_usage_examples:
+                prompt += f"example= {example} \n"
+                index = index + 1
+        return prompt.strip()
 
     def add_from_openapi_spec(self, open_api_spec_url: str, plugin: Plugin = None,
-                              header: dict = None):
+                              header: dict = None, plugin_operations_map: dict = None):
         openapi_doc_json = requests.get(open_api_spec_url).json()
         if openapi_doc_json is None:
             return ValueError("Could not get OpenAPI spec from URL")
@@ -217,23 +305,20 @@ class Functions(BaseModel):
                             properties_values["is_required"] = False
                         properties.append(properties_values)
                 function_values["param_properties"] = properties
+                human_usage_examples = plugin_operations_map.get(path, {}).get(method,
+                                                                               {}).get(
+                    "human_usage_examples", [])
+                function_values["human_usage_examples"] = human_usage_examples
+                prompt_helpers = plugin_operations_map.get(path, {}).get(method,
+                                                                         {}).get(
+                    "prompt_helpers", [])
+                function_values["prompt_helpers"] = prompt_helpers
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin
                 self.function_map[func.name] = func
                 functions.append(func)
         self.functions.extend(functions)
-
-
-class PluginOperation(BaseModel):
-    """
-    Represents the result of a plugin operation.
-    """
-    plugin: Plugin
-    # input_prompt: Optional[str]
-    api_called: Optional[str]
-    mapped_operation_parameters: Optional[dict]
-    # plugin_response: Optional[str]
 
 
 class LLMProvider(str, Enum):
@@ -253,13 +338,12 @@ class LLM(BaseModel):
     provider: LLMProvider
     model_name: str
     temperature: float = 0.7
-    max_tokens: int = 256
+    max_tokens: int = 1024
     top_p: float = 1
     frequency_penalty: float = 0
     presence_penalty: float = 0
     n: float = 1
     best_of: float = 1
-    max_tokens: int = 1024
     max_retries: int = 6
 
     @validator("model_name")
@@ -272,10 +356,10 @@ class LLM(BaseModel):
             "gpt-3.5-turbo", "gpt-3.5-turbo-0613", "gpt-4-0613" "gpt-4"]:
             is_correct_model_name = True
         if values['provider'] == LLMProvider.GooglePalm and model_name in [
-            "models/text-bison-001"]:
+            "text-bison-001", "chat-bison@001"]:
             is_correct_model_name = True
         if values['provider'] == LLMProvider.Cohere and model_name in [
-            "models/text-bison-001"]:
+            "command", "command-light", "command-xlarge-nightly"]:
             is_correct_model_name = True
         if not is_correct_model_name:
             raise ValueError(
@@ -307,7 +391,7 @@ class Response(BaseModel):
     """
     run_completed: bool
     final_text_response: Optional[str]
-    detected_plugin_operations: Optional[List[PluginOperation]]
+    detected_plugin_operations: Optional[List[PluginDetected]]
     response_time: Optional[float]
     tokens_used: Optional[int]
     llm_api_cost: Optional[float]
@@ -360,7 +444,7 @@ class PluginSelector(ABC):
 
     def get_plugin_by_name(self, name: str):
         for plugin in self.plugins:
-            if plugin.name_for_human == name or plugin.name_for_model == name:
+            if plugin.name == name:
                 return plugin
         return None
 

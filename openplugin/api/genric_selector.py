@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.post("/run-plugin")
+@router.post("/plugin-selector")
 def run_plugin(
         messages: List[Message],
         tool_selector_config: ToolSelectorConfig,

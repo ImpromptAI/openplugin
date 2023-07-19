@@ -5,7 +5,7 @@
         "version": "0.1.0"
     },
     "paths": {
-        "/api/run-plugin": {
+        "/api/plugin-selector": {
             "post": {
                 "summary": "Run Plugin",
                 "operationId": "run_plugin_api_run_plugin_post",

@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.post("/run-plugin")
+@router.post("/plugin-selector")
 def run_plugin(
         messages: List[Message],
         tool_selector_config: ToolSelectorConfig,
@@ -29,4 +29,5 @@ def run_plugin(
         return response
     except Exception as e:
         print(e)
-        return JSONResponse(status_code=500, content={"message": "Failed to run plugin"})
+        return JSONResponse(status_code=500,
+                            content={"message": "Failed to run plugin"})

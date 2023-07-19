@@ -4,11 +4,12 @@ from typing import List, Optional
 from langchain.llms import OpenAI
 from langchain.agents import AgentType
 from langchain.tools import AIPluginTool
+from langchain.tools.plugin import AIPlugin, ApiConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
 from langchain.agents import load_tools, initialize_agent
-from openplugin import Config, ToolSelectorConfig, PluginOperation, Plugin, \
+from openplugin import Config, ToolSelectorConfig, PluginDetected, Plugin, \
     PluginSelector, LLMProvider, Message, Response, LLM
 
 
@@ -81,7 +82,35 @@ class LangchainPluginSelector(PluginSelector):
         tools = load_tools(["requests_all"])
         for plugin in plugins:
             if plugin.manifest_url:
-                tools.append(AIPluginTool.from_plugin_url(plugin.manifest_url.strip()))
+                api_config = ApiConfig(
+                    type="openapi",
+                    url=plugin.openapi_doc_url
+                )
+                ai_plugin = AIPlugin(
+                    schema_version=plugin.schema_version,
+                    name_for_model=plugin.name,
+                    name_for_human=plugin.name,
+                    description_for_model=plugin.description,
+                    description_for_human=plugin.description,
+                    auth={
+                        "type": "none"
+                    },
+                    api=api_config,
+                    logo_url=plugin.logo_url,
+                    contact_email=plugin.contact_email,
+                    legal_info_url=plugin.legal_info_url,
+                )
+                api_spec = (
+                    f"Usage Guide: {plugin.description}\n\n"
+                    f"OpenAPI Spec: {plugin.get_openapi_doc_json()}"
+                )
+                ai_plugin_tool = AIPluginTool(
+                    name=plugin.name,
+                    description=plugin.description,
+                    plugin=ai_plugin,
+                    api_spec=api_spec
+                )
+                tools.append(ai_plugin_tool)
         llm = _get_llm(llm, config.openai_api_key)
         self.agent = initialize_agent(
             tools=tools,
@@ -92,19 +121,23 @@ class LangchainPluginSelector(PluginSelector):
         )
 
     def run(self, messages: List[Message]) -> Response:
+        pre_prompts = ""
+        for plugin in self.plugins:
+            pre_prompts += plugin.get_plugin_pre_prompts()
+
         with get_openai_callback() as cb:
             start_test_case_time = time.time()
             message = messages[-1]
             detected_plugin_operations = []
             response_prompt = None
             try:
-                response = self.agent(message.content)
+                prompt = f"{pre_prompts}\n{message.content}"
+                response = self.agent(prompt)
                 response_prompt = response['output']
-
                 for step in response["intermediate_steps"]:
                     detected_plugin = self.get_plugin_by_name(step[0].tool)
                     if detected_plugin:
-                        plugin_operation = PluginOperation(plugin=detected_plugin)
+                        plugin_operation = PluginDetected(plugin=detected_plugin)
                         detected_plugin_operations.append(plugin_operation)
 
                 for step in response["intermediate_steps"]:
@@ -128,7 +161,7 @@ class LangchainPluginSelector(PluginSelector):
                                     detected_plugin_operation.api_called = api
                                     detected_plugin_operation.mapped_operation_parameters = extracted_params
             except Exception as e:
-                #TODO: handle this better, use callback
+                # TODO: handle this better, use callback
                 response = str(e)
                 for line in response.splitlines():
                     if line.strip().startswith(
@@ -136,7 +169,7 @@ class LangchainPluginSelector(PluginSelector):
                         plugin = line.split(":")[1].strip()
                         detected_plugin = self.get_plugin_by_name(plugin)
                         if detected_plugin:
-                            plugin_operation = PluginOperation(plugin=detected_plugin)
+                            plugin_operation = PluginDetected(plugin=detected_plugin)
                             detected_plugin_operations.append(plugin_operation)
                 matches = re.findall(r'"([^"]*)"', response)
                 for url in matches:

@@ -35,7 +35,7 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
               "model_name":"gpt-3.5-turbo-0613"
           }
       }' \
-        https://api.imprompt.ai/openplugin/api/run-plugin
+        https://api.imprompt.ai/openplugin/api/plugin-selector
 
   .. tab:: python
 
@@ -44,7 +44,7 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
       import requests
 
       response = requests.post(
-          "https://api.imprompt.ai/openplugin/api/run-plugin",
+          "https://api.imprompt.ai/openplugin/api/plugin-selector",
           headers={
               "x-api-key": "your-api-key",
               "Content-Type": "application/json"
@@ -75,7 +75,7 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
 
     .. code-block:: sh
 
-        API Endpoint: https://api.imprompt.ai/openplugin/api/run-plugin
+        API Endpoint: https://api.imprompt.ai/openplugin/api/plugin-selector
 
         Method: POST
 
@@ -171,7 +171,12 @@ The tool selector config object represents the configurations for the tool selec
         **Available options include:** Imprompt, OpenAI, Langchain.
    * - pipeline_name
      - string
-     - The name of the pipeline for the Tool Selector.
+     - .. line-block::
+        The name of the pipeline for the Tool Selector.
+        **Available options include:**
+        For OpenAI, pipeline_name=default;
+        For Langchain, pipeline_name="zero-shot-react-description, react-docstore, conversational-react-description";
+        For Imprompt, pipeline_name=default
 
 
 1. **Imprompt:** Imprompt is a tool selector that uses a custom prompt with LLM to select the best tool for the given message.
@@ -192,36 +197,9 @@ Plugins is an array of objects. Each object represents a plugin to be evaluated 
    * - Field
      - Type
      - Description
-   * - schema_version
-     - integer
-     - The version of the plugin schema.
-   * - name_for_model
-     - string
-     - The name of the plugin for the model.
-   * - name_for_human
-     - string
-     - The name of the plugin for human reference.
-   * - description_for_model
-     - string
-     - The description of the plugin for the model.
-   * - description_for_human
-     - string
-     - The description of the plugin for human reference.
-   * - logo_url
-     - string
-     - The URL of the plugin's logo.
-   * - contact_email
-     - string
-     - The contact email for the plugin.
-   * - legal_info_url
-     - string
-     - The URL for legal information about the plugin.
    * - manifest_url
      - string
-     - The URL of the plugin manifest.
-   * - api
-     - object
-     - The API specification.
+     - The URL of the plugin manifest. The plugin manifest should be OpenPlugin compliant.
 
 
 Config
@@ -237,7 +215,10 @@ It has the following fields:
      - Description
    * - openai_api_key
      - string
-     - The OpenAI API key.
+     - The OpenAI API key. Required, if you are using the OpenAI tool selector.
+   * - cohere_api_key
+     - string
+     - The Cohere API key. Required, if you are using the Cohere tool selector.
 
 
 LLM
@@ -245,41 +226,58 @@ LLM
 This contains the configurations for an LLM (Large Language Model) provider.
 
 .. list-table::
-   :widths: 20 15 55
+   :widths: 20 15 55 15
    :header-rows: 1
 
    * - Field
      - Type
      - Description
+     - Default
    * - provider
      - LLMProvider
      - .. line-block::
         The provider for the LLM.
         **Available options include:** OpenAI, OpenAIChat, GooglePalm, Cohere.
+     - *Required
    * - model_name
      - string
-     - The name of the LLM model.
+     - .. line-block::
+        The name of the LLM model.
+        **Available options include:**
+        For OpenAI, model_name="text-davinci-003"
+        For OpenAIChat, model_name="gpt-3.5-turbo, gpt-3.5-turbo-0613, gpt-4-0613, gpt-4"
+        For GooglePalm, model_name="chat-bison@001, text-bison-001"
+        For Cohere, model_name="command, command-light, command-xlarge-nightly"
+     - *Required
    * - temperature
      - number
      - The temperature parameter for generating output.
+     - 0.7
    * - max_tokens
      - integer
      - The maximum number of tokens in the generated output.
+     - 1024
    * - top_p
      - number
      - The top-p parameter for generating output.
+     - 1
    * - frequency_penalty
      - number
      - The frequency penalty for generating output.
+     - 0
    * - presence_penalty
      - number
      - The presence penalty for generating output.
+     - 0
    * - n
      - number
      - The n parameter for generating output.
+     - 1
    * - best_of
      - number
      - The best-of parameter for generating output.
+     - 1
    * - max_retries
      - integer
      - The maximum number of retries for generating output.
+     - 6
