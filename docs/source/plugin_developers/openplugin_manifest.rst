@@ -20,7 +20,7 @@ The OpenPlugin Manifest is a YAML/JSON file that contains information about the 
     contact_email: shrikant@brandops.io
     legal_info_url: TODO
 
-    openplugin_operations:
+    plugin_operations:
       "/api/plugin/file-manager/save-in-s3-file":
         post:
           human_usage_examples:
@@ -77,7 +77,7 @@ OpenPlugin Manifest
    * - legal_info_url
      - string
      - The URL of the legal information for the plugin.
-   * - openplugin_operations
+   * - plugin_operations
      - object
      - This contains the operations defined in the OpenAPI document and extends to include useful examples and helpers for the model.
 
