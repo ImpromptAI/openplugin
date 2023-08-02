@@ -311,8 +311,8 @@ class Functions(BaseModel):
                 function_values["human_usage_examples"] = human_usage_examples
                 prompt_helpers = plugin_operations_map.get(path, {}).get(method,
                                                                          {}).get(
-                    "prompt_helpers", [])
-                function_values["prompt_helpers"] = prompt_helpers
+                    "prompt_signature_helpers", [])
+                function_values["prompt_signature_helpers"] = prompt_helpers
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin
