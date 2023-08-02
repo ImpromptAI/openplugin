@@ -36,7 +36,7 @@ Sample OpenPlugin Manifest
                 - If the content of the file is unclear, say "I'm sorry, I do not know what to put into the file."
                 - If a file title is not provided, use a very short synopsis of the content
                 - If any error occurs, write an apologetic message to the user
-              plugin_cleanup_helper:
+              plugin_cleanup_helpers:
                 - summarize the json response
           "/api/plugin/file-manager/delete-s3-file":
             post:
@@ -46,7 +46,7 @@ Sample OpenPlugin Manifest
               prompt_signature_helpers:
                 - If the file is not specified, say "I'm sorry, I do not know which file to delete."
                 - If any error occurs, write an apologetic message to the user
-              plugin_cleanup_helper:
+              plugin_cleanup_helpers:
                 - summarize the json response
 
   .. tab:: JSON
@@ -77,7 +77,7 @@ Sample OpenPlugin Manifest
                         "If a file title is not provided, use a very short synopsis of the content",
                         "If any error occurs, write an apologetic message to the user"
                     ],
-                    "plugin_cleanup_helper": [
+                    "plugin_cleanup_helpers": [
                         "summarize the json response
                     ]
                 }
@@ -92,7 +92,7 @@ Sample OpenPlugin Manifest
                         "If the file is not specified, say I'm sorry, I do not know which file to delete."
                         "If any error occurs, write an apologetic message to the user"
                     ],
-                    "plugin_cleanup_helper": [
+                    "plugin_cleanup_helpers": [
                         "summarize the json response
                     ]
                 }
@@ -161,7 +161,7 @@ An OpenPlugin operation is an extension of plugin operation defined in the OpenA
    * - prompt_signature_helpers
      - array
      - Helpers for the interaction and response of the model with the operation.
-   * - plugin_cleanup_helper
+   * - plugin_cleanup_helpers
      - array
      - Helper prompt to clean up the response of the plugin.
 
