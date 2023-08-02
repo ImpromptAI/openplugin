@@ -3,9 +3,6 @@ Documentation
 ======================
 
 
-.. image:: _images/openplugin_logo.jpg
-    :alt: Logo
-
 Summary
 =========================
 This project provides a standard way to define LLM plugins. It is vendor neutral, and meant to be used across vendors and projects.  The project introduces the OpenPlugin manifest file format, which allows developers to specify properties and settings for their plugins such as name, version, dependencies, and supported platforms. This format enables seamless integration with plugin platform providers.
