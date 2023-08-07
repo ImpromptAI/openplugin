@@ -1,63 +1,60 @@
-import os, re
+import re
 import time
 from typing import List, Optional
-from langchain.llms import OpenAI
-from langchain.agents import AgentType
 from langchain.tools import AIPluginTool
-from langchain.tools.plugin import AIPlugin, ApiConfig
 from urllib.parse import urlparse, parse_qs
-from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
+from langchain.tools.plugin import AIPlugin, ApiConfig
+from .langchain_helpers import get_agent_type, get_llm
 from langchain.agents import load_tools, initialize_agent
 from openplugin import Config, ToolSelectorConfig, PluginDetected, Plugin, \
-    PluginSelector, LLMProvider, Message, SelectedPluginsResponse, LLM
-from .langchain_helpers import get_agent_type, get_llm
+    ApiSignatureSelector, Message, SelectedApiSignatureResponse, LLM
 
 
-class LangchainPluginSelector(PluginSelector):
+class LangchainApiSignatureSelector(ApiSignatureSelector):
     def __init__(
             self,
             tool_selector_config: ToolSelectorConfig,
-            plugins: List[Plugin],
+            plugin: Plugin,
             config: Optional[Config],
             llm: Optional[LLM]):
-        super().__init__(tool_selector_config, plugins, config, llm)
+        super().__init__(tool_selector_config, plugin, config, llm)
         self.initialize()
 
     def initialize(self):
         agent_type = get_agent_type(self.tool_selector_config.pipeline_name)
         tools = load_tools(["requests_all"])
-        for plugin in self.plugins:
-            if plugin.manifest_url:
-                api_config = ApiConfig(
-                    type="openapi",
-                    url=plugin.openapi_doc_url
-                )
-                ai_plugin = AIPlugin(
-                    schema_version=plugin.schema_version,
-                    name_for_model=plugin.name,
-                    name_for_human=plugin.name,
-                    description_for_model=plugin.description,
-                    description_for_human=plugin.description,
-                    auth={
-                        "type": "none"
-                    },
-                    api=api_config,
-                    logo_url=plugin.logo_url,
-                    contact_email=plugin.contact_email,
-                    legal_info_url=plugin.legal_info_url,
-                )
-                api_spec = (
-                    f"Usage Guide: {plugin.description}\n\n"
-                    f"OpenAPI Spec: {plugin.get_openapi_doc_json()}"
-                )
-                ai_plugin_tool = AIPluginTool(
-                    name=plugin.name,
-                    description=plugin.description,
-                    plugin=ai_plugin,
-                    api_spec=api_spec
-                )
-                tools.append(ai_plugin_tool)
+        if self.plugin.manifest_url:
+            api_config = ApiConfig(
+                type="openapi",
+                url=self.plugin.openapi_doc_url
+            )
+            ai_plugin = AIPlugin(
+                schema_version=self.plugin.schema_version,
+                name_for_model=self.plugin.name,
+                name_for_human=self.plugin.name,
+                description_for_model=self.plugin.description,
+                description_for_human=self.plugin.description,
+                auth={
+                    "type": "none"
+                },
+                api=api_config,
+                logo_url=self.plugin.logo_url,
+                contact_email=self.plugin.contact_email,
+                legal_info_url=self.plugin.legal_info_url,
+            )
+            api_spec = (
+                f"Usage Guide: {self.plugin.description}\n\n"
+                f"OpenAPI Spec: {self.plugin.get_openapi_doc_json()}"
+            )
+            ai_plugin_tool = AIPluginTool(
+                name=self.plugin.name,
+                description=self.plugin.description,
+                plugin=ai_plugin,
+                api_spec=api_spec
+            )
+            tools.append(ai_plugin_tool)
+
         llm = get_llm(self.llm, self.config.openai_api_key)
         self.agent = initialize_agent(
             tools=tools,
@@ -67,10 +64,9 @@ class LangchainPluginSelector(PluginSelector):
             return_intermediate_steps=True
         )
 
-    def run(self, messages: List[Message]) -> SelectedPluginsResponse:
+    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         pre_prompts = ""
-        for plugin in self.plugins:
-            pre_prompts += plugin.get_plugin_pre_prompts()
+        pre_prompts += self.plugin.get_plugin_pre_prompts()
 
         with get_openai_callback() as cb:
             start_test_case_time = time.time()
@@ -82,7 +78,7 @@ class LangchainPluginSelector(PluginSelector):
                 response = self.agent(prompt)
                 response_prompt = response['output']
                 for step in response["intermediate_steps"]:
-                    detected_plugin = self.get_plugin_by_name(step[0].tool)
+                    detected_plugin = self.plugin.name
                     if detected_plugin:
                         plugin_operation = PluginDetected(plugin=detected_plugin)
                         detected_plugin_operations.append(plugin_operation)
@@ -114,7 +110,7 @@ class LangchainPluginSelector(PluginSelector):
                     if line.strip().startswith(
                             "Action") and not line.strip().startswith("Action Input"):
                         plugin = line.split(":")[1].strip()
-                        detected_plugin = self.get_plugin_by_name(plugin)
+                        detected_plugin = self.plugin.name
                         if detected_plugin:
                             plugin_operation = PluginDetected(plugin=detected_plugin)
                             detected_plugin_operations.append(plugin_operation)
@@ -132,7 +128,7 @@ class LangchainPluginSelector(PluginSelector):
                                     api):
                                 detected_plugin_operation.api_called = api
                                 detected_plugin_operation.mapped_operation_parameters = extracted_params
-            response_obj = SelectedPluginsResponse(
+            response_obj = SelectedApiSignatureResponse(
                 run_completed=True,
                 final_text_response=response_prompt,
                 detected_plugin_operations=detected_plugin_operations,

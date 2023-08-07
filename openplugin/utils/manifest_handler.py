@@ -42,7 +42,7 @@ def get_openplugin_manifest_from_openai_manifest(
                     path=key,
                     method=method,
                     human_usage_examples=["hello", "world"],
-                    prompt_helpers=["hello", "world"]
+                    prompt_signature_helpers=["hello", "world"]
                 )
     if selected_operations and len(selected_operations) > 0:
         plugin_operations = selected_operations

@@ -1,5 +1,6 @@
 import json
-from openplugin.interfaces.plugin_selector import Message, Plugin, Config, ToolSelectorConfig, LLM, ToolSelectorProvider
+from openplugin import Message, Plugin, Config, ToolSelectorConfig, \
+    LLM, ToolSelectorProvider
 
 
 def run_plugin_selector(inp_json):
@@ -12,12 +13,14 @@ def run_plugin_selector(inp_json):
     llm = LLM(**inp_json["llm"])
 
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        from openplugin.bindings.imprompt.imprompt_plugin_selector import ImpromptPluginSelector
+        from openplugin.bindings.imprompt.imprompt_plugin_selector import \
+            ImpromptPluginSelector
         selector = ImpromptPluginSelector(tool_selector_config, plugins, config, llm)
         response = selector.run(messages)
         return response.dict()
     elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        from openplugin.bindings.langchain.langchain_plugin_selector import LangchainPluginSelector
+        from openplugin.bindings.langchain.langchain_plugin_selector import \
+            LangchainPluginSelector
         selector = LangchainPluginSelector(tool_selector_config, plugins, config, llm)
         response = selector.run(messages)
         return response.dict()

@@ -6,6 +6,7 @@ from fastapi.security.api_key import APIKeyHeader
 
 keys = set()
 load_dotenv()
+
 if os.environ.get("USER_ACCESS_KEYS_FILE_PATH") is not None:
     load_dotenv(os.environ.get("USER_ACCESS_KEYS_FILE_PATH"))
 for key in os.environ:

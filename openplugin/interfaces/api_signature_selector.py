@@ -1,15 +1,16 @@
 from typing import List, Optional
 from abc import ABC, abstractmethod
-from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, SelectedPluginsResponse
+from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
+    SelectedApiSignatureResponse
 
 
-class PluginSelector(ABC):
+class ApiSignatureSelector(ABC):
     """Abstract base class for plugin selectors."""
 
     def __init__(
             self,
             tool_selector_config: ToolSelectorConfig,
-            plugins: List[Plugin],
+            plugin: Plugin,
             config: Optional[Config],
             llm: Optional[LLM]
     ):
@@ -22,21 +23,15 @@ class PluginSelector(ABC):
             llm (Optional[LLM]): Additional language model for the plugin selector.
         """
         self.tool_selector_config = tool_selector_config
-        self.plugins = plugins
+        self.plugin = plugin
         self.config = config
         self.llm = llm
-
-    def get_plugin_by_name(self, name: str):
-        for plugin in self.plugins:
-            if plugin.name == name:
-                return plugin
-        return None
 
     @abstractmethod
     def run(
             self,
             messages: List[Message]
-    ) -> SelectedPluginsResponse:
+    ) -> SelectedApiSignatureResponse:
         """
         Run the plugin selector on the given list of messages and return a response.
         This method should be implemented by the derived classes.

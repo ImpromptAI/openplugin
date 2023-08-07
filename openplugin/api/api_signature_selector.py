@@ -1,13 +1,13 @@
 from typing import List
+from openplugin.api import auth
 from fastapi import APIRouter, Depends
-from openplugin import LangchainPluginSelector
+from fastapi.responses import JSONResponse
+from openplugin import OpenAIApiSignatureSelector
+from fastapi.security.api_key import APIKey
+from openplugin import ImpromptApiSignatureSelector
+from openplugin import LangchainApiSignatureSelector
 from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
     ToolSelectorProvider
-from fastapi.responses import JSONResponse
-from fastapi.security.api_key import APIKey
-from openplugin.api import auth
-from openplugin import ImpromptPluginSelector
-from openplugin import OpenAIPluginSelector
 
 router = APIRouter(
     dependencies=[],
@@ -15,21 +15,21 @@ router = APIRouter(
 )
 
 
-@router.post("/plugin-selector")
+@router.post("/api-signature-selector")
 def run_plugin(
         messages: List[Message],
         tool_selector_config: ToolSelectorConfig,
-        plugins: List[Plugin],
+        plugin: Plugin,
         config: Config,
         llm: LLM,
         api_key: APIKey = Depends(auth.get_api_key)
 ):
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        selector = ImpromptPluginSelector(tool_selector_config, plugins, config, llm)
+        selector = ImpromptApiSignatureSelector(tool_selector_config, plugin, config, llm)
     elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        selector = LangchainPluginSelector(tool_selector_config, plugins, config, llm)
+        selector = LangchainApiSignatureSelector(tool_selector_config, plugin, config, llm)
     elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-        selector = OpenAIPluginSelector(tool_selector_config, plugins, config, llm)
+        selector = OpenAIApiSignatureSelector(tool_selector_config, plugin, config, llm)
     else:
         return JSONResponse(status_code=400,
                             content={"message": "Incorrect ToolSelectorProvider"})

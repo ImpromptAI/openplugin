@@ -3,32 +3,32 @@ import json
 import time
 from typing import List, Optional
 from .openai_helpers import chat_completion_with_backoff
-from openplugin import Config, ToolSelectorConfig, PluginDetected, Plugin, \
-    PluginSelector, Message, SelectedPluginsResponse, LLM, Functions
+from openplugin import Config, ToolSelectorConfig, PluginDetectedParams, Plugin, \
+    ApiSignatureSelector, Message, SelectedApiSignatureResponse, LLM, Functions
 
 
-class OpenAIPluginSelector(PluginSelector):
+class OpenAIApiSignatureSelector(ApiSignatureSelector):
     def __init__(
             self,
             tool_selector_config: ToolSelectorConfig,
-            plugins: List[Plugin],
+            plugin: Plugin,
             config: Optional[Config],
             llm: Optional[LLM]):
-        super().__init__(tool_selector_config, plugins, config, llm)
+        super().__init__(tool_selector_config, plugin, config, llm)
         if config.openai_api_key is not None:
             self.openai_api_key = config.openai_api_key
         else:
             self.openai_api_key = os.environ["OPENAI_API_KEY"]
 
-    def run(self, messages: List[Message]) -> SelectedPluginsResponse:
+    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
         f_messages = [msg.get_openai_message() for msg in messages if
                       msg.get_openai_message() is not None]
         functions = Functions()
-        for plugin in self.plugins:
-            functions.add_from_plugin(plugin)
+        functions.add_from_plugin(self.plugin)
+
         if len(functions.functions) == 0:
-            return SelectedPluginsResponse(
+            return SelectedApiSignatureResponse(
                 run_completed=True,
                 final_text_response="No functions found",
                 detected_plugin_operations=[],
@@ -39,6 +39,8 @@ class OpenAIPluginSelector(PluginSelector):
         helper_pre_prompt = functions.get_helper_pre_prompt()
         if helper_pre_prompt and len(helper_pre_prompt) > 0:
             f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
+        print("---------")
+        print(f_messages)
         function_json = functions.get_json()
         count = 0
         is_a_function_call = True
@@ -60,10 +62,12 @@ class OpenAIPluginSelector(PluginSelector):
             function_name = message["function_call"]["name"]
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
-            p_detected = PluginDetected(
+            arguments = json.loads(message["function_call"]["arguments"])
+            p_detected = PluginDetectedParams(
                 plugin=detected_plugin,
                 api_called=detected_function.get_api_url(),
-                method=detected_function.get_api_method()
+                method=detected_function.get_api_method(),
+                mapped_operation_parameters=arguments
             )
             detected_plugin_operations.append(p_detected)
             f_messages.append(message)
@@ -80,7 +84,7 @@ class OpenAIPluginSelector(PluginSelector):
                 "content")
         total_tokens += response.get("usage").get("total_tokens")
 
-        response_obj = SelectedPluginsResponse(
+        response_obj = SelectedApiSignatureResponse(
             run_completed=True,
             final_text_response=final_text_response,
             detected_plugin_operations=detected_plugin_operations,
