@@ -36,11 +36,9 @@ class OpenAIApiSignatureSelector(ApiSignatureSelector):
                 tokens_used=0,
                 llm_api_cost=0
             )
-        helper_pre_prompt = functions.get_helper_pre_prompt()
+        helper_pre_prompt = functions.get_prompt_signatures_prompt()
         if helper_pre_prompt and len(helper_pre_prompt) > 0:
             f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
-        print("---------")
-        print(f_messages)
         function_json = functions.get_json()
         count = 0
         is_a_function_call = True

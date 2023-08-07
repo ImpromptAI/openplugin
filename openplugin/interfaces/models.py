@@ -274,18 +274,28 @@ class Functions(BaseModel):
                                        "plugin_operations"),
                                    valid_operations=valid_operations)
 
-    def get_helper_pre_prompt(self):
+    def get_prompt_signatures_prompt(self):
         prompt = ""
         index = 1
         for function in self.functions:
             for helper in function.prompt_signature_helpers:
                 prompt += f"{helper} "
                 index = index + 1
-            '''
+        prompt = prompt.strip()
+        if len(prompt) > 0:
+            prompt = "The prompt signature helper prompts to help map API parameters:  " + prompt
+        return prompt.strip()
+
+    def get_examples_prompt(self):
+        prompt = ""
+        index = 1
+        for function in self.functions:
             for example in function.human_usage_examples:
                 prompt += f"example= {example} \n"
                 index = index + 1
-            '''
+        prompt = prompt.strip()
+        if len(prompt) > 0:
+            prompt = "The usage examples to predict the plugin:  " + prompt
         return prompt.strip()
 
     def add_from_openapi_spec(self, open_api_spec_url: str, plugin: Plugin = None,
@@ -353,8 +363,9 @@ class Functions(BaseModel):
                                                                                {}).get(
                     "human_usage_examples", [])
                 function_values["human_usage_examples"] = human_usage_examples
-                prompt_signature_helpers = plugin_operations_map.get(path, {}).get(method,
-                                                                         {}).get(
+                prompt_signature_helpers = plugin_operations_map.get(path, {}).get(
+                    method,
+                    {}).get(
                     "prompt_signature_helpers", [])
                 function_values["prompt_signature_helpers"] = prompt_signature_helpers
                 func = Function(**function_values)
