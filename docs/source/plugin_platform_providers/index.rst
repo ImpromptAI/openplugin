@@ -6,7 +6,8 @@ Plugin Platform Providers
     :titlesonly:
 
     installation
-    api_usage
+    plugin_selector_api
+    api_signature_selector_api
 
 
 Who is this project for?

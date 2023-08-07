@@ -6,6 +6,146 @@ OpenPlugin Manifest
 
 The OpenPlugin Manifest is a YAML/JSON file that contains information about the plugin. It is used to both discover the plugin in a marketplace, as well as links information on how to run the plugin.
 
+Definitions
+=============
+
+Plugin Authentication
+------------------------
+
+You can provide authentication information for your plugin in the auth section of the OpenPlugin Manifest.
+
+
+Types of auth types:
+
+**1. No Auth:**
+
+The plugin does not require any authentication and can be used by any user without providing any authentication.
+
+Sample:
+
+.. code-block:: json
+
+    "auth": {
+        "type": "none"
+    }
+
+**2. OAuth:**
+
+The plugin uses OAuth to authenticate with the user's account. The plugin will redirect the user to the OAuth provider's login page and then redirect the user back to the plugin with an access token.
+
+Sample:
+
+.. code-block:: json
+
+    "auth": {
+        "authorization_content_type": "application/x-www-form-urlencoded",
+        "authorization_url": "https://oauth2.googleapis.com/token",
+        "client_url": "https://accounts.google.com/o/oauth2/auth",
+        "scope": "https://www.googleapis.com/auth/drive.file",
+        "token_validation_url": "https://www.googleapis.com/oauth2/v1/tokeninfo",
+        "type": "oauth"
+    }
+
+**3. User Level:**
+
+This authentication type requires users to provide their own API key to the plugin. The plugin developer can provide a user level API key to Imprompt when the plugin is installed. Imprompt will use the user level API key to authenticate with the plugin.
+
+Sample:
+
+.. code-block:: json
+
+   "auth": {
+      "type": "user_http",
+      "authorization_type": "bearer",
+    }
+
+
+**4. Service Level:**
+
+The plugin developer can provide a service level API key to Imprompt when the plugin is registered. Imprompt will use the service level API key to authenticate with the plugin.
+
+
+Sample:
+
+.. code-block:: json
+
+    "auth": {
+      "type": "service_http",
+      "authorization_type": "bearer"
+    }
+
+
+
+Plugin Operations
+-------------------
+
+Plugin operations are the operations that the plugin supports.  You can increase the accuracy of the plugin selector API by providing human usage examples, prompt signature helpers, and plugin cleanup helpers for each plugin operation.
+
+.. note::
+    The operations listed in the plugin operations object of the OpenPlugin Manifest are only used in the Plugin.
+
+Sample:
+
+.. code-block:: json
+
+    "plugin_operations": {
+        "/public/openai/v0/products": {
+            "get": {
+            "human_usage_examples": [],
+            "plugin_cleanup_helpers": [],
+            "prompt_signature_helpers": []
+            }
+        }
+    }
+
+Human Usage Examples
+------------------------
+
+Human usage examples are examples of how a human would use the plugin.
+
+**Example:** For File Manager Plugin, the human usage examples are:
+
+1. Save text to s3
+
+2. Save my article to the cloud
+
+3. Save this stuff to a file
+
+.. note::
+  They are used to improve the accuracy of the plugin selector API. The user can provide a human usage example to help the model understand the user's intent. The model will then use the human usage example to predict the plugin that the user wants to use.
+
+
+
+Prompt Signature Helpers
+------------------------
+
+Prompt signature helpers are used to improve the accuracy of the api signature selector API. They are used to help to map the API parameters from the user's input.
+
+
+**Example:** For File Manager Plugin, the prompt signature helpers are:
+
+1. If the content of the file is unclear, say "I'm sorry, I do not know what to put into the file."
+
+2. If a file title is not provided, use a very short synopsis of the content
+
+
+.. note::
+  Plugin developer can use prompt signature helpers to set default values for the API parameters.
+
+
+
+Plugin Cleanup Helpers
+------------------------
+
+Plugin cleanup helpers are used to change the response of an API operation. If the plugin requires the response to be in a specific format, the plugin developer can provide a plugin cleanup helper to change the response of the API operation.
+
+**Example:** For File Manager Plugin, the plugin cleanup helpers are:
+
+1. summarize the json response
+
+.. note::
+    The response of this plugin call will be the summary text of the json response instead of the json response.
+
 Sample OpenPlugin Manifest
 ============================
 
@@ -105,8 +245,9 @@ Sample OpenPlugin Manifest
 You can find more details on each of these fields below.
 
 
-OpenPlugin Manifest
-======================
+OpenPlugin Manifest Fields
+=============================
+
 
 .. list-table::
    :widths: 20 20 60
@@ -160,7 +301,7 @@ An OpenPlugin operation is an extension of plugin operation defined in the OpenA
      - Clear usage examples that a human can use to trigger the operation correctly.
    * - prompt_signature_helpers
      - array
-     - Helpers for the interaction and response of the model with the operation.
+     - Prompts to help fill in the parameters of the API operation from the user's input.
    * - plugin_cleanup_helpers
      - array
      - Helper prompt to clean up the response of the plugin.

@@ -92,3 +92,13 @@ Then run the following command:
 .. code-block:: shell
 
     docker run --name [container-name] -p 8012:8012 --env-file [path-to-env-file] -d shrikant14/openplugin:latest
+
+
+API Hosted by Imprompt
+=========================================
+
+Hosted API Spec: https://api.imprompt.ai/openplugin/api/openapi.json
+
+Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
+
+**NOTE:**  Host your own instance of the service or you’ll need to get a key from jeffrschneider[at]gmail[dot]com to access the hosted service.
