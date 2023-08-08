@@ -26,7 +26,6 @@ class OpenAIApiSignatureSelector(ApiSignatureSelector):
                       msg.get_openai_message() is not None]
         functions = Functions()
         functions.add_from_plugin(self.plugin)
-
         if len(functions.functions) == 0:
             return SelectedApiSignatureResponse(
                 run_completed=True,

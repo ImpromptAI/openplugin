@@ -22,6 +22,7 @@ class PluginOperation(BaseModel):
     """
     human_usage_examples: Optional[List[str]] = []
     prompt_signature_helpers: Optional[List[str]] = []
+    plugin_cleanup_helpers: Optional[List[str]] = []
 
 
 class Plugin(BaseModel):
@@ -233,36 +234,6 @@ class Functions(BaseModel):
 
     def add_from_manifest(self, manifest_url: str, plugin: Plugin = None):
         manifest_obj = requests.get(manifest_url).json()
-        manifest_obj = {
-            "auth": {
-                "type": "none"
-            },
-            "contact_email": "openai-products@klarna.com",
-            "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
-            "legal_info_url": "https://www.klarna.com/us/legal/",
-            "logo_url": "https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg",
-            "name": "Klarna Shopping",
-            "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
-            "plugin_operations": {
-                "/public/openai/v0/products": {
-                    "get": {
-                        "human_usage_examples": [
-                            "Show me some T Shirts.",
-                            "Show me some pants.",
-                            "Show me winter jackets for men."
-                        ],
-                        "plugin_cleanup_helpers": [
-                            "Write a summary of the response"
-                        ],
-                        "prompt_signature_helpers": [
-                            "if you can't find the user's clothes size, ask the user about the size.",
-                            "If any error occurs, write an apologetic message to the user"
-                        ]
-                    }
-                }
-            },
-            "schema_version": "v1"
-        }
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
         for key in manifest_obj.get("plugin_operations"):
