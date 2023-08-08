@@ -1,8 +1,8 @@
 from typing import List, Optional, Set
 import openai, json, re, time, os
 from urllib.parse import urlparse, parse_qs
-from openplugin import MessageType, PluginSelector, PluginDetected, \
-    SelectedPluginsResponse, Message, \
+from openplugin import MessageType, ApiSignatureSelector, PluginDetected, \
+    SelectedApiSignatureResponse, Message, \
     LLM, Plugin, ToolSelectorConfig, Config, LLMProvider
 
 plugin_prompt = """
@@ -50,23 +50,23 @@ def _extract_urls(text):
     return urls
 
 
-class ImpromptPluginSelector(PluginSelector):
+class ImpromptApiSignatureSelector(ApiSignatureSelector):
     def __init__(
             self,
             tool_selector_config: ToolSelectorConfig,
-            plugins: List[Plugin],
+            plugin: Plugin,
             config: Optional[Config],
             llm: Optional[LLM]):
-        super().__init__(tool_selector_config, plugins, config, llm)
+        super().__init__(tool_selector_config, plugin, config, llm)
         self.llm = llm
         self.total_tokens_used = 0
         openai.api_key = os.environ[
             "OPENAI_API_KEY"] if config.openai_api_key is None else config.openai_api_key
 
-    def run(self, messages: List[Message]) -> SelectedPluginsResponse:
+    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
         plugin_operations = self.get_detected_plugin_with_operations(messages)
-        response = SelectedPluginsResponse(
+        response = SelectedApiSignatureResponse(
             run_completed=True,
             final_text_response=None,
             detected_plugin_operations=plugin_operations,

@@ -1,12 +1,9 @@
 ==================================
-API Usage
+API Signature Selector API
 ==================================
 
-Hosted API Spec: https://api.imprompt.ai/openplugin/api/openapi.json
 
-Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
-
-**NOTE:**  Host your own instance of the service or you’ll need to get a key from jeffrschneider[at]gmail[dot]com to access the hosted service.
+The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
 
 .. tabs::
 
@@ -26,56 +23,61 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
               "provider":"OpenAI",
               "pipeline_name":"default"
           },
-          "plugins": [{
+          "plugin": {
               "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
-          }],
+          },
           "config": {},
           "llm": {
               "provider":"OpenAIChat",
               "model_name":"gpt-3.5-turbo-0613"
           }
       }' \
-        https://api.imprompt.ai/openplugin/api/plugin-selector
+        https://api.imprompt.ai/openplugin/api/api-signature-selector
 
   .. tab:: python
 
     .. code-block:: python
 
-      import requests
+        import requests
+        import json
 
-      response = requests.post(
-          "https://api.imprompt.ai/openplugin/api/plugin-selector",
-          headers={
-              "x-api-key": "your-api-key",
-              "Content-Type": "application/json"
+        url = "https://api.imprompt.ai/openplugin/api/api-signature-selector"
+
+        payload = json.dumps({
+          "messages": [
+            {
+              "content": "Show me 4 tshirts",
+              "message_type": "HumanMessage"
+            }
+          ],
+          "tool_selector_config": {
+            "provider": "OpenAI",
+            "pipeline_name": "default"
           },
-          json={
-              "messages": [{
-                  "content":"Show me 5 t shirts?",
-                  "message_type":"HumanMessage"
-              }],
-              "tool_selector_config": {
-                  "provider":"OpenAI",
-                  "pipeline_name":"default"
-              },
-              "plugins": [{
-                  "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
-              }],
-              "config": {},
-              "llm": {
-                  "provider":"OpenAIChat",
-                  "model_name":"gpt-3.5-turbo-0613"
-              }
+          "plugin": {
+            "manifest_url": "https://assistant-management-data.s3.amazonaws.com/Open_AI_Klarna_product_Api.json"
+          },
+          "config": {},
+          "llm": {
+            "provider": "OpenAIChat",
+            "model_name": "gpt-3.5-turbo-0613"
           }
-      )
+        })
+        headers = {
+          'Content-Type': 'application/json',
+          'x-api-key': 'your-api-key'
+        }
 
-      print(response.json())
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        print(response.text)
+
 
   .. tab:: REST
 
     .. code-block:: sh
 
-        API Endpoint: https://api.imprompt.ai/openplugin/api/plugin-selector
+        API Endpoint: https://api.imprompt.ai/openplugin/api/api-signature-selector
 
         Method: POST
 
@@ -93,9 +95,9 @@ Hosted Swagger Docs: https://api.imprompt.ai/openplugin/api/docs
                 "provider":"OpenAI",
                 "pipeline_name":"default"
             },
-            "plugins": [{
+            "plugin": {
                 "manifest_url":"https://www.klarna.com/.well-known/ai-plugin.json"
-            }],
+            },
             "config": {},
             "llm": {
                 "provider":"OpenAIChat",
@@ -121,9 +123,9 @@ These parameters are used to configure the API request. The API request body is 
    * - tool_selector_config
      - object
      - The configurations for the tool selector, such as the provider and pipeline name.
-   * - plugins
-     - array
-     - The list of plugins to evaluate for tool selection.
+   * - plugin
+     - object
+     - The plugin manifest URL.
    * - config
      - object
      - The API configurations applicable for the plugins.
@@ -186,9 +188,9 @@ The tool selector config object represents the configurations for the tool selec
 3. **Langchain:** Langchain is a tool selector that uses Langchain Agent to select the best tool for the given message.
 
 
-Plugins
+Plugin
 -------
-Plugins is an array of objects. Each object represents a plugin to be evaluated by the tool selector. It has the following fields:
+Plugin is an object that represents the plugin manifest URL. It has the following fields:
 
 .. list-table::
    :widths: 20 15 55
