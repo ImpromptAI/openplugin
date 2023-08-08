@@ -2,6 +2,8 @@
 API Signature Selector API
 ==================================
 
+Request
+==========
 
 The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
 
@@ -105,6 +107,70 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
             }
         }
 
+Response
+============
+
+.. code-block:: json
+
+    {
+        "run_completed": true,
+        "final_text_response": null,
+        "detected_plugin_operations": [
+            {
+                "plugin": {
+                    "manifest_url": "https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json",
+                    "schema_version": "v1",
+                    "name": "Klarna Shopping",
+                    "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
+                    "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
+                    "auth": {
+                        "type": "none",
+                        "authorization_type": null,
+                        "verification_tokens": null,
+                        "scope": null,
+                        "client_url": null,
+                        "authorization_url": null,
+                        "authorization_content_type": null,
+                        "token_validation_url": null
+                    },
+                    "logo_url": "https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg",
+                    "contact_email": "openai-products@klarna.com",
+                    "legal_info_url": "https://www.klarna.com/us/legal/",
+                    "api_endpoints": [
+                        "https://www.klarna.com/us/shopping/public/openai/v0/products"
+                    ],
+                    "plugin_operations": {
+                        "/public/openai/v0/products": {
+                            "get": {
+                                "human_usage_examples": [
+                                    "Show me some T Shirts.",
+                                    "Show me some pants .",
+                                    "Show me winter jackets for men."
+                                ],
+                                "prompt_signature_helpers": [
+                                    "if you can't find the user's clothes size, ask the user about the size.",
+                                    "If any error occurs, write an apologetic message to the user"
+                                ],
+                                "plugin_cleanup_helpers": [
+                                    "Write a summary of the response"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "api_called": "https://www.klarna.com/us/shopping/public/openai/v0/products",
+                "method": "get",
+                "mapped_operation_parameters": {
+                    "countryCode": "US",
+                    "q": "tshirts",
+                    "size": "4"
+                }
+            }
+        ],
+        "response_time": 2.23,
+        "tokens_used": 419,
+        "llm_api_cost": 0.0
+    }
 
 API Body Parameters
 ===================

@@ -4,6 +4,9 @@ Plugin Selector API
 
 The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-selector
 
+Request
+=========
+
 .. tabs::
 
   .. tab:: curl
@@ -105,6 +108,60 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-selector
                 "model_name":"gpt-3.5-turbo-0613"
             }
         }
+
+
+Response
+==========
+
+.. code-block:: json
+
+    {
+        "run_completed": true,
+        "final_text_response": null,
+        "detected_plugin_operations": [
+            {
+                "plugin": {
+                    "manifest_url": "https://assistant-management-data.s3.amazonaws.com/Open_AI_Klarna_product_Api.json",
+                    "schema_version": "1",
+                    "name": "Open AI Klarna product Api",
+                    "description": "TODO",
+                    "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
+                    "auth": {
+                        "type": "none",
+                        "authorization_type": null,
+                        "verification_tokens": null,
+                        "scope": null,
+                        "client_url": null,
+                        "authorization_url": null,
+                        "authorization_content_type": null,
+                        "token_validation_url": null
+                    },
+                    "logo_url": "TODO",
+                    "contact_email": "TODO",
+                    "legal_info_url": "TODO",
+                    "api_endpoints": [
+                        "https://www.klarna.com/us/shopping/public/openai/v0/products"
+                    ],
+                    "plugin_operations": {
+                        "/public/v0/products": {
+                            "get": {
+                                "human_usage_examples": [
+                                    "I want to buy mens athletic t-shirts ",
+                                    "Do you have tennis shoes?"
+                                ],
+                                "prompt_signature_helpers": []
+                            }
+                        }
+                    }
+                },
+                "api_called": "https://www.klarna.com/us/shopping/public/openai/v0/products",
+                "method": "get"
+            }
+        ],
+        "response_time": 2.86,
+        "tokens_used": 411,
+        "llm_api_cost": 0.0
+    }
 
 
 API Body Parameters
