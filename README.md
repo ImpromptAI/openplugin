@@ -1,5 +1,5 @@
 ### OpenPlugin
 
-Please see the complete documentation here: https://legendaryai.github.io/openplugin/
+Please see the complete documentation here: https://openplugin.org/
 
 #### Summary:
