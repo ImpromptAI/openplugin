@@ -43,7 +43,7 @@ The process of mapping natural language to a tool can be modularized, and made a
 
     plugin_developers/index
     plugin_platform_providers/index
-    Github Repo <https://github.com/LegendaryAI/openplugin>
+    Github Repo <https://github.com/ImpromptAI/openplugin>
 
 
 .. important::
