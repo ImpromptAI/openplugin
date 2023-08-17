@@ -78,6 +78,7 @@ class ImpromptPluginSelector(PluginSelector):
 
     def get_detected_plugin_with_operations(self, messages: List[Message]) -> List[
         PluginDetected]:
+
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
@@ -114,7 +115,6 @@ class ImpromptPluginSelector(PluginSelector):
                             found_plugins.append(self.get_plugin_by_name(val.strip()))
 
         detected_plugins = []
-
         for plugin in found_plugins:
             if plugin is None:
                 continue
@@ -130,6 +130,13 @@ class ImpromptPluginSelector(PluginSelector):
                 prompt=prompt
             )
             response = self.run_llm_prompt(formatted_plugin_operation_prompt)
+            method = "get"
+            if "post" in response.get('response').lower():
+                method = "post"
+            elif "put" in response.get('response').lower():
+                method = "put"
+            elif "delete" in response.get('response').lower():
+                method = "delete"
             urls = _extract_urls(response.get('response'))
             for url in urls:
                 formatted_url = url.split("?")[0].strip()
@@ -143,6 +150,7 @@ class ImpromptPluginSelector(PluginSelector):
             detected_plugins.append(PluginDetected(
                 plugin=plugin,
                 api_called=api_called,
+                method=method,
                 mapped_operation_parameters=mapped_operation_parameters
             ))
         return detected_plugins

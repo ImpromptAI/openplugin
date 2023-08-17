@@ -1,7 +1,7 @@
 from typing import List, Optional, Set
 import openai, json, re, time, os
 from urllib.parse import urlparse, parse_qs
-from openplugin import MessageType, ApiSignatureSelector, PluginDetected, \
+from openplugin import MessageType, ApiSignatureSelector, PluginDetectedParams, \
     SelectedApiSignatureResponse, Message, \
     LLM, Plugin, ToolSelectorConfig, Config, LLMProvider
 
@@ -77,7 +77,7 @@ class ImpromptApiSignatureSelector(ApiSignatureSelector):
         return response
 
     def get_detected_plugin_with_operations(self, messages: List[Message]) -> List[
-        PluginDetected]:
+        PluginDetectedParams]:
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
@@ -85,13 +85,13 @@ class ImpromptApiSignatureSelector(ApiSignatureSelector):
         plugin_info_prompts = []
         plugin_names = []
 
-        for plugin in self.plugins:
-            plugin_names.append(plugin.name)
-            plugin_info_prompt = plugin_prompt.format(
-                name_for_model=plugin.name,
-                description_for_model=plugin.description
-            )
-            plugin_info_prompts.append(plugin_info_prompt)
+        plugin_names.append(self.plugin.name)
+        plugin_info_prompt = plugin_prompt.format(
+            name_for_model=self.plugin.name,
+            description_for_model=self.plugin.description
+        )
+        plugin_info_prompts.append(plugin_info_prompt)
+
         plugin_detection_prompt = plugin_identify_prompt.format(
             all_plugin_info_prompt="".join(plugin_info_prompts),
             all_plugin_names=", ".join(plugin_names),
@@ -130,6 +130,13 @@ class ImpromptApiSignatureSelector(ApiSignatureSelector):
                 prompt=prompt
             )
             response = self.run_llm_prompt(formatted_plugin_operation_prompt)
+            method = "get"
+            if "post" in response.get('response').lower():
+                method = "post"
+            elif "put" in response.get('response').lower():
+                method = "put"
+            elif "delete" in response.get('response').lower():
+                method = "delete"
             urls = _extract_urls(response.get('response'))
             for url in urls:
                 formatted_url = url.split("?")[0].strip()
@@ -140,12 +147,18 @@ class ImpromptApiSignatureSelector(ApiSignatureSelector):
                         k: v[0] if type(v) == list and len(v) == 1 else v for k, v in
                         query_dict.items()}
                     break
-            detected_plugins.append(PluginDetected(
+            detected_plugins.append(PluginDetectedParams(
                 plugin=plugin,
                 api_called=api_called,
+                method=method,
                 mapped_operation_parameters=mapped_operation_parameters
             ))
         return detected_plugins
+
+    def get_plugin_by_name(self, name: str):
+        if self.plugin.name == name:
+            return self.plugin
+        return None
 
     def run_llm_prompt(self, prompt):
         if self.llm.provider == LLMProvider.OpenAI:
