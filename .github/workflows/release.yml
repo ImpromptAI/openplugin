@@ -1,22 +1,10 @@
 name: release
-
-on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
-    paths:
-      - 'pyproject.toml'
-
+on: [workflow_dispatch]
 env:
   POETRY_VERSION: "1.5.0"
 
 jobs:
   if_release:
-    if: |
-        ${{ github.event.pull_request.merged == true }}
-        && ${{ contains(github.event.pull_request.labels.*.name, 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
