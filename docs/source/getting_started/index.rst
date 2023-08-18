@@ -15,12 +15,13 @@ OpenPlugin comes with a simple REST API server. It can be started with the follo
    OPENAI_API_KEY=<your-OpenAI-API-key> python start_api_server.py
 
 
-Request and response bodies are formatted as JSON.
+The server exposes an HTTP interface, with requests and responses formatted as JSON objects.
 
 Requesting Plugin Selection
 ===========================
 
 The core of the OpenPlugin functionality is plugin selection. The API server provides an interface to perform this function. The input to the call specifies:
+
 1. User's natural language message that may require the use of a plugin to optimally respond to.
 2. Set of plugins to consider.
 3. Tool Selector to use.
