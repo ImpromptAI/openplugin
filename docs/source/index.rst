@@ -5,9 +5,9 @@ Documentation
 
 Summary
 =========================
-This project provides a standard way to define LLM plugins. It is vendor neutral, and meant to be used across vendors and projects.  The project introduces the OpenPlugin manifest file format, which allows developers to specify properties and settings for their plugins such as name, version, dependencies, and supported platforms. This format enables seamless integration with plugin platform providers.
+This project provides a standard way to define LLM plugins and present them to various LLM engines. It is vendor neutral and meant to facilitate plugin portability across vendors and projects. The project introduces the OpenPlugin manifest file format, which allows developers to specify properties and settings for their plugins such as name, version, dependencies, and supported platforms. This format enables seamless integration with plugin platform providers.
 
-OpenPlugin addresses the problem of mapping natural language instructions to API calls. It involves using a tool selector to determine the intent of the command and map it to an API.
+OpenPlugin addresses the problem of mapping natural language instructions to API calls. It involves using a tool selector to determine the intent of the command and mapping it to an API.
 Our reference implementation also evaluates the accuracy of the tool selector:
 
 - selecting the correct plugin,
@@ -20,30 +20,30 @@ Finally, the project offers plugin platform providers a standardized interface f
 
 Terminology
 =========================
-Unfortunately, as this is an emerging space, there are lots of competing terms floating around. Specific to this project, here are the definitions we’re using:
+Since OpenPlugin exists within a rapidly evolving domain, the terms relating to its design space are similarly evolving. Within the context of OpenPlugin, the following are the relevant terms and their meanings:
 
 
 **1. Plugin:**
-First, it’s assumed that we mean “an LLM plugin”. A plugin is the technology an end user would add to a chat app or similar to leverage 3rd party tools like APIs.
+A set of capabilities made available to LLM, typically added by an end user to a chat app or a similar LLM client, to leverage external systems via their APIs.
 
 **2. Plugin Manifest:**
-This is the metadata associated with a plugin that users or programs can view to determine how to install it, and call it.
+A file in OpenPlugin-defined format containing metadata associated with a plugin that defines capabilities provided by the plugin and how to access them.
 
 **3. Tool Selector:**
-This refers to solutions that execute the natural language and map it to an API. Typically this is done by a platform vendor (Microsoft, Google, HuggingFace) or a library (LangChain, Imprompt).
+An OpenPlugin component that determines a plugin and an operation within its scope that are most relevant to a natural language request. OpenPlugin provides several tool selector implementations, but its architecture is designed to encourage solutions tailored to distinct vendor and model capabilities.
 
-**4. Tool Selector API/ Bindings:**
-The process of mapping natural language to a tool can be modularized, and made a dedicated task. This task can be called via a RESTful API call, or locally via a language specific binding (SDK).
-
+**4. Tool Selector API/Binding:**
+The mechanism by which tool selector implementations are introduced into the OpenPlugin framework. Two such mechanisms are currently supported: remove via a REST API and local via a language-specific binding (SDK).
 
 
 
 .. toctree::
     :titlesonly:
 
+    getting_started/index
     plugin_developers/index
     plugin_platform_providers/index
-    Github Repo <https://github.com/ImpromptAI/openplugin>
+    GitHub Repo <https://github.com/ImpromptAI/openplugin>
 
 
 .. important::
