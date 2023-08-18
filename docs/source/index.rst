@@ -40,6 +40,7 @@ The mechanism by which tool selector implementations are introduced into the Ope
 .. toctree::
     :titlesonly:
 
+    getting_started/index
     plugin_developers/index
     plugin_platform_providers/index
     GitHub Repo <https://github.com/ImpromptAI/openplugin>
