@@ -9,6 +9,7 @@ Starting API Server
 ===================
 
 OpenPlugin comes with a simple REST API server. It can be started with the following command:
+
 .. code-block:: bash
 
    OPENAI_API_KEY=<your-OpenAI-API-key> python start_api_server.py
