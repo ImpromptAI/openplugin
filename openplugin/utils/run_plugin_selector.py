@@ -37,7 +37,7 @@ def run_api_signature_selector(inp_json):
     if type(inp_json) == str:
         inp_json = json.loads(inp_json)
     messages = [Message(**m) for m in inp_json["messages"]]
-    plugin = inp_json["plugin"]
+    plugin = Plugin(**inp_json["plugin"])
     config = Config(**inp_json["config"])
     tool_selector_config = ToolSelectorConfig(**inp_json["tool_selector_config"])
     llm = LLM(**inp_json["llm"])
