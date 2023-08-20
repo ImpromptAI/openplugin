@@ -6,9 +6,6 @@ from openplugin import LLM, LLMProvider, Config, Message, MessageType, ToolSelec
 
 
 def test_klarna_plugins():
-    # TODO
-    # build new test cases, project and apis have changed.
-    '''
     # build messages
     message1 = Message(
         content="Show me t shirts from Klarna?",
@@ -21,7 +18,7 @@ def test_klarna_plugins():
         pipeline_name="default"
     )
 
-    plugin1 = Plugin(manifest_url="https://www.klarna.com/.well-known/ai-plugin.json")
+    plugin1 = Plugin(manifest_url="https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json")
     plugins = [plugin1]
     # ADD YOU OPENAI API KEY HERE
     config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
@@ -36,8 +33,8 @@ def test_klarna_plugins():
         llm=llm
     )
     response = selector.run(messages)
-    detected_plugin_names = [plugin_operation.plugin.name_for_model for plugin_operation in
+    print(response)
+    detected_plugin_names = [plugin_operation.plugin.name for plugin_operation in
                              response.detected_plugin_operations]
     assert response.run_completed
-    assert 'KlarnaProducts' in detected_plugin_names
-    '''
+    assert 'Klarna Shopping' in detected_plugin_names
