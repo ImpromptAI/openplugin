@@ -3,15 +3,19 @@ from openplugin import Message, Plugin, Config, ToolSelectorConfig, \
     LLM, ToolSelectorProvider
 
 
+# Function to run a plugin selector based on input JSON
 def run_plugin_selector(inp_json):
     if type(inp_json) == str:
         inp_json = json.loads(inp_json)
+
+    # Convert input JSON into Python objects
     messages = [Message(**m) for m in inp_json["messages"]]
     plugins = [Plugin(**p) for p in inp_json["plugins"]]
     config = Config(**inp_json["config"])
     tool_selector_config = ToolSelectorConfig(**inp_json["tool_selector_config"])
     llm = LLM(**inp_json["llm"])
 
+    # Check the provider specified in tool_selector_config and select the appropriate plugin selector
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
         from openplugin.bindings.imprompt.imprompt_plugin_selector import \
             ImpromptPluginSelector
@@ -33,14 +37,19 @@ def run_plugin_selector(inp_json):
     raise Exception("Unknown tool selector provider")
 
 
+# Function to run an API signature selector based on input JSON
 def run_api_signature_selector(inp_json):
     if type(inp_json) == str:
         inp_json = json.loads(inp_json)
+
+    # Convert input JSON into Python objects
     messages = [Message(**m) for m in inp_json["messages"]]
     plugin = Plugin(**inp_json["plugin"])
     config = Config(**inp_json["config"])
     tool_selector_config = ToolSelectorConfig(**inp_json["tool_selector_config"])
     llm = LLM(**inp_json["llm"])
+
+    # Check the provider specified in tool_selector_config and select the appropriate API signature selector
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
         from openplugin.bindings.imprompt.imprompt_api_signature_selector import \
             ImpromptApiSignatureSelector

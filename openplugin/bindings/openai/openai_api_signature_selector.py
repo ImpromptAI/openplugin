@@ -7,6 +7,7 @@ from openplugin import Config, ToolSelectorConfig, PluginDetectedParams, Plugin,
     ApiSignatureSelector, Message, SelectedApiSignatureResponse, LLM, Functions
 
 
+# Custom API Signature Selector for OpenAI
 class OpenAIApiSignatureSelector(ApiSignatureSelector):
     def __init__(
             self,
@@ -15,6 +16,8 @@ class OpenAIApiSignatureSelector(ApiSignatureSelector):
             config: Optional[Config],
             llm: Optional[LLM]):
         super().__init__(tool_selector_config, plugin, config, llm)
+
+        # Initialize the OpenAI API key from the configuration or environment variable
         if config.openai_api_key is not None:
             self.openai_api_key = config.openai_api_key
         else:

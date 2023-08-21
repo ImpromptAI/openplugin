@@ -9,12 +9,14 @@ from openplugin.api import auth
 from openplugin import ImpromptPluginSelector
 from openplugin import OpenAIPluginSelector
 
+# Create a FastAPI router instance
 router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
 
+# Define a POST endpoint for plugin-selector API
 @router.post("/plugin-selector")
 def run_plugin(
         messages: List[Message],
@@ -25,6 +27,7 @@ def run_plugin(
         api_key: APIKey = Depends(auth.get_api_key)
 ):
     try:
+        # Based on the provider specified in tool_selector_config, create the appropriate plugin selector
         if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
             selector = ImpromptPluginSelector(tool_selector_config, plugins, config,
                                               llm)
@@ -34,11 +37,14 @@ def run_plugin(
         elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
             selector = OpenAIPluginSelector(tool_selector_config, plugins, config, llm)
         else:
+            # If an incorrect ToolSelectorProvider is specified, return a 400 Bad Request response
             return JSONResponse(status_code=400,
                                 content={"message": "Incorrect ToolSelectorProvider"})
+        # Attempt to run the selected plugin selector with the provided input messages
         response = selector.run(messages)
         return response
     except Exception as e:
         print(e)
+        # Return a 500 Internal Server Error response if there's a failure in running the plugin
         return JSONResponse(status_code=500,
                             content={"message": "Failed to run plugin"})

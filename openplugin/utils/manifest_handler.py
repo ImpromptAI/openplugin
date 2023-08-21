@@ -4,10 +4,12 @@ from openplugin import PluginOperation, Plugin
 from typing import Dict
 
 
+# Function to retrieve OpenPlugin manifest from an OpenAI manifest URL
 def get_openplugin_manifest_from_openai_manifest(
         openai_manifest_url: str,
         selected_operations: Dict[str, Dict[str, PluginOperation]] = None
 ):
+    # Retrieve the OpenAI manifest JSON from the provided URL
     manifest_url = openai_manifest_url
     manifest_obj = requests.get(manifest_url).json()
 
@@ -28,6 +30,7 @@ def get_openplugin_manifest_from_openai_manifest(
     contact_email = manifest_obj.get("contact_email")
     legal_info_url = manifest_obj.get("legal_info_url")
 
+    # Retrieve the OpenAPI documentation JSON from the OpenAPI URL
     openapi_doc_json = requests.get(openapi_doc_url).json()
     api_endpoints = []
     plugin_operations = {}
@@ -44,8 +47,11 @@ def get_openplugin_manifest_from_openai_manifest(
                     human_usage_examples=["hello", "world"],
                     prompt_signature_helpers=["hello", "world"]
                 )
+    # If selected_operations is provided, use it; otherwise, use the extracted operations
     if selected_operations and len(selected_operations) > 0:
         plugin_operations = selected_operations
+
+    # Create a Plugin object with the extracted information
     plugin_obj = Plugin(
         manifest_url=manifest_url,
         schema_version=schema_version,
@@ -62,6 +68,7 @@ def get_openplugin_manifest_from_openai_manifest(
     return plugin_obj
 
 
+# Function to create an OpenPlugin manifest from OpenAPI documentation and other details
 def get_openplugin_manifest_from_openapi_doc(
         openapi_doc_url: str,
         schema_version: str,
@@ -73,6 +80,7 @@ def get_openplugin_manifest_from_openapi_doc(
         legal_info_url: str,
         selected_operations: Dict[str, Dict[str, PluginOperation]]
 ):
+    # Create a dictionary representing the OpenPlugin manifest
     manifest_obj = {
         "schema_version": schema_version,
         "name": name,

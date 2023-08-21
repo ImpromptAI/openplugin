@@ -15,6 +15,7 @@ class OpenAIPluginSelector(PluginSelector):
             config: Optional[Config],
             llm: Optional[LLM]):
         super().__init__(tool_selector_config, plugins, config, llm)
+        # Initialize the OpenAI API key from the configuration or environment variable
         if config.openai_api_key is not None:
             self.openai_api_key = config.openai_api_key
         else:

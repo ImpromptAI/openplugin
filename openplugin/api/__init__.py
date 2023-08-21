@@ -11,6 +11,7 @@ API_PREFIX = "/api"
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
 
+# Define a function to create the FastAPI application
 def create_app() -> FastAPI:
     app = FastAPI(
         title="OpenPlugin",
@@ -20,14 +21,16 @@ def create_app() -> FastAPI:
     if ENVIRONMENT == 'production':
         app.root_path = "/openplugin/"
 
-    # add routes
+    # Create an APIRouter instance to manage routes
     router = APIRouter()
     router.include_router(plugin_selector.router)
     router.include_router(api_signature_selector.router)
     app.include_router(router, prefix=API_PREFIX)
 
+    # Add an exception handler for HTTPException using the provided custom handler
     app.add_exception_handler(HTTPException, http_error_handler)
-    # Allow CORS
+
+    # Allow Cross-Origin Resource Sharing (CORS)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -38,4 +41,5 @@ def create_app() -> FastAPI:
     return app
 
 
+# Create the FastAPI application
 app = create_app()

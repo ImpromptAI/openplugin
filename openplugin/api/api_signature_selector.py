@@ -9,12 +9,14 @@ from openplugin import LangchainApiSignatureSelector
 from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
     ToolSelectorProvider
 
+# Create a FastAPI router instance
 router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
 
+# Define a POST endpoint for /api-signature-selector
 @router.post("/api-signature-selector")
 def run_plugin(
         messages: List[Message],
@@ -24,19 +26,25 @@ def run_plugin(
         llm: LLM,
         api_key: APIKey = Depends(auth.get_api_key)
 ):
+    # Based on the provider specified in tool_selector_config, create the appropriate API signature selector
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        selector = ImpromptApiSignatureSelector(tool_selector_config, plugin, config, llm)
+        selector = ImpromptApiSignatureSelector(tool_selector_config, plugin, config,
+                                                llm)
     elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        selector = LangchainApiSignatureSelector(tool_selector_config, plugin, config, llm)
+        selector = LangchainApiSignatureSelector(tool_selector_config, plugin, config,
+                                                 llm)
     elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
         selector = OpenAIApiSignatureSelector(tool_selector_config, plugin, config, llm)
     else:
+        # If an incorrect ToolSelectorProvider is specified, return a 400 Bad Request response
         return JSONResponse(status_code=400,
                             content={"message": "Incorrect ToolSelectorProvider"})
     try:
+        # Attempt to run the selected API signature selector with the provided input messages
         response = selector.run(messages)
         return response
     except Exception as e:
         print(e)
+        # Return a 500 Internal Server Error response if there's a failure in running the plugin
         return JSONResponse(status_code=500,
                             content={"message": "Failed to run plugin"})
