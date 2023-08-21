@@ -5,17 +5,40 @@ Getting Started
 .. toctree::
 
 
+Installing Dependencies
+=======================
+
+OpenPlugin uses Poetry to manage dependencies. See https://github.com/python-poetry/install.python-poetry.org for universal installation instructions. Once Poetry is available on your system, run ``poetry install`` in the root directory of your OpenPlugin Git workspace.
+
+
 Starting API Server
 ===================
 
-OpenPlugin comes with a simple REST API server. It can be started with the following command:
+OpenPlugin comes with a simple REST API server. An OpenAI API key is required to use it with OpenAI-based plugin selectors. It can be supplied to the OpenPlugin API server via ``OPENAI_API_KEY`` environment variable or via ``.env`` file in the root directory of the OpenPlugin Git workspace. The latter method is preferable for our purposes, as it facilitates reproducibility of the runtime environment and allows for preservation of secrecy of the API key better than specifying it in the shell prompt.
+
+The content of your ``.env`` file should be just the following one line:
+
+.. code-block:: text
+
+   OPENAI_API_KEY=<your-OpenAI-API-key>
+
+
+Make sure to replace ``<your-OpenAI-API-key>`` with the API key from OpenAI. The server can then be started with the following command:
 
 .. code-block:: bash
 
-   OPENAI_API_KEY=<your-OpenAI-API-key> python start_api_server.py
+   poetry run python start_api_server.py
 
 
-The server exposes an HTTP interface, with requests and responses formatted as JSON objects.
+The ``start_api_server.py`` script reads the ``.env`` file to initialize OpenAI-based plugin selectors. If you prefer not to use ``.env`` or already have the ``OPENAI_API_KEY`` variable defined in your environment, you can also run the API server as follows:
+
+.. code-block:: bash
+
+   poetry run openplugin start-server
+
+
+Note that the above commands are identical for Unix-style shells and PowerShell on both Linux and Windows.
+
 
 Requesting Plugin Selection
 ===========================
