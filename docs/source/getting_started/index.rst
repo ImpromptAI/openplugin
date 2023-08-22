@@ -119,7 +119,7 @@ Here is a sample plugin selection call to the API server using ``curl``:
         }' \
         http://localhost:8006/api/plugin-selector
 
-The value of the `manifest_url` property of the JSON request body above should refer to the OpenPlugin manifest created in the previous step.
+The value of the ``manifest_url`` property of the JSON request body above should refer to the OpenPlugin manifest created in the previous step.
 
 A successful response will return HTTP response code 200 with a response body that looks as follows:
 
