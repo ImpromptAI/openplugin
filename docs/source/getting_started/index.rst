@@ -40,6 +40,49 @@ The ``start_api_server.py`` script reads the ``.env`` file to initialize OpenAI-
 Note that the above commands are identical for Unix-style shells and PowerShell on both Linux and Windows.
 
 
+Making A Plugin
+===================
+
+We will create a demo plugin for Klarna, a comparison shopping service. An official Klarna LLM plugin is available for OpenAI's ChatGPT, but our Klarna plugin will be usable with any LLM via OpenPlugin.
+
+As with ChatGPT plugins, OpenPlugin consumes a manifest describing the operations available in the API of the service. The manifest contains a reference to the API specification in OpenAPI (Swagger) format along with natural language annotations for each operation, making each operation as clear to the LLM as possible.
+
+Here is the complete OpenPlugin manifest for our Klarna plugin:
+
+.. code-block:: json
+
+    {
+      "auth": {
+        "type": "none"
+      },
+      "name": "Klarna Shopping",
+      "logo_url": "https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg",
+      "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
+      "contact_email": "openai-products@klarna.com",
+      "legal_info_url": "https://www.klarna.com/us/legal/",
+      "schema_version": "v1",
+      "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
+      "plugin_operations": {
+        "/public/openai/v0/products": {
+          "get": {
+            "human_usage_examples": [
+              "Show me some T Shirts.",
+              "Show me some pants.",
+              "Show me winter jackets for men."
+            ],
+            "plugin_cleanup_helpers": [
+              "Use markdown",
+              "Summarize and list the products"
+            ],
+            "plugin_signature_helpers": []
+          }
+        }
+      }
+    }
+
+The details of the manifest format are defined in :ref:`openplugin-manifest`. For our purposes, note the ``plugin_operations`` property in the above JSON: it specifies the API operation used in the following steps. Save the manifest and make it available to your OpenPlugin API server for retrieval via HTTP/S.
+
+
 Requesting Plugin Selection
 ===========================
 
@@ -76,6 +119,7 @@ Here is a sample plugin selection call to the API server using ``curl``:
         }' \
         http://localhost:8006/api/plugin-selector
 
+The value of the `manifest_url` property of the JSON request body above should refer to the OpenPlugin manifest created in the previous step.
 
 A successful response will return HTTP response code 200 with a response body that looks as follows:
 
