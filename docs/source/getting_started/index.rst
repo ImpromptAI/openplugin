@@ -2,8 +2,12 @@
 Getting Started
 =================
 
-.. toctree::
+Table of Contents
+-----------------
 
+.. contents::
+   :local:
+   :depth: 2
 
 Installing Dependencies
 =======================
