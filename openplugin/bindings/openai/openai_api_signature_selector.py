@@ -49,13 +49,24 @@ class OpenAIApiSignatureSelector(ApiSignatureSelector):
         detected_plugin_operations = []
         # while is_a_function_call and count < 5:
         count += 1
-        response = chat_completion_with_backoff(
-            openai_api_key=self.openai_api_key,
-            model=self.llm.model_name,
-            messages=f_messages,
-            functions=function_json,
-            function_call="auto"
-        )
+        try:
+            response = chat_completion_with_backoff(
+                openai_api_key=self.openai_api_key,
+                model=self.llm.model_name,
+                messages=f_messages,
+                functions=function_json,
+                function_call="auto"
+            )
+        except Exception as e:
+            print(e)
+            return SelectedApiSignatureResponse(
+                run_completed=True,
+                final_text_response="Failed to run plugin",
+                detected_plugin_operations=[],
+                response_time=round(time.time() - start_test_case_time, 2),
+                tokens_used=0,
+                llm_api_cost=0
+            )
         message = response["choices"][0]["message"]
         if message.get("function_call"):
             is_a_function_call = True

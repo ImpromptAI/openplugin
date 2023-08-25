@@ -131,7 +131,7 @@ class PluginDetected(BaseModel):
 
 
 class PluginDetectedParams(PluginDetected):
-    mapped_operation_parameters: Optional[Dict[str, str]] = None
+    mapped_operation_parameters: Optional[Dict] = None
 
 
 class Config(BaseModel):
@@ -147,6 +147,7 @@ class FunctionProperty(BaseModel):
     type: str
     description: Optional[str]
     enum: Optional[List[str]]
+    items: Optional[dict]
     is_required: bool = False
 
 
@@ -193,6 +194,8 @@ class Function(BaseModel):
                 "type": param_property.type,
                 "description": param_property.description,
             }
+            if param_property.type == "array":
+                obj["items"] = param_property.items
             if param_property.enum:
                 obj["enum"] = param_property.enum
             map[param_property.name] = obj
@@ -207,7 +210,6 @@ class Function(BaseModel):
                 "properties": self.get_property_map(),
                 "required": self.get_required_properties()
             }
-
         }
         return json
 
@@ -291,7 +293,10 @@ class Functions(BaseModel):
                 function_values["api"] = API(url=f"{server_url}{path}", method=method,
                                              header=header)
                 function_values["name"] = f"{method}{path.replace('/', '_')}"
-                function_values["description"] = details.get("summary")
+                if details.get("summary") is None:
+                    function_values["description"] = function_values["name"]
+                else:
+                    function_values["description"] = details.get("summary")
                 function_values["param_type"] = "object"
                 properties = []
                 if method.lower() == "get":
@@ -299,7 +304,10 @@ class Functions(BaseModel):
                         properties_values = {}
                         properties_values["name"] = param.get("name")
                         properties_values["type"] = param.get("schema").get("type")
-                        properties_values["description"] = param.get("description")
+                        if param.get("description") is None:
+                            properties_values["description"] = param.get("name")
+                        else:
+                            properties_values["description"] = param.get("description")
                         properties_values["is_required"] = param.get("required")
                         properties.append(FunctionProperty(**properties_values))
                 elif method.lower() == "post" or method.lower() == "put":
@@ -322,8 +330,13 @@ class Functions(BaseModel):
                         properties_values = {}
                         properties_values["name"] = param
                         properties_values["type"] = params.get(param).get("type")
-                        properties_values["description"] = params.get(param).get(
-                            "description")
+                        if params.get(param).get("type") == "array":
+                            properties_values["items"] = params.get(param).get("items")
+                        if params.get(param).get("description") is None:
+                            properties_values["description"] = param
+                        else:
+                            properties_values["description"] = params.get(param).get(
+                                "description")
                         if param in required_params:
                             properties_values["is_required"] = True
                         else:
