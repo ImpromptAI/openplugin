@@ -8,10 +8,10 @@ from langchain.tools.plugin import AIPlugin, ApiConfig
 from .langchain_helpers import get_agent_type, get_llm
 from langchain.agents import load_tools, initialize_agent
 from openplugin import Config, ToolSelectorConfig, PluginDetected, Plugin, \
-    ApiSignatureSelector, Message, SelectedApiSignatureResponse, LLM
+    OperationSignatureBuilder, Message, SelectedApiSignatureResponse, LLM
 
 
-class LangchainApiSignatureSelector(ApiSignatureSelector):
+class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
     def __init__(
             self,
             tool_selector_config: ToolSelectorConfig,

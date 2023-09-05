@@ -5,7 +5,8 @@ from openplugin.api import plugin_selector
 from .http_error import http_error_handler
 from starlette.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from openplugin.api import api_signature_selector, plugin_selector
+from openplugin.api import operation_signature_builder, plugin_selector, \
+    operation_execution
 
 API_PREFIX = "/api"
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
@@ -24,7 +25,8 @@ def create_app() -> FastAPI:
     # Create an APIRouter instance to manage routes
     router = APIRouter()
     router.include_router(plugin_selector.router)
-    router.include_router(api_signature_selector.router)
+    router.include_router(operation_signature_builder.router)
+    router.include_router(operation_execution.router)
     app.include_router(router, prefix=API_PREFIX)
 
     # Add an exception handler for HTTPException using the provided custom handler

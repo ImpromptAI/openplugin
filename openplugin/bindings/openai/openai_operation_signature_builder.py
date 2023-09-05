@@ -4,11 +4,11 @@ import time
 from typing import List, Optional
 from .openai_helpers import chat_completion_with_backoff
 from openplugin import Config, ToolSelectorConfig, PluginDetectedParams, Plugin, \
-    ApiSignatureSelector, Message, SelectedApiSignatureResponse, LLM, Functions
+    OperationSignatureBuilder, Message, SelectedApiSignatureResponse, LLM, Functions
 
 
 # Custom API Signature Selector for OpenAI
-class OpenAIApiSignatureSelector(ApiSignatureSelector):
+class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
     def __init__(
             self,
             tool_selector_config: ToolSelectorConfig,

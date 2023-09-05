@@ -469,3 +469,19 @@ class Message(BaseModel):
             return {"role": "assistant", "content": self.content}
         elif self.message_type == MessageType.SystemMessage:
             return {"role": "system", "content": self.content}
+
+
+class OperationExecutionParams(BaseModel):
+    openai_api_key: Optional[str]
+    api: str
+    method: str
+    query_params: Optional[dict]
+    body: Optional[dict]
+    header: Optional[dict]
+    post_processing_cleanup_prompt: Optional[str]
+    llm: Optional[LLM]
+
+
+class OperationExecutionResponse(BaseModel):
+    response: Optional[dict]
+    post_cleanup_text: Optional[str]

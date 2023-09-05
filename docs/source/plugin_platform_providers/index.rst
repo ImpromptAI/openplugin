@@ -8,6 +8,7 @@ Plugin Platform Providers
     installation
     plugin_selector_api
     api_signature_selector_api
+    operation_execution_api
 
 
 Who is this project for?

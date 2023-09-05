@@ -210,7 +210,7 @@ The next OpenPlugin API server operation that is typically invoked after plugin 
             "model_name":"gpt-3.5-turbo-0613"
           }
         }' \
-        localhost:8006/api/api-signature-selector
+        localhost:8006/api/operation-signature-builder
 
 The response contains the plugin invocation details for the specified natural language query:
 

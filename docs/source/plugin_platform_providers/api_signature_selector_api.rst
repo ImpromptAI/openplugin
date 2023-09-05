@@ -1,11 +1,11 @@
 ==================================
-API Signature Selector API
+Operation Signature Builder API
 ==================================
 
 Request
 ==========
 
-The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
+The API endpoint: {{SERVER_ENDPOINT}}/api/operation-signature-builder
 
 .. tabs::
 
@@ -34,7 +34,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
               "model_name":"gpt-3.5-turbo-0613"
           }
       }' \
-        https://api.imprompt.ai/openplugin/api/api-signature-selector
+        https://api.imprompt.ai/openplugin/api/operation-signature-builder
 
   .. tab:: python
 
@@ -43,7 +43,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
         import requests
         import json
 
-        url = "https://api.imprompt.ai/openplugin/api/api-signature-selector"
+        url = "https://api.imprompt.ai/openplugin/api/operation-signature-builder"
 
         payload = json.dumps({
           "messages": [
@@ -79,7 +79,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/api-signature-selector
 
     .. code-block:: sh
 
-        API Endpoint: https://api.imprompt.ai/openplugin/api/api-signature-selector
+        API Endpoint: https://api.imprompt.ai/openplugin/api/operation-signature-builder
 
         Method: POST
 

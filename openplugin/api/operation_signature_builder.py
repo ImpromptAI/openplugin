@@ -2,10 +2,9 @@ from typing import List
 from openplugin.api import auth
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from openplugin import OpenAIApiSignatureSelector
 from fastapi.security.api_key import APIKey
-from openplugin import ImpromptApiSignatureSelector
-from openplugin import LangchainApiSignatureSelector
+from openplugin import OpenAIOperationSignatureBuilder, \
+    ImpromptOperationSignatureBuilder, LangchainOperationSignatureBuilder
 from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
     ToolSelectorProvider
 
@@ -17,8 +16,8 @@ router = APIRouter(
 
 
 # Define a POST endpoint for /api-signature-selector
-@router.post("/api-signature-selector")
-def run_plugin(
+@router.post("/operation-signature-builder")
+def operation_signature_builder(
         messages: List[Message],
         tool_selector_config: ToolSelectorConfig,
         plugin: Plugin,
@@ -28,13 +27,14 @@ def run_plugin(
 ):
     # Based on the provider specified in tool_selector_config, create the appropriate API signature selector
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        selector = ImpromptApiSignatureSelector(tool_selector_config, plugin, config,
-                                                llm)
+        selector = ImpromptOperationSignatureBuilder(tool_selector_config, plugin,
+                                                     config, llm)
     elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        selector = LangchainApiSignatureSelector(tool_selector_config, plugin, config,
-                                                 llm)
+        selector = LangchainOperationSignatureBuilder(tool_selector_config, plugin,
+                                                      config, llm)
     elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-        selector = OpenAIApiSignatureSelector(tool_selector_config, plugin, config, llm)
+        selector = OpenAIOperationSignatureBuilder(tool_selector_config, plugin, config,
+                                                   llm)
     else:
         # If an incorrect ToolSelectorProvider is specified, return a 400 Bad Request response
         return JSONResponse(status_code=400,

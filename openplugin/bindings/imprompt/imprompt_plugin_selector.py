@@ -1,9 +1,9 @@
-from typing import List, Optional, Set
+from typing import List, Optional
 import openai, json, re, time, os
 from urllib.parse import urlparse, parse_qs
 from openplugin import MessageType, PluginSelector, PluginDetected, \
-    SelectedPluginsResponse, Message, \
-    LLM, Plugin, ToolSelectorConfig, Config, LLMProvider
+    SelectedPluginsResponse, Message, LLM, Plugin, ToolSelectorConfig, Config, \
+    LLMProvider
 
 plugin_prompt = """
 {name_for_model}: Call this tool to get the OpenAPI spec (and usage guide) for interacting with the {name_for_model} API. 

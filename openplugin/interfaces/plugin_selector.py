@@ -1,6 +1,7 @@
 from typing import List, Optional
 from abc import ABC, abstractmethod
-from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, SelectedPluginsResponse
+from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
+    SelectedPluginsResponse
 
 
 class PluginSelector(ABC):

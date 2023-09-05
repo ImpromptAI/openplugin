@@ -18,7 +18,7 @@ router = APIRouter(
 
 # Define a POST endpoint for plugin-selector API
 @router.post("/plugin-selector")
-def run_plugin(
+def plugin_selector(
         messages: List[Message],
         tool_selector_config: ToolSelectorConfig,
         plugins: List[Plugin],

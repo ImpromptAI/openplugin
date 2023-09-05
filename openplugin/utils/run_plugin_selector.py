@@ -51,24 +51,24 @@ def run_api_signature_selector(inp_json):
 
     # Check the provider specified in tool_selector_config and select the appropriate API signature selector
     if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        from openplugin.bindings.imprompt.imprompt_api_signature_selector import \
-            ImpromptApiSignatureSelector
-        selector = ImpromptApiSignatureSelector(tool_selector_config, plugin,
-                                                config, llm)
+        from openplugin.bindings.imprompt.imprompt_operation_signature_builder import \
+            ImpromptOperationSignatureBuilder
+        selector = ImpromptOperationSignatureBuilder(tool_selector_config, plugin,
+                                                     config, llm)
         response = selector.run(messages)
         return response.dict()
     elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        from openplugin.bindings.langchain.langchain_api_signature_selector import \
-            LangchainApiSignatureSelector
-        selector = LangchainApiSignatureSelector(tool_selector_config, plugin,
-                                                 config, llm)
+        from openplugin.bindings.langchain.langchain_operation_signature_selector import \
+            LangchainOperationSignatureBuilder
+        selector = LangchainOperationSignatureBuilder(tool_selector_config, plugin,
+                                                      config, llm)
         response = selector.run(messages)
         return response.dict()
     elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-        from openplugin.bindings.openai.openai_api_signature_selector import \
-            OpenAIApiSignatureSelector
-        selector = OpenAIApiSignatureSelector(tool_selector_config, plugin,
-                                              config, llm)
+        from openplugin.bindings.openai.openai_operation_signature_builder import \
+            OpenAIOperationSignatureBuilder
+        selector = OpenAIOperationSignatureBuilder(tool_selector_config, plugin,
+                                                   config, llm)
         response = selector.run(messages)
         return response.dict()
     raise Exception("Unknown tool selector provider")

@@ -1,5 +1,4 @@
 import os
-import json
 import time
 from typing import List, Optional
 from .openai_helpers import chat_completion_with_backoff

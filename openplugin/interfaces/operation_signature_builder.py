@@ -4,7 +4,7 @@ from openplugin import Message, LLM, Plugin, ToolSelectorConfig, Config, \
     SelectedApiSignatureResponse
 
 
-class ApiSignatureSelector(ABC):
+class OperationSignatureBuilder(ABC):
     """Abstract base class for plugin selectors."""
 
     def __init__(
