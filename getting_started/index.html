@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Getting Started &#8212; openplugin 0.0.21 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plugin Developers" href="../plugin_developers/index.html" />
+    <link rel="prev" title="Documentation" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../plugin_developers/index.html">Plugin Developers</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_developers/openplugin_manifest.html">OpenPlugin Manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_developers/using_the_openapi_document.html">Using the OpenAPI Document</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../plugin_platform_providers/index.html">Plugin Platform Providers</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/installation.html">Installation &amp; Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/plugin_selector_api.html">Plugin Selector API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/api_signature_selector_api.html">Operation Signature Builder API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/operation_execution_api.html">Operation Execution API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ImpromptAI/openplugin">GitHub Repo</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Getting Started</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-dependencies">Installing Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-api-server">Starting API Server</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-plugin">Making A Plugin</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requesting-plugin-selection">Requesting Plugin Selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requesting-call-signature">Requesting Call Signature</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-api-details">OpenPlugin API Details</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this heading">#</a></h2>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#installing-dependencies" id="id1">Installing Dependencies</a></p></li>
+<li><p><a class="reference internal" href="#starting-api-server" id="id2">Starting API Server</a></p></li>
+<li><p><a class="reference internal" href="#making-a-plugin" id="id3">Making A Plugin</a></p></li>
+<li><p><a class="reference internal" href="#requesting-plugin-selection" id="id4">Requesting Plugin Selection</a></p></li>
+<li><p><a class="reference internal" href="#requesting-call-signature" id="id5">Requesting Call Signature</a></p></li>
+<li><p><a class="reference internal" href="#openplugin-api-details" id="id6">OpenPlugin API Details</a></p></li>
+</ul>
+</nav>
+<section id="installing-dependencies">
+<h3><a class="toc-backref" href="#id1" role="doc-backlink">Installing Dependencies</a><a class="headerlink" href="#installing-dependencies" title="Permalink to this heading">#</a></h3>
+<p>OpenPlugin uses Poetry to manage dependencies. See <a class="github reference external" href="https://github.com/python-poetry/install.python-poetry.org">python-poetry/install.python-poetry.org</a> for universal installation instructions. Once Poetry is available on your system, run <code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">install</span></code> in the root directory of your OpenPlugin Git workspace.</p>
+</section>
+<section id="starting-api-server">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">Starting API Server</a><a class="headerlink" href="#starting-api-server" title="Permalink to this heading">#</a></h3>
+<p>OpenPlugin comes with a simple REST API server. An OpenAI API key is required to use it with OpenAI-based plugin selectors. It can be supplied to the OpenPlugin API server via <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> environment variable or via <code class="docutils literal notranslate"><span class="pre">.env</span></code> file in the root directory of the OpenPlugin Git workspace. The latter method is preferable for our purposes, as it facilitates reproducibility of the runtime environment and allows for preservation of secrecy of the API key better than specifying it in the shell prompt.</p>
+<p>The content of your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file should be just the following one line:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>OPENAI_API_KEY=&lt;your-OpenAI-API-key&gt;
+</pre></div>
+</div>
+<p>Make sure to replace <code class="docutils literal notranslate"><span class="pre">&lt;your-OpenAI-API-key&gt;</span></code> with the API key from OpenAI. The server can then be started with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>start_api_server.py
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">start_api_server.py</span></code> script reads the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file to initialize OpenAI-based plugin selectors. If you prefer not to use <code class="docutils literal notranslate"><span class="pre">.env</span></code> or already have the <code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> variable defined in your environment, you can also run the API server as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>run<span class="w"> </span>openplugin<span class="w"> </span>start-server
+</pre></div>
+</div>
+<p>Note that the above commands are identical for Unix-style shells and PowerShell on both Linux and Windows.</p>
+</section>
+<section id="making-a-plugin">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Making A Plugin</a><a class="headerlink" href="#making-a-plugin" title="Permalink to this heading">#</a></h3>
+<p>We will create a demo plugin for Klarna, a comparison shopping service. An official Klarna LLM plugin is available for OpenAI’s ChatGPT, but our Klarna plugin will be usable with any LLM via OpenPlugin.</p>
+<p>As with ChatGPT plugins, OpenPlugin consumes a manifest describing the operations available in the API of the service. The manifest contains a reference to the API specification in OpenAPI (Swagger) format along with natural language annotations for each operation, making each operation as clear to the LLM as possible.</p>
+<p>Here is the complete OpenPlugin manifest for our Klarna plugin:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Klarna Shopping&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;logo_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;contact_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;openai-products@klarna.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;legal_info_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/legal/&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;openapi_doc_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/api-docs/&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;/public/openai/v0/products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;get&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;human_usage_examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;Show me some T Shirts.&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;Show me some pants.&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;Show me winter jackets for men.&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;plugin_cleanup_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;Use markdown&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">&quot;Summarize and list the products&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;plugin_signature_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The details of the manifest format are defined in <a class="reference internal" href="../plugin_developers/openplugin_manifest.html#openplugin-manifest"><span class="std std-ref">OpenPlugin Manifest</span></a>. For our purposes, note the <code class="docutils literal notranslate"><span class="pre">plugin_operations</span></code> property in the above JSON: it specifies the API operation used in the following steps. Save the manifest and make it available to your OpenPlugin API server for retrieval via HTTP/S.</p>
+</section>
+<section id="requesting-plugin-selection">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Requesting Plugin Selection</a><a class="headerlink" href="#requesting-plugin-selection" title="Permalink to this heading">#</a></h3>
+<p>The core of the OpenPlugin functionality is plugin selection. The API server provides an interface to perform this function. The input to the call specifies:</p>
+<ol class="arabic simple">
+<li><p>User’s natural language message that may require the use of a plugin to optimally respond to.</p></li>
+<li><p>Set of plugins to consider.</p></li>
+<li><p>Tool Selector to use.</p></li>
+<li><p>LLM engine and model that would be used by the Tool Selector.</p></li>
+</ol>
+<p>Here is a sample plugin selection call to the API server using <code class="docutils literal notranslate"><span class="pre">curl</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">         &quot;messages&quot;: [{</span>
+<span class="s1">             &quot;content&quot;: &quot;Show me 4 t-shirts&quot;,</span>
+<span class="s1">             &quot;message_type&quot;: &quot;HumanMessage&quot;</span>
+<span class="s1">         }],</span>
+<span class="s1">         &quot;tool_selector_config&quot;: {</span>
+<span class="s1">             &quot;provider&quot;: &quot;OpenAI&quot;,</span>
+<span class="s1">             &quot;pipeline_name&quot;: &quot;default&quot;</span>
+<span class="s1">         },</span>
+<span class="s1">         &quot;plugins&quot;: [{</span>
+<span class="s1">             &quot;manifest_url&quot;: &quot;https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json&quot;</span>
+<span class="s1">         }],</span>
+<span class="s1">         &quot;config&quot;: {},</span>
+<span class="s1">         &quot;llm&quot;: {</span>
+<span class="s1">             &quot;provider&quot;: &quot;OpenAIChat&quot;,</span>
+<span class="s1">             &quot;model_name&quot;: &quot;gpt-3.5-turbo-0613&quot;</span>
+<span class="s1">         }</span>
+<span class="s1">     }&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>http://localhost:8006/api/plugin-selector
+</pre></div>
+</div>
+<p>The value of the <code class="docutils literal notranslate"><span class="pre">manifest_url</span></code> property of the JSON request body above should refer to the OpenPlugin manifest created in the previous step.</p>
+<p>A successful response will return HTTP response code 200 with a response body that looks as follows:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;run_completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;final_text_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;detected_plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;manifest_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Klarna Shopping&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;openapi_doc_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/api-docs/&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;authorization_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;verification_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;client_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;authorization_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;authorization_content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;token_validation_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;logo_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;contact_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;openai-products@klarna.com&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;legal_info_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/legal/&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;api_endpoints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/products&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;/public/openai/v0/products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;get&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;human_usage_examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;Show me some T Shirts.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Show me some pants.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Show me winter jackets for men.&quot;</span>
+<span class="w">              </span><span class="p">],</span>
+<span class="w">              </span><span class="nt">&quot;prompt_signature_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">              </span><span class="nt">&quot;plugin_cleanup_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;Use markdown&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Summarize and list the products&quot;</span>
+<span class="w">              </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;api_called&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/products&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;response_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.11</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tokens_used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">409</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;llm_api_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="requesting-call-signature">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Requesting Call Signature</a><a class="headerlink" href="#requesting-call-signature" title="Permalink to this heading">#</a></h3>
+<p>The next OpenPlugin API server operation that is typically invoked after plugin selection is the call signature request. This function produces the specific plugin API call semantics, generating the parameter values for plugin invocation. The request is the same as for the plugin selection, the only difference being the URL path of the API server:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">       &quot;messages&quot;: [{</span>
+<span class="s1">         &quot;content&quot;:&quot;Show me 4 t-shirts&quot;,</span>
+<span class="s1">         &quot;message_type&quot;:&quot;HumanMessage&quot;</span>
+<span class="s1">       }],</span>
+<span class="s1">       &quot;tool_selector_config&quot;: {</span>
+<span class="s1">         &quot;provider&quot;:&quot;OpenAI&quot;,</span>
+<span class="s1">         &quot;pipeline_name&quot;:&quot;default&quot;</span>
+<span class="s1">       },</span>
+<span class="s1">       &quot;plugin&quot;: {</span>
+<span class="s1">         &quot;manifest_url&quot;:&quot;https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json&quot;</span>
+<span class="s1">       },</span>
+<span class="s1">       &quot;config&quot;: {},</span>
+<span class="s1">       &quot;llm&quot;: {</span>
+<span class="s1">         &quot;provider&quot;:&quot;OpenAIChat&quot;,</span>
+<span class="s1">         &quot;model_name&quot;:&quot;gpt-3.5-turbo-0613&quot;</span>
+<span class="s1">       }</span>
+<span class="s1">     }&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>localhost:8006/api/operation-signature-builder
+</pre></div>
+</div>
+<p>The response contains the plugin invocation details for the specified natural language query:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;run_completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;final_text_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;detected_plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;manifest_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Klarna Shopping&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;openapi_doc_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/api-docs/&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;authorization_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;verification_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;client_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;authorization_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;authorization_content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;token_validation_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;logo_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;contact_email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;openai-products@klarna.com&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;legal_info_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/legal/&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;api_endpoints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/products&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;/public/openai/v0/products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;get&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;human_usage_examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;Show me some T Shirts.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Show me some pants.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Show me winter jackets for men.&quot;</span>
+<span class="w">              </span><span class="p">],</span>
+<span class="w">              </span><span class="nt">&quot;prompt_signature_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">              </span><span class="nt">&quot;plugin_cleanup_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;Use markdown&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;Summarize and list the products&quot;</span>
+<span class="w">              </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;api_called&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/products&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;mapped_operation_parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;countryCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;US&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;q&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tshirt&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;response_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.09</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tokens_used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">367</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;llm_api_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The output shows the selected plugin, the specific operation to call and how to call it, including any applicable parameter values to be passed by the calling system.</p>
+</section>
+<section id="openplugin-api-details">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">OpenPlugin API Details</a><a class="headerlink" href="#openplugin-api-details" title="Permalink to this heading">#</a></h3>
+<p>You can further explore the request and response JSON structures of the two API server operations by opening <a class="reference external" href="http://localhost:8006/api/docs">http://localhost:8006/api/docs</a> on your local API server. A corresponding OpenAPI spec can be retrieved from <a class="reference external" href="http://localhost:8006/api/openapi.json">http://localhost:8006/api/openapi.json</a>.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Documentation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../plugin_developers/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Plugin Developers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-dependencies">Installing Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-api-server">Starting API Server</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-plugin">Making A Plugin</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requesting-plugin-selection">Requesting Plugin Selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#requesting-call-signature">Requesting Call Signature</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-api-details">OpenPlugin API Details</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Shrikant M & Barrett J
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, Imprompt.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

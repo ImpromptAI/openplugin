@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>OpenPlugin Manifest &#8212; openplugin 0.0.21 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/tabs.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'plugin_developers/openplugin_manifest';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using the OpenAPI Document" href="using_the_openapi_document.html" />
+    <link rel="prev" title="Plugin Developers" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Plugin Developers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">OpenPlugin Manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using_the_openapi_document.html">Using the OpenAPI Document</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../plugin_platform_providers/index.html">Plugin Platform Providers</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/installation.html">Installation &amp; Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/plugin_selector_api.html">Plugin Selector API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/api_signature_selector_api.html">Operation Signature Builder API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugin_platform_providers/operation_execution_api.html">Operation Execution API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ImpromptAI/openplugin">GitHub Repo</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/plugin_developers/openplugin_manifest.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>OpenPlugin Manifest</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-authentication">Plugin Authentication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-operations">Plugin Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#human-usage-examples">Human Usage Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-signature-helpers">Prompt Signature Helpers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-cleanup-helpers">Plugin Cleanup Helpers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-openplugin-manifest">Sample OpenPlugin Manifest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-manifest-fields">OpenPlugin Manifest Fields</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-operations">OpenPlugin Operations</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="openplugin-manifest">
+<span id="id1"></span><h1>OpenPlugin Manifest<a class="headerlink" href="#openplugin-manifest" title="Permalink to this heading">#</a></h1>
+<p>The OpenPlugin Manifest is a YAML/JSON file that contains information about the plugin. It is used to both discover the plugin in a marketplace, as well as links information on how to run the plugin.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this heading">#</a></h2>
+<section id="plugin-authentication">
+<h3>Plugin Authentication<a class="headerlink" href="#plugin-authentication" title="Permalink to this heading">#</a></h3>
+<p>You can provide authentication information for your plugin in the auth section of the OpenPlugin Manifest.</p>
+<p>Types of auth types:</p>
+<p><strong>1. No Auth:</strong></p>
+<p>The plugin does not require any authentication and can be used by any user without providing any authentication.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>2. OAuth:</strong></p>
+<p>The plugin uses OAuth to authenticate with the user’s account. The plugin will redirect the user to the OAuth provider’s login page and then redirect the user back to the plugin with an access token.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;authorization_content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/x-www-form-urlencoded&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;authorization_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://oauth2.googleapis.com/token&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;client_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.googleapis.com/auth/drive.file&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token_validation_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.googleapis.com/oauth2/v1/tokeninfo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oauth&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>3. User Level:</strong></p>
+<p>This authentication type requires users to provide their own API key to the plugin. The plugin developer can provide a user level API key to Imprompt when the plugin is installed. Imprompt will use the user level API key to authenticate with the plugin.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_http&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;authorization_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>4. Service Level:</strong></p>
+<p>The plugin developer can provide a service level API key to Imprompt when the plugin is registered. Imprompt will use the service level API key to authenticate with the plugin.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;service_http&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;authorization_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bearer&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="plugin-operations">
+<h3>Plugin Operations<a class="headerlink" href="#plugin-operations" title="Permalink to this heading">#</a></h3>
+<p>Plugin operations are the operations that the plugin supports.  You can increase the accuracy of the plugin selector API by providing human usage examples, prompt signature helpers, and plugin cleanup helpers for each plugin operation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The operations listed in the plugin operations object of the OpenPlugin Manifest are only used in the Plugin.</p>
+</div>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;/public/openai/v0/products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;get&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;human_usage_examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;plugin_cleanup_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;prompt_signature_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="human-usage-examples">
+<h3>Human Usage Examples<a class="headerlink" href="#human-usage-examples" title="Permalink to this heading">#</a></h3>
+<p>Human usage examples are examples of how a human would use the plugin.</p>
+<p><strong>Example:</strong> For File Manager Plugin, the human usage examples are:</p>
+<ol class="arabic simple">
+<li><p>Save text to s3</p></li>
+<li><p>Save my article to the cloud</p></li>
+<li><p>Save this stuff to a file</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>They are used to improve the accuracy of the plugin selector API. The user can provide a human usage example to help the model understand the user’s intent. The model will then use the human usage example to predict the plugin that the user wants to use.</p>
+</div>
+</section>
+<section id="prompt-signature-helpers">
+<h3>Prompt Signature Helpers<a class="headerlink" href="#prompt-signature-helpers" title="Permalink to this heading">#</a></h3>
+<p>Prompt signature helpers are used to improve the accuracy of the api signature selector API. They are used to help to map the API parameters from the user’s input.</p>
+<p><strong>Example:</strong> For File Manager Plugin, the prompt signature helpers are:</p>
+<ol class="arabic simple">
+<li><p>If the content of the file is unclear, say “I’m sorry, I do not know what to put into the file.”</p></li>
+<li><p>If a file title is not provided, use a very short synopsis of the content</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Plugin developer can use prompt signature helpers to set default values for the API parameters.</p>
+</div>
+</section>
+<section id="plugin-cleanup-helpers">
+<h3>Plugin Cleanup Helpers<a class="headerlink" href="#plugin-cleanup-helpers" title="Permalink to this heading">#</a></h3>
+<p>Plugin cleanup helpers are used to change the response of an API operation. If the plugin requires the response to be in a specific format, the plugin developer can provide a plugin cleanup helper to change the response of the API operation.</p>
+<p><strong>Example:</strong> For File Manager Plugin, the plugin cleanup helpers are:</p>
+<ol class="arabic simple">
+<li><p>summarize the json response</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The response of this plugin call will be the summary text of the json response instead of the json response.</p>
+</div>
+</section>
+</section>
+<section id="sample-openplugin-manifest">
+<h2>Sample OpenPlugin Manifest<a class="headerlink" href="#sample-openplugin-manifest" title="Permalink to this heading">#</a></h2>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">YAML</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">JSON</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">File Manager</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plugin to manage text file and content</span>
+<span class="nt">openapi_doc_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://ws.imprompt.ai/api/plugin/file-manager/openapi.json</span>
+<span class="nt">auth</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="nt">logo_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://imprompt-app-assets.s3.amazonaws.com/file_manager.jpg</span>
+<span class="nt">contact_email</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shrikant@brandops.io</span>
+<span class="nt">legal_info_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TODO</span>
+<span class="nt">plugin_operations</span><span class="p">:</span>
+<span class="w">  </span><span class="s">&quot;/api/plugin/file-manager/save-in-s3-file&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">post</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">human_usage_examples</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Save text to s3</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Save my article to the cloud</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Save this stuff to a file</span>
+<span class="w">      </span><span class="nt">prompt_signature_helpers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">If the content of the file is unclear, say &quot;I&#39;m sorry, I do not know what to put into the file.&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">If a file title is not provided, use a very short synopsis of the content</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">If any error occurs, write an apologetic message to the user</span>
+<span class="w">      </span><span class="nt">plugin_cleanup_helpers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">summarize the json response</span>
+<span class="w">  </span><span class="s">&quot;/api/plugin/file-manager/delete-s3-file&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">post</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">human_usage_examples</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete my article from the cloud</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete this file</span>
+<span class="w">      </span><span class="nt">prompt_signature_helpers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">If the file is not specified, say &quot;I&#39;m sorry, I do not know which file to delete.&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">If any error occurs, write an apologetic message to the user</span>
+<span class="w">      </span><span class="nt">plugin_cleanup_helpers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">summarize the json response</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;File Manager&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Plugin to manage text file and content&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;openapi_doc_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://ws.imprompt.ai/api/plugin/file-manager/openapi.json&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;auth&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;logo_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://imprompt-plugin-assets.s3.amazonaws.com/system_plugins/google_gmail_icon.png&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;shrikant@brandops.io&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;legal_info_url&quot;</span><span class="p">:</span> <span class="s2">&quot;TODO&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;plugin_operations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;/api/plugin/file-manager/save-in-s3-file&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;human_usage_examples&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="s2">&quot;Save text to s3&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;Save my article to the cloud&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;Save this stuff to a file&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;prompt_signature_helpers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="s2">&quot;If the content of the file is unclear, say I&#39;m sorry, I do not know what to put into the file.&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;If a file title is not provided, use a very short synopsis of the content&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;If any error occurs, write an apologetic message to the user&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;plugin_cleanup_helpers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="s2">&quot;summarize the json response</span>
+              <span class="p">]</span>
+          <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;/api/plugin/file-manager/delete-s3-file&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;human_usage_examples&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="s2">&quot;Delete my article from the cloud&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;Delete this file&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;prompt_signature_helpers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="s2">&quot;If the file is not specified, say I&#39;m sorry, I do not know which file to delete.&quot;</span>
+                  <span class="s2">&quot;If any error occurs, write an apologetic message to the user&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;plugin_cleanup_helpers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="s2">&quot;summarize the json response</span>
+              <span class="p">]</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div>
+<p>You can find more details on each of these fields below.</p>
+</section>
+<section id="openplugin-manifest-fields">
+<h2>OpenPlugin Manifest Fields<a class="headerlink" href="#openplugin-manifest-fields" title="Permalink to this heading">#</a></h2>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>schema_version</p></td>
+<td><p>integer</p></td>
+<td><p>The version of the OpenPlugin manifest.</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the plugin.</p></td>
+</tr>
+<tr class="row-even"><td><p>description</p></td>
+<td><p>string</p></td>
+<td><p>This description of the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>openapi_doc_url</p></td>
+<td><p>string</p></td>
+<td><p>The URL of the OpenAPI specification document of the plugin.</p></td>
+</tr>
+<tr class="row-even"><td><p>auth</p></td>
+<td><p>object</p></td>
+<td><p>The authentication information for the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>logo_url</p></td>
+<td><p>string</p></td>
+<td><p>The URL of the logo for the plugin.</p></td>
+</tr>
+<tr class="row-even"><td><p>contact_email</p></td>
+<td><p>string</p></td>
+<td><p>The email address of the plugin developer.</p></td>
+</tr>
+<tr class="row-odd"><td><p>legal_info_url</p></td>
+<td><p>string</p></td>
+<td><p>The URL of the legal information for the plugin.</p></td>
+</tr>
+<tr class="row-even"><td><p>plugin_operations</p></td>
+<td><p>object</p></td>
+<td><p>This contains the operations defined in the OpenAPI document and extends to include useful examples and helpers for the model.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="openplugin-operations">
+<h3>OpenPlugin Operations<a class="headerlink" href="#openplugin-operations" title="Permalink to this heading">#</a></h3>
+<p>An OpenPlugin operation is an extension of plugin operation defined in the OpenAPI document. It is defined by a combination of a path and an HTTP method as shown in the example above. The user can attach extra details to each operation to improve LLM predictions and responses.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>human_usage_examples</p></td>
+<td><p>array</p></td>
+<td><p>Clear usage examples that a human can use to trigger the operation correctly.</p></td>
+</tr>
+<tr class="row-odd"><td><p>prompt_signature_helpers</p></td>
+<td><p>array</p></td>
+<td><p>Prompts to help fill in the parameters of the API operation from the user’s input.</p></td>
+</tr>
+<tr class="row-even"><td><p>plugin_cleanup_helpers</p></td>
+<td><p>array</p></td>
+<td><p>Helper prompt to clean up the response of the plugin.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Plugin Developers</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="using_the_openapi_document.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using the OpenAPI Document</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-authentication">Plugin Authentication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-operations">Plugin Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#human-usage-examples">Human Usage Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-signature-helpers">Prompt Signature Helpers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-cleanup-helpers">Plugin Cleanup Helpers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-openplugin-manifest">Sample OpenPlugin Manifest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-manifest-fields">OpenPlugin Manifest Fields</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-operations">OpenPlugin Operations</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Shrikant M & Barrett J
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, Imprompt.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
