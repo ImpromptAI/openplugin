@@ -1,8 +1,8 @@
 import requests
 import json, yaml
 from enum import Enum
-from typing import List, Optional, Set, Dict
-from pydantic import BaseModel, validator, root_validator
+from typing import List, Optional, Set, Dict, Any
+from pydantic import BaseModel, validator, root_validator, Json
 
 
 class PluginAuth(BaseModel):
@@ -483,5 +483,5 @@ class OperationExecutionParams(BaseModel):
 
 
 class OperationExecutionResponse(BaseModel):
-    response: Optional[dict]
+    response: Optional[Any]
     post_cleanup_text: Optional[str]

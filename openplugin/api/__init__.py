@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi import APIRouter
 from openplugin.api import plugin_selector
 from .http_error import http_error_handler
@@ -40,6 +40,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
     return app
 
 
