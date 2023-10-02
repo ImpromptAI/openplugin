@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openplugin"
-version = "0.0.22"
+version = "0.0.23"
 description = ""
 authors = ["shrikant <shrikant.pm14@gmail.com>"]
 readme = "README.md"
@@ -28,8 +28,42 @@ sphinx-copybutton = "^0.5.2"
 sphinx-tabs = "^3.4.1"
 
 
-[tool.poetry.group.test.dependencies]
-poethepoet = "^0.21.1"
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.1"
+mypy = "^1.5.1"
+poethepoet = "^0.24.0"
+black = "^23.9.1"
+ruff = "^0.0.291"
+pytest-cov = "^4.1.0"
+
+
+[tool.poetry.group.types.dependencies]
+types-toml = "^0.10.8.7"
+types-requests = "^2.31.0.6"
+
+
+[tool.ruff]
+select = [
+  "E",  # pycodestyle
+  "F",  # pyflakes
+  "I",  # isort
+]
+
+fixable = ["ALL"]
+
+# Same as Black.
+line-length = 88
+
+[tool.mypy]
+disallow_untyped_defs = "True"
+ignore_missing_imports = "True"
+warn_unused_ignores = "False"
+
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+]
 
 [build-system]
 requires = ["poetry-core"]
@@ -38,5 +72,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 openplugin = "openplugin.main:app"
 
+
 [tool.poe.tasks]
 build_docs = "sphinx-build docs/source _build"
+black = "black"
+ruff = "ruff"
+pytest.cmd = "py.test --durations=5 -W error::RuntimeWarning --cov --cov-config=.coveragerc --cov-report xml --cov-report term-missing:skip-covered"
+mypy = "mypy . --pretty --show-error-codes"
+fix = { shell = "poe black . && poe ruff --fix ." }
+black-formatter = { shell = "poe black --preview . " }
+test = { shell = "poe black . --check --diff && poe ruff . && poe pytest && poe mypy" }

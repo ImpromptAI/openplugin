@@ -1,25 +1,36 @@
 import os
-from dotenv import load_dotenv
-from openplugin import LangchainPluginSelector
-from openplugin import LLM, LLMProvider, Config, Message, MessageType, \
-    ToolSelectorConfig, \
-    ToolSelectorProvider, Plugin
+
+from openplugin.bindings.langchain.langchain_plugin_selector import (
+    LangchainPluginSelector,
+)
+from openplugin.interfaces.models import (
+    LLM,
+    Config,
+    LLMProvider,
+    Message,
+    MessageType,
+    Plugin,
+    ToolSelectorConfig,
+    ToolSelectorProvider,
+)
 
 
 def test_klarna_plugins():
     # build messages
     message1 = Message(
         content="Show me t shirts from Klarna?",
-        message_type=MessageType.HumanMessage
+        message_type=MessageType.HumanMessage,
     )
     messages = [message1]
 
     tool_selector_config = ToolSelectorConfig(
         provider=ToolSelectorProvider.Langchain,
-        pipeline_name="zero-shot-react-description"
+        pipeline_name="zero-shot-react-description",
     )
 
-    plugin1 = Plugin(manifest_url="https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json")
+    plugin1 = Plugin(
+        manifest_url="https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json"
+    )
     plugins = [plugin1]
     # ADD YOU OPENAI API KEY HERE
     config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
@@ -31,11 +42,13 @@ def test_klarna_plugins():
         tool_selector_config=tool_selector_config,
         plugins=plugins,
         config=config,
-        llm=llm
+        llm=llm,
     )
     response = selector.run(messages)
     print(response)
-    detected_plugin_names = [plugin_operation.plugin.name for plugin_operation in
-                             response.detected_plugin_operations]
+    detected_plugin_names = [
+        plugin_operation.plugin.name
+        for plugin_operation in response.detected_plugin_operations
+    ]
     assert response.run_completed
-    assert 'Klarna Shopping' in detected_plugin_names
+    assert "Klarna Shopping" in detected_plugin_names

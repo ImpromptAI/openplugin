@@ -1,16 +1,31 @@
+import json
+import os
+import re
+import time
 from typing import List, Optional
-import openai, json, re, time, os
-from urllib.parse import urlparse, parse_qs
-from openplugin import MessageType, PluginSelector, PluginDetected, \
-    SelectedPluginsResponse, Message, LLM, Plugin, ToolSelectorConfig, Config, \
-    LLMProvider
+from urllib.parse import parse_qs, urlparse
+
+import openai
+
+from openplugin.interfaces.models import (
+    LLM,
+    Config,
+    LLMProvider,
+    Message,
+    MessageType,
+    Plugin,
+    PluginDetected,
+    SelectedPluginsResponse,
+    ToolSelectorConfig,
+)
+from openplugin.interfaces.plugin_selector import PluginSelector
 
 plugin_prompt = """
 {name_for_model}: Call this tool to get the OpenAPI spec (and usage guide) for interacting with the {name_for_model} API. 
 You should only call this ONCE! 
 
 What is the {name_for_model} API useful for? {description_for_model}.
-"""
+"""  # noqa: E501
 
 plugin_identify_prompt = """
 Answer the following questions as best you can. You have access to the following tools:
@@ -21,7 +36,7 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of {all_plugin_names}, None if you don't want to use any tool
 Begin!
 Question: {prompt}
-"""
+"""  # noqa: E501
 
 plugin_operation_prompt = """
 // You are an AI assistant.
@@ -40,29 +55,34 @@ plugin_operation_prompt = """
 
 The openapi spec file = {openapi_spec}
 The instructions are: {prompt}
-"""
+"""  # noqa: E501
 
 
 # Function to extract URLs from text using regular expressions
 def _extract_urls(text):
     url_pattern = re.compile(
-        r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+        r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+    )
     urls = re.findall(url_pattern, text)
     return urls
 
 
 class ImpromptPluginSelector(PluginSelector):
     def __init__(
-            self,
-            tool_selector_config: ToolSelectorConfig,
-            plugins: List[Plugin],
-            config: Optional[Config],
-            llm: Optional[LLM]):
+        self,
+        tool_selector_config: ToolSelectorConfig,
+        plugins: List[Plugin],
+        config: Optional[Config],
+        llm: Optional[LLM],
+    ):
         super().__init__(tool_selector_config, plugins, config, llm)
         self.llm = llm
         self.total_tokens_used = 0
-        openai.api_key = os.environ[
-            "OPENAI_API_KEY"] if config.openai_api_key is None else config.openai_api_key
+        openai.api_key = (
+            os.environ["OPENAI_API_KEY"]
+            if config.openai_api_key is None
+            else config.openai_api_key
+        )
 
     def run(self, messages: List[Message]) -> SelectedPluginsResponse:
         start_test_case_time = time.time()
@@ -73,13 +93,13 @@ class ImpromptPluginSelector(PluginSelector):
             detected_plugin_operations=plugin_operations,
             response_time=round(time.time() - start_test_case_time, 2),
             tokens_used=self.total_tokens_used,
-            llm_api_cost=0
+            llm_api_cost=0,
         )
         return response
 
-    def get_detected_plugin_with_operations(self, messages: List[Message]) -> List[
-        PluginDetected]:
-
+    def get_detected_plugin_with_operations(
+        self, messages: List[Message]
+    ) -> List[PluginDetected]:
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
@@ -90,28 +110,26 @@ class ImpromptPluginSelector(PluginSelector):
         for plugin in self.plugins:
             plugin_names.append(plugin.name)
             plugin_info_prompt = plugin_prompt.format(
-                name_for_model=plugin.name,
-                description_for_model=plugin.description
+                name_for_model=plugin.name, description_for_model=plugin.description
             )
             plugin_info_prompts.append(plugin_info_prompt)
         plugin_detection_prompt = plugin_identify_prompt.format(
             all_plugin_info_prompt="".join(plugin_info_prompts),
             all_plugin_names=", ".join(plugin_names),
-            prompt=prompt
+            prompt=prompt,
         )
 
         response = self.run_llm_prompt(plugin_detection_prompt)
         found_plugins = []
-        for line in response.get('response').splitlines():
+        for line in response.get("response").splitlines():
             if line.strip().startswith("Action"):
                 for val in line.split("Action:"):
                     if len(val.strip()) > 0:
                         if "-" in val:
                             val = val.split("-")[0].strip()
-                        if ',' in val:
-                            for v in val.split(','):
-                                found_plugins.append(
-                                    self.get_plugin_by_name(v.strip()))
+                        if "," in val:
+                            for v in val.split(","):
+                                found_plugins.append(self.get_plugin_by_name(v.strip()))
                         else:
                             found_plugins.append(self.get_plugin_by_name(val.strip()))
 
@@ -128,32 +146,35 @@ class ImpromptPluginSelector(PluginSelector):
                 description_for_model=plugin.description,
                 pre_prompt=plugin.get_plugin_pre_prompts(),
                 openapi_spec=json.dumps(openapi_spec_json),
-                prompt=prompt
+                prompt=prompt,
             )
             response = self.run_llm_prompt(formatted_plugin_operation_prompt)
             method = "get"
-            if "post" in response.get('response').lower():
+            if "post" in response.get("response").lower():
                 method = "post"
-            elif "put" in response.get('response').lower():
+            elif "put" in response.get("response").lower():
                 method = "put"
-            elif "delete" in response.get('response').lower():
+            elif "delete" in response.get("response").lower():
                 method = "delete"
-            urls = _extract_urls(response.get('response'))
+            urls = _extract_urls(response.get("response"))
             for url in urls:
                 formatted_url = url.split("?")[0].strip()
                 if formatted_url in plugin.api_endpoints:
                     api_called = formatted_url
                     query_dict = parse_qs(urlparse(url).query)
                     mapped_operation_parameters = {
-                        k: v[0] if type(v) == list and len(v) == 1 else v for k, v in
-                        query_dict.items()}
+                        k: v[0] if isinstance(v, list) and len(v) == 1 else v
+                        for k, v in query_dict.items()
+                    }
                     break
-            detected_plugins.append(PluginDetected(
-                plugin=plugin,
-                api_called=api_called,
-                method=method,
-                mapped_operation_parameters=mapped_operation_parameters
-            ))
+            detected_plugins.append(
+                PluginDetected(
+                    plugin=plugin,
+                    api_called=api_called,
+                    method=method,
+                    mapped_operation_parameters=mapped_operation_parameters,
+                )
+            )
         return detected_plugins
 
     def run_llm_prompt(self, prompt):
@@ -168,8 +189,6 @@ class ImpromptPluginSelector(PluginSelector):
         if self.llm.provider == LLMProvider.OpenAI:
             prompt = ""
             for message in messages:
-                # if message.message_type == MessageType.AIMessage or message.message_type == MessageType.SystemMessage:
-                #    raise ValueError("Invalid message type, use OpenAIChat LLM")
                 prompt += f"{message.message_type}: {message.content}\n"
             return self.openai_completion(prompt)
         elif self.llm.provider == LLMProvider.OpenAIChat:
@@ -181,10 +200,7 @@ class ImpromptPluginSelector(PluginSelector):
                     role = "assistant"
                 elif message.message_type == MessageType.SystemMessage:
                     role = "system"
-                msgs.append({
-                    "role": role,
-                    "content": message.content
-                })
+                msgs.append({"role": role, "content": message.content})
             return self.openai_chat(messages)
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
 
@@ -196,12 +212,12 @@ class ImpromptPluginSelector(PluginSelector):
             max_tokens=self.llm.max_tokens,
             top_p=self.llm.top_p,
             frequency_penalty=self.llm.frequency_penalty,
-            presence_penalty=self.llm.presence_penalty
+            presence_penalty=self.llm.presence_penalty,
         )
         self.add_to_tokens(response.get("usage").get("total_tokens"))
         return {
             "response": response.get("choices")[0].get("message").get("content"),
-            "usage": response.get("usage")
+            "usage": response.get("usage"),
         }
 
     def openai_completion(self, prompt):
@@ -212,12 +228,12 @@ class ImpromptPluginSelector(PluginSelector):
             max_tokens=self.llm.max_tokens,
             top_p=self.llm.top_p,
             frequency_penalty=self.llm.frequency_penalty,
-            presence_penalty=self.llm.presence_penalty
+            presence_penalty=self.llm.presence_penalty,
         )
         self.add_to_tokens(response.get("usage").get("total_tokens"))
         return {
             "response": response.get("choices")[0].get("text"),
-            "usage": response.get("usage")
+            "usage": response.get("usage"),
         }
 
     def add_to_tokens(self, tokens):

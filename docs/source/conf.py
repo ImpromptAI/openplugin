@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import List
+
 import toml
 
 # -- Project information -----------------------------------------------------
@@ -19,9 +19,9 @@ with open("../../pyproject.toml") as f:
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'openplugin'
-copyright = '2023, Imprompt'
-author = 'Shrikant M & Barrett J'
+project = "openplugin"
+copyright = "2023, Imprompt"
+author = "Shrikant M & Barrett J"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -29,14 +29,11 @@ author = 'Shrikant M & Barrett J'
 version = data["tool"]["poetry"]["version"]
 release = version
 
-html_logo = '_images/OpenPluginLogo_Horizontal_Transparent Background.png'
+html_logo = "_images/OpenPluginLogo_Horizontal_Transparent Background.png"
 
-extensions = [
-    'sphinx_tabs.tabs',
-    'sphinx_copybutton'
-]
+extensions = ["sphinx_tabs.tabs", "sphinx_copybutton"]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
 
 
@@ -44,6 +41,6 @@ exclude_patterns = []
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "sphinx_book_theme"
-html_static_path = ['_static', '_images', '_samples']
+html_static_path = ["_static", "_images", "_samples"]
 
-html_css_files=["css/custom.css"]
+html_css_files = ["css/custom.css"]

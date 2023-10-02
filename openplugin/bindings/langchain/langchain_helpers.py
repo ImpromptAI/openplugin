@@ -1,8 +1,10 @@
 import os
-from langchain.llms import OpenAI
+
 from langchain.agents import AgentType
-from openplugin import LLM, LLMProvider
 from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
+
+from openplugin.interfaces.models import LLM, LLMProvider
 
 
 def get_agent_type(pipeline_name: str) -> AgentType:
@@ -36,7 +38,7 @@ def get_llm(llm: LLM, api_key: str):
             frequency_penalty=llm.frequency_penalty,
             presence_penalty=llm.presence_penalty,
             n=llm.n,
-            best_of=llm.best_of
+            best_of=llm.best_of,
         )
         return llm
     elif llm.provider == LLMProvider.OpenAIChat:
@@ -48,7 +50,7 @@ def get_llm(llm: LLM, api_key: str):
             temperature=llm.temperature,
             max_retries=llm.max_retries,
             n=llm.n,
-            max_tokens=llm.max_tokens
+            max_tokens=llm.max_tokens,
         )
         return llm
     raise ValueError(f"LLM provider {llm.provider} not supported")

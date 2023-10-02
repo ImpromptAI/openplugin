@@ -1,9 +1,11 @@
-from openplugin.api import auth
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
-from openplugin import OperationExecutionParams, OperationExecutionImpl
-from typing import Optional
+
+from openplugin.api import auth
+from openplugin.bindings.operation_execution_impl import OperationExecutionImpl
+from openplugin.interfaces.models import OperationExecutionParams
+
 # Create a FastAPI router instance
 router = APIRouter(
     dependencies=[],
@@ -13,8 +15,7 @@ router = APIRouter(
 
 @router.post("/operation-execution")
 def operation_execution(
-        params: OperationExecutionParams,
-        api_key: APIKey = Depends(auth.get_api_key)
+    params: OperationExecutionParams, api_key: APIKey = Depends(auth.get_api_key)
 ):
     try:
         ex = OperationExecutionImpl(params)
@@ -22,5 +23,7 @@ def operation_execution(
         return response
     except Exception as e:
         print(e)
-        return JSONResponse(status_code=500,
-                            content={"message": "Operation Execution Failed: {}".format(e)})
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Operation Execution Failed: {}".format(e)},
+        )

@@ -1,8 +1,10 @@
-import requests
-import json, yaml
+import json
 from enum import Enum
-from typing import List, Optional, Set, Dict, Any
-from pydantic import BaseModel, validator, root_validator, Json
+from typing import Any, Dict, List, Optional, Set
+
+import requests
+import yaml
+from pydantic import BaseModel, root_validator, validator
 
 
 class PluginAuth(BaseModel):
@@ -20,6 +22,7 @@ class PluginOperation(BaseModel):
     """
     Represents the result of a plugin operation.
     """
+
     human_usage_examples: Optional[List[str]] = []
     prompt_signature_helpers: Optional[List[str]] = []
     plugin_cleanup_helpers: Optional[List[str]] = []
@@ -29,6 +32,7 @@ class Plugin(BaseModel):
     """
     Represents a plugin configuration.
     """
+
     manifest_url: str
     schema_version: Optional[str]
     name: Optional[str]
@@ -125,6 +129,7 @@ class PluginDetected(BaseModel):
     """
     Represents the result of a plugin operation.
     """
+
     plugin: Plugin
     api_called: Optional[str]
     method: Optional[str]
@@ -138,6 +143,7 @@ class Config(BaseModel):
     """
     Represents the API configuration for a plugin.
     """
+
     openai_api_key: Optional[str]
     cohere_api_key: Optional[str]
 
@@ -157,11 +163,13 @@ class API(BaseModel):
 
     def call(self, params):
         if self.method.lower() == "get":
-            response = requests.request(self.method.upper(), self.url, params=params,
-                                        headers={})
+            response = requests.request(
+                self.method.upper(), self.url, params=params, headers={}
+            )
         else:
-            response = requests.request(self.method.upper(), self.url, data=params,
-                                        headers={})
+            response = requests.request(
+                self.method.upper(), self.url, data=params, headers={}
+            )
         return response.json()
 
 
@@ -184,8 +192,11 @@ class Function(BaseModel):
         return self.api.call(params)
 
     def get_required_properties(self):
-        return [param_property.name for param_property in self.param_properties if
-                param_property.is_required]
+        return [
+            param_property.name
+            for param_property in self.param_properties
+            if param_property.is_required
+        ]
 
     def get_property_map(self):
         map = {}
@@ -208,8 +219,8 @@ class Function(BaseModel):
             "parameters": {
                 "type": self.param_type,
                 "properties": self.get_property_map(),
-                "required": self.get_required_properties()
-            }
+                "required": self.get_required_properties(),
+            },
         }
         return json
 
@@ -242,10 +253,12 @@ class Functions(BaseModel):
             methods = manifest_obj.get("plugin_operations").get(key).keys()
             for method in methods:
                 valid_operations.append(key + "_" + method)
-        self.add_from_openapi_spec(open_api_spec_url, plugin=plugin,
-                                   plugin_operations_map=manifest_obj.get(
-                                       "plugin_operations"),
-                                   valid_operations=valid_operations)
+        self.add_from_openapi_spec(
+            open_api_spec_url,
+            plugin=plugin,
+            plugin_operations_map=manifest_obj.get("plugin_operations"),
+            valid_operations=valid_operations,
+        )
 
     def get_prompt_signatures_prompt(self):
         prompt = ""
@@ -256,7 +269,10 @@ class Functions(BaseModel):
                 index = index + 1
         prompt = prompt.strip()
         if len(prompt) > 0:
-            prompt = "The prompt signature helper prompts to help map API parameters:  " + prompt
+            prompt = (
+                "The prompt signature helper prompts to help map API parameters:  "
+                + prompt
+            )
         return prompt.strip()
 
     def get_examples_prompt(self):
@@ -271,9 +287,14 @@ class Functions(BaseModel):
             prompt = "The usage examples to predict the plugin:  " + prompt
         return prompt.strip()
 
-    def add_from_openapi_spec(self, open_api_spec_url: str, plugin: Plugin = None,
-                              header: dict = None, plugin_operations_map: dict = None,
-                              valid_operations: List[str] = None):
+    def add_from_openapi_spec(
+        self,
+        open_api_spec_url: str,
+        plugin: Plugin = None,
+        header: dict = None,
+        plugin_operations_map: dict = None,
+        valid_operations: List[str] = None,
+    ):
         openapi_doc_json = requests.get(open_api_spec_url).json()
         if openapi_doc_json is None:
             return ValueError("Could not get OpenAPI spec from URL")
@@ -290,8 +311,9 @@ class Functions(BaseModel):
                         continue
                 details = paths[path][method]
                 function_values = {}
-                function_values["api"] = API(url=f"{server_url}{path}", method=method,
-                                             header=header)
+                function_values["api"] = API(
+                    url=f"{server_url}{path}", method=method, header=header
+                )
                 function_values["name"] = f"{method}{path.replace('/', '_')}"
                 if details.get("summary") is None:
                     function_values["description"] = function_values["name"]
@@ -311,8 +333,12 @@ class Functions(BaseModel):
                         properties_values["is_required"] = param.get("required")
                         properties.append(FunctionProperty(**properties_values))
                 elif method.lower() == "post" or method.lower() == "put":
-                    application_json_schema = details.get("requestBody").get(
-                        "content").get("application/json").get("schema")
+                    application_json_schema = (
+                        details.get("requestBody")
+                        .get("content")
+                        .get("application/json")
+                        .get("schema")
+                    )
                     params = []
                     required_params = {}
                     if "properties" in application_json_schema:
@@ -321,11 +347,18 @@ class Functions(BaseModel):
                     elif "$ref" in application_json_schema:
                         ref = application_json_schema.get("$ref")
                         ref = ref.replace("#/components/schemas/", "")
-                        params = openapi_doc_json.get("components").get("schemas").get(
-                            ref).get("properties")
-                        required_params = openapi_doc_json.get("components").get(
-                            "schemas").get(
-                            ref).get("required", {})
+                        params = (
+                            openapi_doc_json.get("components")
+                            .get("schemas")
+                            .get(ref)
+                            .get("properties")
+                        )
+                        required_params = (
+                            openapi_doc_json.get("components")
+                            .get("schemas")
+                            .get(ref)
+                            .get("required", {})
+                        )
                     for param in params:
                         properties_values = {}
                         properties_values["name"] = param
@@ -336,21 +369,25 @@ class Functions(BaseModel):
                             properties_values["description"] = param
                         else:
                             properties_values["description"] = params.get(param).get(
-                                "description")
+                                "description"
+                            )
                         if param in required_params:
                             properties_values["is_required"] = True
                         else:
                             properties_values["is_required"] = False
                         properties.append(properties_values)
                 function_values["param_properties"] = properties
-                human_usage_examples = plugin_operations_map.get(path, {}).get(method,
-                                                                               {}).get(
-                    "human_usage_examples", [])
+                human_usage_examples = (
+                    plugin_operations_map.get(path, {})
+                    .get(method, {})
+                    .get("human_usage_examples", [])
+                )
                 function_values["human_usage_examples"] = human_usage_examples
-                prompt_signature_helpers = plugin_operations_map.get(path, {}).get(
-                    method,
-                    {}).get(
-                    "prompt_signature_helpers", [])
+                prompt_signature_helpers = (
+                    plugin_operations_map.get(path, {})
+                    .get(method, {})
+                    .get("prompt_signature_helpers", [])
+                )
                 function_values["prompt_signature_helpers"] = prompt_signature_helpers
                 func = Function(**function_values)
                 if plugin:
@@ -364,6 +401,7 @@ class LLMProvider(str, Enum):
     """
     Enumeration for different LLM providers.
     """
+
     OpenAI = "OpenAI"
     OpenAIChat = "OpenAIChat"
     GooglePalm = "GooglePalm"
@@ -374,6 +412,7 @@ class LLM(BaseModel):
     """
     Represents the configuration for an LLM (Language Model) provider.
     """
+
     provider: LLMProvider
     model_name: str
     temperature: float = 0.7
@@ -388,21 +427,32 @@ class LLM(BaseModel):
     @validator("model_name")
     def _chk_model_name(cls, model_name: str, values, **kwargs) -> str:
         is_correct_model_name = False
-        if values['provider'] == LLMProvider.OpenAI and model_name in [
-            "text-davinci-003"]:
+        if values["provider"] == LLMProvider.OpenAI and model_name in [
+            "text-davinci-003"
+        ]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.OpenAIChat and model_name in [
-            "gpt-3.5-turbo", "gpt-3.5-turbo-0613", "gpt-4-0613" "gpt-4"]:
+        if values["provider"] == LLMProvider.OpenAIChat and model_name in [
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-0613",
+            "gpt-4-0613" "gpt-4",
+        ]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.GooglePalm and model_name in [
-            "text-bison-001", "chat-bison@001"]:
+        if values["provider"] == LLMProvider.GooglePalm and model_name in [
+            "text-bison-001",
+            "chat-bison@001",
+        ]:
             is_correct_model_name = True
-        if values['provider'] == LLMProvider.Cohere and model_name in [
-            "command", "command-light", "command-xlarge-nightly"]:
+        if values["provider"] == LLMProvider.Cohere and model_name in [
+            "command",
+            "command-light",
+            "command-xlarge-nightly",
+        ]:
             is_correct_model_name = True
         if not is_correct_model_name:
             raise ValueError(
-                f"model_name {model_name} not supported for provider {values['provider']}")
+                f"model_name {model_name} not supported for provider"
+                f" {values['provider']}"
+            )
         return model_name
 
 
@@ -420,14 +470,40 @@ class ToolSelectorConfig(BaseModel):
     """
     Represents the configuration for a Tool Selector.
     """
-    provider: ToolSelectorProvider
+
+    provider: Optional[ToolSelectorProvider]
     pipeline_name: str
+
+    # set provider name based on pipeline_name
+    @validator("pipeline_name")
+    def _chk_pipeline_name(cls, pipeline_name: str, values, **kwargs) -> str:
+        if pipeline_name.lower() not in [
+            "oai functions",
+            "imprompt basic",
+            "langchain basic",
+        ]:
+            raise ValueError(f"pipeline_name {pipeline_name} not supported")
+        is_correct_pipeline_name = False
+        if values.get("provider") is None:
+            if "langchain" in pipeline_name.lower():
+                is_correct_pipeline_name = True
+                values["provider"] = ToolSelectorProvider.Langchain
+            if "imprompt" in pipeline_name.lower():
+                is_correct_pipeline_name = True
+                values["provider"] = ToolSelectorProvider.Imprompt
+            if "openai" in pipeline_name.lower() or "oai" in pipeline_name.lower():
+                is_correct_pipeline_name = True
+                values["provider"] = ToolSelectorProvider.OpenAI
+            if not is_correct_pipeline_name:
+                raise ValueError(f"pipeline_name {pipeline_name} not supported")
+        return pipeline_name
 
 
 class SelectedPluginsResponse(BaseModel):
     """
     Represents the response from executing prompts.
     """
+
     run_completed: bool
     final_text_response: Optional[str]
     detected_plugin_operations: Optional[List[PluginDetected]]
@@ -440,6 +516,7 @@ class SelectedApiSignatureResponse(BaseModel):
     """
     Represents the response from executing prompts.
     """
+
     run_completed: bool
     final_text_response: Optional[str]
     detected_plugin_operations: Optional[List[PluginDetectedParams]]
@@ -459,6 +536,7 @@ class Message(BaseModel):
     """
     Represents a prompt to be executed.
     """
+
     content: str
     message_type: MessageType
 
