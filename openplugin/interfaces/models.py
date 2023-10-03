@@ -315,9 +315,7 @@ class Functions(BaseModel):
                         continue
                 details = paths[path][method]
                 function_values: Dict[str, Any] = {}
-                function_values["api"] = API(
-                    url=f"{server_url}{path}", method=method
-                )
+                function_values["api"] = API(url=f"{server_url}{path}", method=method)
                 function_values["name"] = f"{method}{path.replace('/', '_')}"
                 if details.get("summary") is None:
                     function_values["description"] = function_values["name"]
@@ -333,9 +331,7 @@ class Functions(BaseModel):
                         if param.get("description") is None:
                             properties_values["description"] = param.get("name")
                         else:
-                            properties_values["description"] = param.get(
-                                "description"
-                            )
+                            properties_values["description"] = param.get("description")
                         properties_values["is_required"] = param.get("required")
                         g_properties.append(FunctionProperty(**properties_values))
                     function_values["param_properties"] = g_properties
@@ -402,9 +398,7 @@ class Functions(BaseModel):
                         .get(method, {})
                         .get("prompt_signature_helpers", [])
                     )
-                function_values[
-                    "prompt_signature_helpers"
-                ] = prompt_signature_helpers
+                function_values["prompt_signature_helpers"] = prompt_signature_helpers
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin
