@@ -81,3 +81,4 @@ pytest.cmd = "py.test --durations=5 -W error::RuntimeWarning --cov --cov-config=
 mypy = "mypy . --pretty --show-error-codes"
 fix = { shell = "poe black . && poe ruff --fix ." }
 test = { shell = "poe black . --check --diff && poe ruff . && poe pytest && poe mypy" }
+serve.script = "start_api_server:main" 
