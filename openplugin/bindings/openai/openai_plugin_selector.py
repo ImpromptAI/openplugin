@@ -26,7 +26,7 @@ class OpenAIPluginSelector(PluginSelector):
     ):
         super().__init__(tool_selector_config, plugins, config, llm)
         # Initialize the OpenAI API key from the configuration or environment variable
-        if config.openai_api_key is not None:
+        if config and config.openai_api_key is not None:
             self.openai_api_key = config.openai_api_key
         else:
             self.openai_api_key = os.environ["OPENAI_API_KEY"]
@@ -60,9 +60,10 @@ class OpenAIPluginSelector(PluginSelector):
         detected_plugin_operations = []
         # while is_a_function_call and count < 5:
         count += 1
+
         response = chat_completion_with_backoff(
             openai_api_key=self.openai_api_key,
-            model=self.llm.model_name,
+            model=self.llm.model_name if self.llm else None,
             messages=f_messages,
             functions=function_json,
             function_call="auto",

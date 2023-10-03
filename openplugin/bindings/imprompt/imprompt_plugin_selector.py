@@ -3,7 +3,6 @@ import os
 import re
 import time
 from typing import List, Optional
-from urllib.parse import parse_qs, urlparse
 
 import openai
 
@@ -80,7 +79,7 @@ class ImpromptPluginSelector(PluginSelector):
         self.total_tokens_used = 0
         openai.api_key = (
             os.environ["OPENAI_API_KEY"]
-            if config.openai_api_key is None
+            if config is None or config.openai_api_key is None
             else config.openai_api_key
         )
 
@@ -108,7 +107,8 @@ class ImpromptPluginSelector(PluginSelector):
         plugin_names = []
 
         for plugin in self.plugins:
-            plugin_names.append(plugin.name)
+            if plugin.name:
+                plugin_names.append(plugin.name)
             plugin_info_prompt = plugin_prompt.format(
                 name_for_model=plugin.name, description_for_model=plugin.description
             )
@@ -138,7 +138,6 @@ class ImpromptPluginSelector(PluginSelector):
             if plugin is None:
                 continue
             api_called = None
-            mapped_operation_parameters = None
             # TODO Find a better way to find the API called
             openapi_spec_json = plugin.get_openapi_doc_json()
             formatted_plugin_operation_prompt = plugin_operation_prompt.format(
@@ -159,20 +158,14 @@ class ImpromptPluginSelector(PluginSelector):
             urls = _extract_urls(response.get("response"))
             for url in urls:
                 formatted_url = url.split("?")[0].strip()
-                if formatted_url in plugin.api_endpoints:
+                if plugin.api_endpoints and formatted_url in plugin.api_endpoints:
                     api_called = formatted_url
-                    query_dict = parse_qs(urlparse(url).query)
-                    mapped_operation_parameters = {
-                        k: v[0] if isinstance(v, list) and len(v) == 1 else v
-                        for k, v in query_dict.items()
-                    }
                     break
             detected_plugins.append(
                 PluginDetected(
                     plugin=plugin,
                     api_called=api_called,
                     method=method,
-                    mapped_operation_parameters=mapped_operation_parameters,
                 )
             )
         return detected_plugins
@@ -186,6 +179,8 @@ class ImpromptPluginSelector(PluginSelector):
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
 
     def run_llm(self, messages: List[Message]):
+        if self.llm is None:
+            raise ValueError("LLM is not configured")
         if self.llm.provider == LLMProvider.OpenAI:
             prompt = ""
             for message in messages:

@@ -42,29 +42,29 @@ def operation_signature_builder(
 ):
     # Based on the provider specified in tool_selector_config, create the appropriate
     # API signature selector
-    if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        selector = ImpromptOperationSignatureBuilder(
-            tool_selector_config, plugin, config, llm
-        )
-    elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        selector = LangchainOperationSignatureBuilder(
-            tool_selector_config, plugin, config, llm
-        )
-    elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-        selector = OpenAIOperationSignatureBuilder(
-            tool_selector_config, plugin, config, llm
-        )
-    else:
-        # If an incorrect ToolSelectorProvider is specified, return a 400 Bad
-        # Request response
-        return JSONResponse(
-            status_code=400, content={"message": "Incorrect ToolSelectorProvider"}
-        )
     try:
-        # Attempt to run the selected API signature selector with the provided
-        # input messages
-        response = selector.run(messages)
-        return response
+        if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
+            imprompt_selector = ImpromptOperationSignatureBuilder(
+                tool_selector_config, plugin, config, llm
+            )
+            return imprompt_selector.run(messages)
+        elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
+            langchain_selector = LangchainOperationSignatureBuilder(
+                tool_selector_config, plugin, config, llm
+            )
+            return langchain_selector.run(messages)
+        elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
+            openai_selector = OpenAIOperationSignatureBuilder(
+                tool_selector_config, plugin, config, llm
+            )
+            return openai_selector.run(messages)
+        else:
+            # If an incorrect ToolSelectorProvider is specified, return a 400 Bad
+            # Request response
+            return JSONResponse(
+                status_code=400,
+                content={"message": "Incorrect ToolSelectorProvider"},
+            )
     except Exception as e:
         print(e)
         # Return a 500 Internal Server Error response if there's a failure in

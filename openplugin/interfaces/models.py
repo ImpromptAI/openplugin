@@ -49,19 +49,20 @@ class Plugin(BaseModel):
     @staticmethod
     def build_from_manifest_url(manifest_url: str):
         manifest_obj = requests.get(manifest_url).json()
-        values = {}
+        values: Dict[str, Any] = {}
         for key in manifest_obj.keys():
             if key not in values.keys():
                 values[key] = manifest_obj[key]
             if values.get("openapi_doc_url") is None:
                 raise ValueError("Incompatible manifest.")
-            openapi_doc_json = requests.get(values.get("openapi_doc_url")).json()
+            openapi_doc_url = str(values.get("openapi_doc_url", ""))
+            openapi_doc_json = requests.get(openapi_doc_url).json()
             if openapi_doc_json:
                 server_url = openapi_doc_json.get("servers")[0].get("url")
-                api_endpoints = []
+                api_endpoints: set = set()
                 paths = openapi_doc_json.get("paths")
                 for key in paths:
-                    api_endpoints.append(f"{server_url}{key}")
+                    api_endpoints.add(f"{server_url}{key}")
                 values["api_endpoints"] = api_endpoints
             else:
                 raise ValueError("Incompatible manifest.")
@@ -73,14 +74,16 @@ class Plugin(BaseModel):
     @root_validator(pre=True)
     def _set_fields(cls, values: dict) -> dict:
         """This is a validator that sets the field values based on the manifest_url"""
-        if values.get("manifest_url"):
-            manifest_obj = requests.get(values.get("manifest_url")).json()
+        manifest_url = values.get("manifest_url")
+        if manifest_url:
+            manifest_obj = requests.get(manifest_url).json()
             for key in manifest_obj.keys():
                 if key not in values.keys():
                     values[key] = manifest_obj[key]
             if values.get("openapi_doc_url") is None:
                 raise ValueError("Incompatible manifest.")
-            openapi_doc_json = requests.get(values.get("openapi_doc_url")).json()
+            openapi_doc_url = str(values.get("openapi_doc_url", ""))
+            openapi_doc_json = requests.get(openapi_doc_url).json()
             if openapi_doc_json:
                 server_url = openapi_doc_json.get("servers")[0].get("url")
                 api_endpoints = []
@@ -93,7 +96,7 @@ class Plugin(BaseModel):
         return values
 
     def has_api_endpoint(self, endpoint) -> bool:
-        if endpoint in self.api_endpoints:
+        if self.api_endpoints and endpoint in self.api_endpoints:
             return True
         return False
 
@@ -245,7 +248,7 @@ class Functions(BaseModel):
     def add_from_plugin(self, plugin: Plugin):
         self.add_from_manifest(plugin.manifest_url, plugin)
 
-    def add_from_manifest(self, manifest_url: str, plugin: Plugin = None):
+    def add_from_manifest(self, manifest_url: str, plugin: Optional[Plugin]):
         manifest_obj = requests.get(manifest_url).json()
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
@@ -258,6 +261,7 @@ class Functions(BaseModel):
             plugin=plugin,
             plugin_operations_map=manifest_obj.get("plugin_operations"),
             valid_operations=valid_operations,
+            header=None,
         )
 
     def get_prompt_signatures_prompt(self):
@@ -290,10 +294,10 @@ class Functions(BaseModel):
     def add_from_openapi_spec(
         self,
         open_api_spec_url: str,
-        plugin: Plugin = None,
-        header: dict = None,
-        plugin_operations_map: dict = None,
-        valid_operations: List[str] = None,
+        plugin: Optional[Plugin],
+        header: Optional[dict],
+        plugin_operations_map: Optional[dict],
+        valid_operations: Optional[List[str]],
     ):
         openapi_doc_json = requests.get(open_api_spec_url).json()
         if openapi_doc_json is None:
@@ -310,18 +314,16 @@ class Functions(BaseModel):
                     if f"{path}_{method}" not in valid_operations:
                         continue
                 details = paths[path][method]
-                function_values = {}
-                function_values["api"] = API(
-                    url=f"{server_url}{path}", method=method, header=header
-                )
+                function_values: Dict[str, Any] = {}
+                function_values["api"] = API(url=f"{server_url}{path}", method=method)
                 function_values["name"] = f"{method}{path.replace('/', '_')}"
                 if details.get("summary") is None:
                     function_values["description"] = function_values["name"]
                 else:
                     function_values["description"] = details.get("summary")
                 function_values["param_type"] = "object"
-                properties = []
                 if method.lower() == "get":
+                    g_properties = []
                     for param in details.get("parameters"):
                         properties_values = {}
                         properties_values["name"] = param.get("name")
@@ -331,15 +333,16 @@ class Functions(BaseModel):
                         else:
                             properties_values["description"] = param.get("description")
                         properties_values["is_required"] = param.get("required")
-                        properties.append(FunctionProperty(**properties_values))
+                        g_properties.append(FunctionProperty(**properties_values))
+                    function_values["param_properties"] = g_properties
                 elif method.lower() == "post" or method.lower() == "put":
+                    p_properties = []
                     application_json_schema = (
                         details.get("requestBody")
                         .get("content")
                         .get("application/json")
                         .get("schema")
                     )
-                    params = []
                     required_params = {}
                     if "properties" in application_json_schema:
                         params = application_json_schema.get("properties")
@@ -360,34 +363,41 @@ class Functions(BaseModel):
                             .get("required", {})
                         )
                     for param in params:
-                        properties_values = {}
-                        properties_values["name"] = param
-                        properties_values["type"] = params.get(param).get("type")
+                        properties_values_put: dict[str, Any] = {}
+                        properties_values_put["name"] = param
+                        properties_values_put["type"] = params.get(param).get("type")
                         if params.get(param).get("type") == "array":
-                            properties_values["items"] = params.get(param).get("items")
-                        if params.get(param).get("description") is None:
-                            properties_values["description"] = param
-                        else:
-                            properties_values["description"] = params.get(param).get(
-                                "description"
+                            properties_values_put["items"] = params.get(param).get(
+                                "items"
                             )
-                        if param in required_params:
-                            properties_values["is_required"] = True
+                        if params.get(param).get("description") is None:
+                            properties_values_put["description"] = param
                         else:
-                            properties_values["is_required"] = False
-                        properties.append(properties_values)
-                function_values["param_properties"] = properties
-                human_usage_examples = (
-                    plugin_operations_map.get(path, {})
-                    .get(method, {})
-                    .get("human_usage_examples", [])
-                )
+                            properties_values_put["description"] = params.get(
+                                param
+                            ).get("description")
+                        if param in required_params:
+                            properties_values_put["is_required"] = True
+                        else:
+                            properties_values_put["is_required"] = False
+                        p_properties.append(properties_values_put)
+                    function_values["param_properties"] = p_properties
+
+                human_usage_examples = []
+                if plugin_operations_map is not None:
+                    human_usage_examples = (
+                        plugin_operations_map.get(path, {})
+                        .get(method, {})
+                        .get("human_usage_examples", [])
+                    )
                 function_values["human_usage_examples"] = human_usage_examples
-                prompt_signature_helpers = (
-                    plugin_operations_map.get(path, {})
-                    .get(method, {})
-                    .get("prompt_signature_helpers", [])
-                )
+                prompt_signature_helpers = []
+                if plugin_operations_map is not None:
+                    prompt_signature_helpers = (
+                        plugin_operations_map.get(path, {})
+                        .get(method, {})
+                        .get("prompt_signature_helpers", [])
+                    )
                 function_values["prompt_signature_helpers"] = prompt_signature_helpers
                 func = Function(**function_values)
                 if plugin:
@@ -420,8 +430,8 @@ class LLM(BaseModel):
     top_p: float = 1
     frequency_penalty: float = 0
     presence_penalty: float = 0
-    n: float = 1
-    best_of: float = 1
+    n: int = 1
+    best_of: int = 1
     max_retries: int = 6
 
     @validator("model_name")

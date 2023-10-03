@@ -42,15 +42,20 @@ def plugin_selector(
         # Based on the provider specified in tool_selector_config, create the
         # appropriate plugin selector
         if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-            selector = ImpromptPluginSelector(
+            imprompt_selector = ImpromptPluginSelector(
                 tool_selector_config, plugins, config, llm
             )
+            return imprompt_selector.run(messages)
         elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-            selector = LangchainPluginSelector(
+            langchain_selector = LangchainPluginSelector(
                 tool_selector_config, plugins, config, llm
             )
+            return langchain_selector.run(messages)
         elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-            selector = OpenAIPluginSelector(tool_selector_config, plugins, config, llm)
+            openai_selector = OpenAIPluginSelector(
+                tool_selector_config, plugins, config, llm
+            )
+            return openai_selector.run(messages)
         else:
             # If an incorrect ToolSelectorProvider is specified, return a 400
             # Bad Request response
@@ -58,9 +63,6 @@ def plugin_selector(
                 status_code=400,
                 content={"message": "Incorrect ToolSelectorProvider"},
             )
-        # Attempt to run the selected plugin selector with the provided input messages
-        response = selector.run(messages)
-        return response
     except Exception as e:
         print(e)
         # Return a 500 Internal Server Error response if there's a failure in

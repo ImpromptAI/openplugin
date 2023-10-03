@@ -1,7 +1,6 @@
 import re
 import time
 from typing import List, Optional
-from urllib.parse import parse_qs, urlparse
 
 from langchain.agents import initialize_agent, load_tools
 from langchain.callbacks import get_openai_callback
@@ -87,7 +86,11 @@ class LangchainPluginSelector(PluginSelector):
                 for step in response["intermediate_steps"]:
                     detected_plugin = self.get_plugin_by_name(step[0].tool)
                     if detected_plugin:
-                        plugin_operation = PluginDetected(plugin=detected_plugin)
+                        plugin_operation = PluginDetected(
+                            plugin=detected_plugin,
+                            api_called=None,
+                            method=None,
+                        )
                         detected_plugin_operations.append(plugin_operation)
 
                 for step in response["intermediate_steps"]:
@@ -99,20 +102,11 @@ class LangchainPluginSelector(PluginSelector):
                             url = url[:-1]
                         if url.lower() != "none":
                             api = url.split("?")[0].strip()
-                            parsed_url = urlparse(url)
-                            query_dict = parse_qs(parsed_url.query)
-                            extracted_params = {
-                                k: v[0] if isinstance(v, list) and len(v) == 1 else v
-                                for k, v in query_dict.items()
-                            }
                             for detected_plugin_operation in detected_plugin_operations:
                                 if detected_plugin_operation.plugin.has_api_endpoint(
                                     api
                                 ):
                                     detected_plugin_operation.api_called = api
-                                    detected_plugin_operation.mapped_operation_parameters = (  # noqa: E501
-                                        extracted_params
-                                    )
             except Exception as e:
                 # TODO: handle this better, use callback
                 response = str(e)
@@ -121,25 +115,22 @@ class LangchainPluginSelector(PluginSelector):
                         "Action"
                     ) and not line.strip().startswith("Action Input"):
                         plugin = line.split(":")[1].strip()
-                        detected_plugin = self.get_plugin_by_name(plugin)
-                        if detected_plugin:
-                            plugin_operation = PluginDetected(plugin=detected_plugin)
-                            detected_plugin_operations.append(plugin_operation)
+                        if plugin:
+                            detected_plugin = self.get_plugin_by_name(str(plugin))
+                            if detected_plugin:
+                                plugin_operation = PluginDetected(
+                                    plugin=detected_plugin,
+                                    api_called=None,
+                                    method=None,
+                                )
+                                detected_plugin_operations.append(plugin_operation)
                 matches = re.findall(r'"([^"]*)"', response)
                 for url in matches:
                     if url.startswith("http"):
-                        parsed_url = urlparse(url)
-                        query_dict = parse_qs(parsed_url.query)
-                        extracted_params = {
-                            k: v[0] if isinstance(v, list) and len(v) == 1 else v
-                            for k, v in query_dict.items()
-                        }
                         for detected_plugin_operation in detected_plugin_operations:
                             if detected_plugin_operation.plugin.has_api_endpoint(api):
                                 detected_plugin_operation.api_called = api
-                                detected_plugin_operation.mapped_operation_parameters = (  # noqa: E501
-                                    extracted_params
-                                )
+
             response_obj = SelectedPluginsResponse(
                 run_completed=True,
                 final_text_response=response_prompt,

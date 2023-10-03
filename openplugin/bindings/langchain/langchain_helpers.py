@@ -26,12 +26,14 @@ def get_agent_type(pipeline_name: str) -> AgentType:
 
 
 def get_llm(llm: LLM, api_key: str):
+    if llm is None:
+        raise ValueError("LLM is not set.")
     if llm.provider == LLMProvider.OpenAI:
         if api_key is None:
             api_key = os.environ["OPENAI_API_KEY"]
         os.environ["OPENAI_API_KEY"] = api_key
-        llm = OpenAI(
-            model_name=llm.model_name,
+        return OpenAI(
+            model=llm.model_name,
             temperature=llm.temperature,
             max_tokens=llm.max_tokens,
             top_p=llm.top_p,
@@ -39,18 +41,18 @@ def get_llm(llm: LLM, api_key: str):
             presence_penalty=llm.presence_penalty,
             n=llm.n,
             best_of=llm.best_of,
+            client=None,
         )
-        return llm
     elif llm.provider == LLMProvider.OpenAIChat:
         if api_key is None:
             api_key = os.environ["OPENAI_API_KEY"]
         os.environ["OPENAI_API_KEY"] = api_key
-        llm = ChatOpenAI(
-            model_name=llm.model_name,
+        return ChatOpenAI(
+            model=llm.model_name,
             temperature=llm.temperature,
             max_retries=llm.max_retries,
             n=llm.n,
             max_tokens=llm.max_tokens,
+            client=None,
         )
-        return llm
     raise ValueError(f"LLM provider {llm.provider} not supported")

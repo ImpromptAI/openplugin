@@ -34,7 +34,6 @@ html_logo = "_images/OpenPluginLogo_Horizontal_Transparent Background.png"
 extensions = ["sphinx_tabs.tabs", "sphinx_copybutton"]
 
 templates_path = ["_templates"]
-exclude_patterns = []
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -1,5 +1,7 @@
 import os
 
+from dotenv import load_dotenv
+
 from openplugin.bindings.imprompt.imprompt_plugin_selector import (
     ImpromptPluginSelector,
 )
@@ -16,6 +18,7 @@ from openplugin.interfaces.models import (
 
 
 def test_klarna_plugins():
+    load_dotenv()
     # build messages
     message1 = Message(
         content="Show me t shirts from Klarna?",
@@ -24,7 +27,7 @@ def test_klarna_plugins():
     messages = [message1]
 
     tool_selector_config = ToolSelectorConfig(
-        provider=ToolSelectorProvider.Imprompt, pipeline_name="default"
+        provider=ToolSelectorProvider.Imprompt, pipeline_name="Imprompt Basic"
     )
 
     plugin1 = Plugin(

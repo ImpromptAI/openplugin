@@ -1,7 +1,11 @@
+from dotenv import load_dotenv
+
 from openplugin.bindings.operation_execution_impl import (
     OperationExecutionImpl,
     OperationExecutionParams,
 )
+
+load_dotenv()
 
 
 def test_operation_execution_impl():

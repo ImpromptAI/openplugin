@@ -81,7 +81,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         self.total_tokens_used = 0
         openai.api_key = (
             os.environ["OPENAI_API_KEY"]
-            if config.openai_api_key is None
+            if config is None or config.openai_api_key is None
             else config.openai_api_key
         )
 
@@ -107,8 +107,8 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
 
         plugin_info_prompts = []
         plugin_names = []
-
-        plugin_names.append(self.plugin.name)
+        if self.plugin.name:
+            plugin_names.append(self.plugin.name)
         plugin_info_prompt = plugin_prompt.format(
             name_for_model=self.plugin.name,
             description_for_model=self.plugin.description,
@@ -194,6 +194,8 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
 
     def run_llm(self, messages: List[Message]):
+        if self.llm is None:
+            raise ValueError("LLM is not configured")
         if self.llm.provider == LLMProvider.OpenAI:
             prompt = ""
             for message in messages:

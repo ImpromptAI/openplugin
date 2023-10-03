@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import typer
 import uvicorn
@@ -17,10 +18,14 @@ def callback():
 
 @app.command()
 def start_server(
-    openai_api_key: Annotated[
-        str,
-        typer.Option(help="OpenAI API Key", rich_help_panel="Customization and Utils"),
-    ] = None
+    openai_api_key: Optional[
+        Annotated[
+            str,
+            typer.Option(
+                help="OpenAI API Key", rich_help_panel="Customization and Utils"
+            ),
+        ]
+    ]
 ):
     """
     Start the openplugin server
