@@ -1,4 +1,3 @@
-import os
 import time
 from typing import List, Optional
 
@@ -11,7 +10,6 @@ from openplugin.interfaces.models import (
     Plugin,
     PluginDetected,
     SelectedPluginsResponse,
-    ToolSelectorConfig,
 )
 from openplugin.interfaces.plugin_selector import PluginSelector
 
@@ -19,17 +17,16 @@ from openplugin.interfaces.plugin_selector import PluginSelector
 class OpenAIPluginSelector(PluginSelector):
     def __init__(
         self,
-        tool_selector_config: ToolSelectorConfig,
         plugins: List[Plugin],
         config: Optional[Config],
         llm: Optional[LLM],
     ):
-        super().__init__(tool_selector_config, plugins, config, llm)
+        super().__init__(plugins, config, llm)
         # Initialize the OpenAI API key from the configuration or environment variable
-        if config and config.openai_api_key is not None:
+        if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
         else:
-            self.openai_api_key = os.environ["OPENAI_API_KEY"]
+            raise ValueError("OpenAI API Key is not configured")
 
     def run(self, messages: List[Message]) -> SelectedPluginsResponse:
         start_test_case_time = time.time()
@@ -60,13 +57,28 @@ class OpenAIPluginSelector(PluginSelector):
         detected_plugin_operations = []
         # while is_a_function_call and count < 5:
         count += 1
-
+        temperature = 0.0
+        if self.llm and self.llm.temperature:
+            temperature = self.llm.temperature
+        max_tokens = 1024
+        if self.llm and self.llm.max_tokens:
+            max_tokens = self.llm.max_tokens
+        n = 1
+        if self.llm and self.llm.n:
+            n = self.llm.n
+        top_p = 1.0
+        if self.llm and self.llm.top_p:
+            top_p = self.llm.top_p
         response = chat_completion_with_backoff(
             openai_api_key=self.openai_api_key,
             model=self.llm.model_name if self.llm else None,
             messages=f_messages,
             functions=function_json,
             function_call="auto",
+            temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
+            n=n,
         )
         message = response["choices"][0]["message"]
         if message.get("function_call"):
@@ -104,3 +116,7 @@ class OpenAIPluginSelector(PluginSelector):
             llm_api_cost=0,
         )
         return response_obj
+
+    @classmethod
+    def get_pipeline_name(cls) -> str:
+        return "oai functions"

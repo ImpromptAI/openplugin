@@ -1,5 +1,4 @@
 import json
-import os
 import time
 from typing import List, Optional
 
@@ -8,11 +7,11 @@ from openplugin.interfaces.models import (
     LLM,
     Config,
     Functions,
+    LLMProvider,
     Message,
     Plugin,
     PluginDetectedParams,
     SelectedApiSignatureResponse,
-    ToolSelectorConfig,
 )
 from openplugin.interfaces.operation_signature_builder import (
     OperationSignatureBuilder,
@@ -23,18 +22,23 @@ from openplugin.interfaces.operation_signature_builder import (
 class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
     def __init__(
         self,
-        tool_selector_config: ToolSelectorConfig,
         plugin: Plugin,
         config: Optional[Config],
         llm: Optional[LLM],
+        pre_prompts: Optional[List[Message]] = None,
+        selected_operation: Optional[str] = None,
     ):
-        super().__init__(tool_selector_config, plugin, config, llm)
-
-        # Initialize the OpenAI API key from the configuration or environment variable
-        if config and config.openai_api_key is not None:
+        if llm is None:
+            llm = LLM(
+                provider=LLMProvider.OpenAIChat, model_name="gpt-3.5-turbo-0613"
+            )
+        if llm.provider not in [LLMProvider.OpenAI, LLMProvider.OpenAIChat]:
+            raise ValueError(f"LLM provider {llm.provider} not supported")
+        super().__init__(plugin, config, llm, pre_prompts, selected_operation)
+        if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
         else:
-            self.openai_api_key = os.environ["OPENAI_API_KEY"]
+            raise ValueError("OpenAI API Key is not configured")
 
     def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
@@ -44,7 +48,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             if msg.get_openai_message() is not None
         ]
         functions = Functions()
-        functions.add_from_plugin(self.plugin)
+        functions.add_from_plugin(self.plugin, self.selected_operation)
         if len(functions.functions) == 0:
             return SelectedApiSignatureResponse(
                 run_completed=True,
@@ -65,9 +69,25 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         # while is_a_function_call and count < 5:
         count += 1
         try:
+            temperature = 0.0
+            if self.llm and self.llm.temperature:
+                temperature = self.llm.temperature
+            max_tokens = 1024
+            if self.llm and self.llm.max_tokens:
+                max_tokens = self.llm.max_tokens
+            n = 1
+            if self.llm and self.llm.n:
+                n = self.llm.n
+            top_p = 1.0
+            if self.llm and self.llm.top_p:
+                top_p = self.llm.top_p
             response = chat_completion_with_backoff(
                 openai_api_key=self.openai_api_key,
                 model=self.llm.model_name if self.llm else None,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                n=n,
                 messages=f_messages,
                 functions=function_json,
                 function_call="auto",
@@ -120,3 +140,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             llm_api_cost=0,
         )
         return response_obj
+
+    @classmethod
+    def get_pipeline_name(cls) -> str:
+        return "oai functions"

@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import time
 from typing import List, Optional
@@ -7,38 +6,19 @@ from urllib.parse import parse_qs, urlparse
 
 import openai
 
+from openplugin.bindings.llm_manager_handler import get_llm_response_from_messages
 from openplugin.interfaces.models import (
     LLM,
     Config,
     LLMProvider,
     Message,
-    MessageType,
     Plugin,
     PluginDetectedParams,
     SelectedApiSignatureResponse,
-    ToolSelectorConfig,
 )
 from openplugin.interfaces.operation_signature_builder import (
     OperationSignatureBuilder,
 )
-
-plugin_prompt = """
-{name_for_model}: Call this tool to get the OpenAPI spec (and usage guide) for interacting with the {name_for_model} API. 
-You should only call this ONCE! 
-
-What is the {name_for_model} API useful for? {description_for_model}.
-"""  # noqa: E501
-
-plugin_identify_prompt = """
-Answer the following questions as best you can. You have access to the following tools:
-{all_plugin_info_prompt}
-Use the following format. Only reply with the action you want to take.:
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of {all_plugin_names}, None if you don't want to use any tool
-Begin!
-Question: {prompt}
-"""  # noqa: E501
 
 plugin_operation_prompt = """
 // You are an AI assistant.
@@ -71,181 +51,151 @@ def _extract_urls(text):
 class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
     def __init__(
         self,
-        tool_selector_config: ToolSelectorConfig,
         plugin: Plugin,
         config: Optional[Config],
         llm: Optional[LLM],
+        pre_prompts: Optional[List[Message]] = None,
+        selected_operation: Optional[str] = None,
     ):
-        super().__init__(tool_selector_config, plugin, config, llm)
-        self.llm = llm
+        if llm is None:
+            llm = LLM(
+                provider=LLMProvider.OpenAIChat, model_name="gpt-3.5-turbo-0613"
+            )
+
+        super().__init__(plugin, config, llm, pre_prompts, selected_operation)
         self.total_tokens_used = 0
-        openai.api_key = (
-            os.environ["OPENAI_API_KEY"]
-            if config is None or config.openai_api_key is None
-            else config.openai_api_key
-        )
+        if config and config.openai_api_key:
+            openai.api_key = config.openai_api_key
+        else:
+            raise ValueError("OpenAI API Key is not configured")
 
     def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
-        plugin_operations = self.get_detected_plugin_with_operations(messages)
-        response = SelectedApiSignatureResponse(
-            run_completed=True,
-            final_text_response=None,
-            detected_plugin_operations=plugin_operations,
-            response_time=round(time.time() - start_test_case_time, 2),
-            tokens_used=self.total_tokens_used,
-            llm_api_cost=0,
-        )
-        return response
-
-    def get_detected_plugin_with_operations(
-        self, messages: List[Message]
-    ) -> List[PluginDetectedParams]:
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
-
-        plugin_info_prompts = []
-        plugin_names = []
-        if self.plugin.name:
-            plugin_names.append(self.plugin.name)
-        plugin_info_prompt = plugin_prompt.format(
+        detected_plugins = []
+        api_called = None
+        mapped_operation_parameters = None
+        # TODO Find a better way to find the API called
+        openapi_spec_json = self.plugin.get_openapi_doc_json()
+        formatted_plugin_operation_prompt = plugin_operation_prompt.format(
             name_for_model=self.plugin.name,
             description_for_model=self.plugin.description,
-        )
-        plugin_info_prompts.append(plugin_info_prompt)
-
-        plugin_detection_prompt = plugin_identify_prompt.format(
-            all_plugin_info_prompt="".join(plugin_info_prompts),
-            all_plugin_names=", ".join(plugin_names),
+            pre_prompt=self.plugin.get_plugin_pre_prompts(),
+            openapi_spec=json.dumps(openapi_spec_json),
             prompt=prompt,
         )
-
-        response = self.run_llm_prompt(plugin_detection_prompt)
-        found_plugins = []
-        for line in response.get("response").splitlines():
-            if line.strip().startswith("Action"):
-                for val in line.split("Action:"):
-                    if len(val.strip()) > 0:
-                        if "-" in val:
-                            val = val.split("-")[0].strip()
-                        if "," in val:
-                            for v in val.split(","):
-                                found_plugins.append(self.get_plugin_by_name(v.strip()))
-                        else:
-                            found_plugins.append(self.get_plugin_by_name(val.strip()))
-
-        detected_plugins = []
-
-        for plugin in found_plugins:
-            if plugin is None:
-                continue
-            api_called = None
-            mapped_operation_parameters = None
-            # TODO Find a better way to find the API called
-            openapi_spec_json = plugin.get_openapi_doc_json()
-            formatted_plugin_operation_prompt = plugin_operation_prompt.format(
-                name_for_model=plugin.name,
-                description_for_model=plugin.description,
-                pre_prompt=plugin.get_plugin_pre_prompts(),
-                openapi_spec=json.dumps(openapi_spec_json),
-                prompt=prompt,
+        response = self.run_llm_prompt(formatted_plugin_operation_prompt)
+        method = "get"
+        if "post" in response.get("response").lower():
+            method = "post"
+        elif "put" in response.get("response").lower():
+            method = "put"
+        elif "delete" in response.get("response").lower():
+            method = "delete"
+        urls = _extract_urls(response.get("response"))
+        for url in urls:
+            formatted_url = url.split("?")[0].strip()
+            if (
+                self.plugin.api_endpoints
+                and formatted_url in self.plugin.api_endpoints
+            ):
+                api_called = formatted_url
+                query_dict = parse_qs(urlparse(url).query)
+                mapped_operation_parameters = {
+                    k: v[0] if isinstance(v, list) and len(v) == 1 else v
+                    for k, v in query_dict.items()
+                }
+                break
+        detected_plugins.append(
+            PluginDetectedParams(
+                plugin=self.plugin,
+                api_called=api_called,
+                method=method,
+                mapped_operation_parameters=mapped_operation_parameters,
             )
-            response = self.run_llm_prompt(formatted_plugin_operation_prompt)
-            method = "get"
-            if "post" in response.get("response").lower():
-                method = "post"
-            elif "put" in response.get("response").lower():
-                method = "put"
-            elif "delete" in response.get("response").lower():
-                method = "delete"
-            urls = _extract_urls(response.get("response"))
-            for url in urls:
-                formatted_url = url.split("?")[0].strip()
-                if formatted_url in plugin.api_endpoints:
-                    api_called = formatted_url
-                    query_dict = parse_qs(urlparse(url).query)
-                    mapped_operation_parameters = {
-                        k: v[0] if isinstance(v, list) and len(v) == 1 else v
-                        for k, v in query_dict.items()
-                    }
-                    break
-            detected_plugins.append(
-                PluginDetectedParams(
-                    plugin=plugin,
-                    api_called=api_called,
-                    method=method,
-                    mapped_operation_parameters=mapped_operation_parameters,
-                )
-            )
-        return detected_plugins
+        )
+        response = SelectedApiSignatureResponse(
+            run_completed=True,
+            final_text_response=None,
+            detected_plugin_operations=detected_plugins,
+            response_time=round(time.time() - start_test_case_time, 2),
+            tokens_used=response.get("usage"),
+            llm_api_cost=response.get("cost"),
+        )
+        return response
 
     def get_plugin_by_name(self, name: str):
         if self.plugin.name == name:
             return self.plugin
         return None
 
-    def run_llm_prompt(self, prompt):
-        if self.llm.provider == LLMProvider.OpenAI:
-            return self.openai_completion(prompt)
-        elif self.llm.provider == LLMProvider.OpenAIChat:
-            msgs = [{"role": "user", "content": prompt}]
-            return self.openai_chat(msgs)
-        raise ValueError(f"LLM provider {self.llm.provider} not supported")
-
-    def run_llm(self, messages: List[Message]):
+    def run_llm_prompt(self, prompt: str):
         if self.llm is None:
             raise ValueError("LLM is not configured")
-        if self.llm.provider == LLMProvider.OpenAI:
-            prompt = ""
-            for message in messages:
-                prompt += f"{message.message_type}: {message.content}\n"
-            return self.openai_completion(prompt)
-        elif self.llm.provider == LLMProvider.OpenAIChat:
-            msgs = []
-            for message in messages:
-                if message.message_type == MessageType.HumanMessage:
-                    role = "user"
-                elif message.message_type == MessageType.AIMessage:
-                    role = "assistant"
-                elif message.message_type == MessageType.SystemMessage:
-                    role = "system"
-                msgs.append({"role": role, "content": message.content})
-            return self.openai_chat(messages)
-        raise ValueError(f"LLM provider {self.llm.provider} not supported")
+        if self.config is None:
+            raise ValueError("Config is not configured")
 
-    def openai_chat(self, messages):
-        response = openai.ChatCompletion.create(
+        llm_api_key = None
+        if (
+            self.llm.provider == LLMProvider.OpenAI
+            or self.llm.provider == LLMProvider.OpenAIChat
+        ):
+            llm_api_key = self.config.openai_api_key
+        elif self.llm.provider == LLMProvider.Cohere:
+            llm_api_key = self.config.cohere_api_key
+        elif self.llm.provider == LLMProvider.GooglePalm:
+            llm_api_key = self.config.google_palm_key
+
+        if llm_api_key is None:
+            raise ValueError("LLM API Key is not configured")
+
+        msgs = []
+
+        # add signature helpers
+        """
+        try:
+            if self.plugin.plugin_operations:
+                for api_endpoint in self.plugin.plugin_operations.keys():
+                    plugin_operation_method_map = self.plugin.plugin_operations.get(
+                        api_endpoint
+                    )
+                    if plugin_operation_method_map:
+                        for method in plugin_operation_method_map.keys():
+                            ops = plugin_operation_method_map.get(method)
+                            if ops and ops.prompt_signature_helpers:
+                                for (
+                                    prompt_signature_helper
+                                ) in ops.prompt_signature_helpers:
+                                    content = (
+                                        f"For operation={ops} and method={method}, "
+                                        f"{prompt_signature_helper}",
+                                    )
+
+                                    msgs.append(
+                                        {"role": "assistant", "content": content}
+                                    )
+        except Exception as e:
+            print("++++")
+            print(e)
+        """
+
+        if self.pre_prompts:
+            for pre_prompt in self.pre_prompts:
+                msgs.append(pre_prompt.get_openai_message())
+        msgs.append({"role": "user", "content": prompt})
+        return get_llm_response_from_messages(
+            msgs=msgs,
             model=self.llm.model_name,
-            messages=messages,
+            llm_api_key=llm_api_key,
             temperature=self.llm.temperature,
             max_tokens=self.llm.max_tokens,
             top_p=self.llm.top_p,
             frequency_penalty=self.llm.frequency_penalty,
             presence_penalty=self.llm.presence_penalty,
         )
-        self.add_to_tokens(response.get("usage").get("total_tokens"))
-        return {
-            "response": response.get("choices")[0].get("message").get("content"),
-            "usage": response.get("usage"),
-        }
 
-    def openai_completion(self, prompt):
-        response = openai.Completion.create(
-            model=self.llm.model_name,
-            prompt=prompt,
-            temperature=self.llm.temperature,
-            max_tokens=self.llm.max_tokens,
-            top_p=self.llm.top_p,
-            frequency_penalty=self.llm.frequency_penalty,
-            presence_penalty=self.llm.presence_penalty,
-        )
-        self.add_to_tokens(response.get("usage").get("total_tokens"))
-        return {
-            "response": response.get("choices")[0].get("text"),
-            "usage": response.get("usage"),
-        }
-
-    def add_to_tokens(self, tokens):
-        if tokens:
-            self.total_tokens_used += tokens
+    @classmethod
+    def get_pipeline_name(cls) -> str:
+        return "imprompt basic"

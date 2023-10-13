@@ -1,3 +1,5 @@
+# TODO: OUTDATED, needs to be updated to use the new plugin system
+"""
 import re
 import time
 from typing import List, Optional
@@ -140,3 +142,4 @@ class LangchainPluginSelector(PluginSelector):
                 llm_api_cost=round(cb.total_cost, 4),
             )
             return response_obj
+"""

@@ -1,3 +1,5 @@
+# TODO: OUTDATED, needs to be updated to use the new plugin system
+"""
 import os
 
 from langchain.agents import AgentType
@@ -56,3 +58,4 @@ def get_llm(llm: LLM, api_key: str):
             client=None,
         )
     raise ValueError(f"LLM provider {llm.provider} not supported")
+"""

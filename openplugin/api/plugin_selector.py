@@ -8,18 +8,8 @@ from openplugin.api import auth
 from openplugin.bindings.imprompt.imprompt_plugin_selector import (
     ImpromptPluginSelector,
 )
-from openplugin.bindings.langchain.langchain_plugin_selector import (
-    LangchainPluginSelector,
-)
 from openplugin.bindings.openai.openai_plugin_selector import OpenAIPluginSelector
-from openplugin.interfaces.models import (
-    LLM,
-    Config,
-    Message,
-    Plugin,
-    ToolSelectorConfig,
-    ToolSelectorProvider,
-)
+from openplugin.interfaces.models import LLM, Config, Message, Plugin
 
 # Create a FastAPI router instance
 router = APIRouter(
@@ -32,29 +22,25 @@ router = APIRouter(
 @router.post("/plugin-selector")
 def plugin_selector(
     messages: List[Message],
-    tool_selector_config: ToolSelectorConfig,
     plugins: List[Plugin],
     config: Config,
     llm: LLM,
+    pipeline_name: str,
     api_key: APIKey = Depends(auth.get_api_key),
 ):
     try:
         # Based on the provider specified in tool_selector_config, create the
         # appropriate plugin selector
-        if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-            imprompt_selector = ImpromptPluginSelector(
-                tool_selector_config, plugins, config, llm
-            )
+        if (
+            pipeline_name.lower()
+            == ImpromptPluginSelector.get_pipeline_name().lower()
+        ):
+            imprompt_selector = ImpromptPluginSelector(plugins, config, llm)
             return imprompt_selector.run(messages)
-        elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-            langchain_selector = LangchainPluginSelector(
-                tool_selector_config, plugins, config, llm
-            )
-            return langchain_selector.run(messages)
-        elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-            openai_selector = OpenAIPluginSelector(
-                tool_selector_config, plugins, config, llm
-            )
+        elif (
+            pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower()
+        ):
+            openai_selector = OpenAIPluginSelector(plugins, config, llm)
             return openai_selector.run(messages)
         else:
             # If an incorrect ToolSelectorProvider is specified, return a 400

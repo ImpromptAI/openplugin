@@ -1,3 +1,5 @@
+# TODO: OUTDATED, needs to be updated to use the new plugin system
+"""
 import re
 import time
 from typing import List, Optional
@@ -29,6 +31,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         plugin: Plugin,
         config: Optional[Config],
         llm: Optional[LLM],
+        selected_operation: Optional[str] = None,
     ):
         super().__init__(tool_selector_config, plugin, config, llm)
         self.initialize()
@@ -100,7 +103,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                             url = url[:-1]
                         if url.lower() != "none":
                             api = url.split("?")[0].strip()
-                            for detected_plugin_operation in detected_plugin_operations:
+                            for (
+                                detected_plugin_operation
+                            ) in detected_plugin_operations:
                                 if detected_plugin_operation.plugin.has_api_endpoint(
                                     api
                                 ):
@@ -121,7 +126,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 for url in matches:
                     if url.startswith("http"):
                         for detected_plugin_operation in detected_plugin_operations:
-                            if detected_plugin_operation.plugin.has_api_endpoint(api):
+                            if detected_plugin_operation.plugin.has_api_endpoint(
+                                api
+                            ):
                                 detected_plugin_operation.api_called = api
             response_obj = SelectedApiSignatureResponse(
                 run_completed=True,
@@ -132,3 +139,4 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 llm_api_cost=round(cb.total_cost, 4),
             )
             return response_obj
+"""

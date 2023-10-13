@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import time
 from typing import List, Optional
@@ -15,7 +14,6 @@ from openplugin.interfaces.models import (
     Plugin,
     PluginDetected,
     SelectedPluginsResponse,
-    ToolSelectorConfig,
 )
 from openplugin.interfaces.plugin_selector import PluginSelector
 
@@ -69,19 +67,16 @@ def _extract_urls(text):
 class ImpromptPluginSelector(PluginSelector):
     def __init__(
         self,
-        tool_selector_config: ToolSelectorConfig,
         plugins: List[Plugin],
         config: Optional[Config],
         llm: Optional[LLM],
     ):
-        super().__init__(tool_selector_config, plugins, config, llm)
-        self.llm = llm
+        super().__init__(plugins, config, llm)
         self.total_tokens_used = 0
-        openai.api_key = (
-            os.environ["OPENAI_API_KEY"]
-            if config is None or config.openai_api_key is None
-            else config.openai_api_key
-        )
+        if config and config.openai_api_key:
+            openai.api_key = config.openai_api_key
+        else:
+            raise ValueError("OpenAI API Key is not configured")
 
     def run(self, messages: List[Message]) -> SelectedPluginsResponse:
         start_test_case_time = time.time()
@@ -234,3 +229,7 @@ class ImpromptPluginSelector(PluginSelector):
     def add_to_tokens(self, tokens):
         if tokens:
             self.total_tokens_used += tokens
+
+    @classmethod
+    def get_pipeline_name(cls) -> str:
+        return "imprompt basic"

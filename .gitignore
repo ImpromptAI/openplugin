@@ -17,6 +17,7 @@ package-lock.json
 package.json
 node_modules/
 
+push_to_ecs.sh
 # C extensions
 *.so
 

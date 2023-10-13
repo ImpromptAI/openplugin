@@ -12,8 +12,6 @@ from openplugin.interfaces.models import (
     Message,
     MessageType,
     Plugin,
-    ToolSelectorConfig,
-    ToolSelectorProvider,
 )
 
 
@@ -26,10 +24,6 @@ def test_klarna_plugins():
     )
     messages = [message1]
 
-    tool_selector_config = ToolSelectorConfig(
-        provider=ToolSelectorProvider.Imprompt, pipeline_name="Imprompt Basic"
-    )
-
     plugin1 = Plugin(
         manifest_url="https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json"
     )
@@ -41,13 +35,11 @@ def test_klarna_plugins():
         model_name="gpt-3.5-turbo",
     )
     selector = ImpromptPluginSelector(
-        tool_selector_config=tool_selector_config,
         plugins=plugins,
         config=config,
         llm=llm,
     )
     response = selector.run(messages)
-    print(response)
     detected_plugin_names = [
         plugin_operation.plugin.name
         for plugin_operation in response.detected_plugin_operations

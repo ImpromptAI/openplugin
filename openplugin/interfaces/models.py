@@ -149,6 +149,7 @@ class Config(BaseModel):
 
     openai_api_key: Optional[str]
     cohere_api_key: Optional[str]
+    google_palm_key: Optional[str]
 
 
 class FunctionProperty(BaseModel):
@@ -245,14 +246,21 @@ class Functions(BaseModel):
     def get_function_from_func_name(self, function_name):
         return self.function_map.get(function_name)
 
-    def add_from_plugin(self, plugin: Plugin):
-        self.add_from_manifest(plugin.manifest_url, plugin)
+    def add_from_plugin(self, plugin: Plugin, selected_operation: Optional[str] = None):
+        self.add_from_manifest(plugin.manifest_url, plugin, selected_operation)
 
-    def add_from_manifest(self, manifest_url: str, plugin: Optional[Plugin]):
+    def add_from_manifest(
+        self,
+        manifest_url: str,
+        plugin: Optional[Plugin],
+        selected_operation: Optional[str] = None,
+    ):
         manifest_obj = requests.get(manifest_url).json()
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
         for key in manifest_obj.get("plugin_operations"):
+            if selected_operation is not None and selected_operation != key:
+                continue
             methods = manifest_obj.get("plugin_operations").get(key).keys()
             for method in methods:
                 valid_operations.append(key + "_" + method)
@@ -465,49 +473,6 @@ class LLM(BaseModel):
                 f" {values['provider']}"
             )
         return model_name
-
-
-class ToolSelectorProvider(str, Enum):
-    """
-    Enumeration for different Tool Selector providers.
-    """
-
-    Langchain = "Langchain"
-    Imprompt = "Imprompt"
-    OpenAI = "OpenAI"
-
-
-class ToolSelectorConfig(BaseModel):
-    """
-    Represents the configuration for a Tool Selector.
-    """
-
-    provider: Optional[ToolSelectorProvider]
-    pipeline_name: str
-
-    # set provider name based on pipeline_name
-    @validator("pipeline_name")
-    def _chk_pipeline_name(cls, pipeline_name: str, values, **kwargs) -> str:
-        if pipeline_name.lower() not in [
-            "oai functions",
-            "imprompt basic",
-            "langchain basic",
-        ]:
-            raise ValueError(f"pipeline_name {pipeline_name} not supported")
-        is_correct_pipeline_name = False
-        if values.get("provider") is None:
-            if "langchain" in pipeline_name.lower():
-                is_correct_pipeline_name = True
-                values["provider"] = ToolSelectorProvider.Langchain
-            if "imprompt" in pipeline_name.lower():
-                is_correct_pipeline_name = True
-                values["provider"] = ToolSelectorProvider.Imprompt
-            if "openai" in pipeline_name.lower() or "oai" in pipeline_name.lower():
-                is_correct_pipeline_name = True
-                values["provider"] = ToolSelectorProvider.OpenAI
-            if not is_correct_pipeline_name:
-                raise ValueError(f"pipeline_name {pipeline_name} not supported")
-        return pipeline_name
 
 
 class SelectedPluginsResponse(BaseModel):

@@ -1,13 +1,18 @@
 import json
 
-from openplugin.interfaces.models import (
-    LLM,
-    Config,
-    Message,
-    Plugin,
-    ToolSelectorConfig,
-    ToolSelectorProvider,
+from openplugin.bindings.imprompt.imprompt_operation_signature_builder import (
+    ImpromptOperationSignatureBuilder,
 )
+from openplugin.bindings.imprompt.imprompt_plugin_selector import (
+    ImpromptPluginSelector,
+)
+from openplugin.bindings.openai.openai_operation_signature_builder import (
+    OpenAIOperationSignatureBuilder,
+)
+from openplugin.bindings.openai.openai_plugin_selector import (
+    OpenAIPluginSelector,
+)
+from openplugin.interfaces.models import LLM, Config, Message, Plugin
 
 
 # Function to run a plugin selector based on input JSON
@@ -19,33 +24,16 @@ def run_plugin_selector(inp_json):
     messages = [Message(**m) for m in inp_json["messages"]]
     plugins = [Plugin(**p) for p in inp_json["plugins"]]
     config = Config(**inp_json["config"])
-    tool_selector_config = ToolSelectorConfig(**inp_json["tool_selector_config"])
     llm = LLM(**inp_json["llm"])
-
+    pipeline_name = inp_json["pipeline_name"]
     # Check the provider specified in tool_selector_config and select the
     # appropriate plugin selector
-    if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        from openplugin.bindings.imprompt.imprompt_plugin_selector import (
-            ImpromptPluginSelector,
-        )
-
-        selector = ImpromptPluginSelector(tool_selector_config, plugins, config, llm)
+    if pipeline_name.lower() == ImpromptPluginSelector.get_pipeline_name().lower():
+        selector = ImpromptPluginSelector(plugins=plugins, config=config, llm=llm)
         response = selector.run(messages)
         return response.dict()
-    elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        from openplugin.bindings.langchain.langchain_plugin_selector import (
-            LangchainPluginSelector,
-        )
-
-        selector = LangchainPluginSelector(tool_selector_config, plugins, config, llm)
-        response = selector.run(messages)
-        return response.dict()
-    elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-        from openplugin.bindings.openai.openai_plugin_selector import (
-            OpenAIPluginSelector,
-        )
-
-        selector = OpenAIPluginSelector(tool_selector_config, plugins, config, llm)
+    elif pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
+        selector = OpenAIPluginSelector(plugins=plugins, config=config, llm=llm)
         response = selector.run(messages)
         return response.dict()
     raise Exception("Unknown tool selector provider")
@@ -60,39 +48,23 @@ def run_api_signature_selector(inp_json):
     messages = [Message(**m) for m in inp_json["messages"]]
     plugin = Plugin(**inp_json["plugin"])
     config = Config(**inp_json["config"])
-    tool_selector_config = ToolSelectorConfig(**inp_json["tool_selector_config"])
+    pipeline_name = inp_json["pipeline_name"]
     llm = LLM(**inp_json["llm"])
 
     # Check the provider specified in tool_selector_config and select the appropriate
     # API signature selector
-    if tool_selector_config.provider == ToolSelectorProvider.Imprompt:
-        from openplugin.bindings.imprompt.imprompt_operation_signature_builder import (
-            ImpromptOperationSignatureBuilder,
-        )
-
-        selector = ImpromptOperationSignatureBuilder(
-            tool_selector_config, plugin, config, llm
-        )
+    if (
+        pipeline_name.lower()
+        == ImpromptOperationSignatureBuilder.get_pipeline_name().lower()
+    ):
+        selector = ImpromptOperationSignatureBuilder(plugin, config, llm)
         response = selector.run(messages)
         return response.dict()
-    elif tool_selector_config.provider == ToolSelectorProvider.Langchain:
-        from openplugin.bindings.langchain.langchain_operation_signature_selector import (  # noqa: E501
-            LangchainOperationSignatureBuilder,
-        )
-
-        selector = LangchainOperationSignatureBuilder(
-            tool_selector_config, plugin, config, llm
-        )
-        response = selector.run(messages)
-        return response.dict()
-    elif tool_selector_config.provider == ToolSelectorProvider.OpenAI:
-        from openplugin.bindings.openai.openai_operation_signature_builder import (
-            OpenAIOperationSignatureBuilder,
-        )
-
-        selector = OpenAIOperationSignatureBuilder(
-            tool_selector_config, plugin, config, llm
-        )
+    elif (
+        pipeline_name.lower()
+        == OpenAIOperationSignatureBuilder.get_pipeline_name().lower()
+    ):
+        selector = OpenAIOperationSignatureBuilder(plugin, config, llm)
         response = selector.run(messages)
         return response.dict()
     raise Exception("Unknown tool selector provider")
