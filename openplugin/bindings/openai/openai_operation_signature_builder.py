@@ -9,6 +9,7 @@ from openplugin.interfaces.models import (
     Functions,
     LLMProvider,
     Message,
+    MessageType,
     Plugin,
     PluginDetectedParams,
     SelectedApiSignatureResponse,
@@ -28,6 +29,16 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
     ):
+        if pre_prompts is None:
+            pre_prompts = []
+
+        pre_prompts.append(
+            Message(
+                message_type=MessageType.SystemMessage,
+                content="Maintain the plurality of mapped parameters and the test sentence throughout the generated text.",
+            )
+        )
+
         if llm is None:
             llm = LLM(
                 provider=LLMProvider.OpenAIChat, model_name="gpt-3.5-turbo-0613"

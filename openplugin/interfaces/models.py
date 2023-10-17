@@ -246,7 +246,9 @@ class Functions(BaseModel):
     def get_function_from_func_name(self, function_name):
         return self.function_map.get(function_name)
 
-    def add_from_plugin(self, plugin: Plugin, selected_operation: Optional[str] = None):
+    def add_from_plugin(
+        self, plugin: Plugin, selected_operation: Optional[str] = None
+    ):
         self.add_from_manifest(plugin.manifest_url, plugin, selected_operation)
 
     def add_from_manifest(
@@ -258,12 +260,24 @@ class Functions(BaseModel):
         manifest_obj = requests.get(manifest_url).json()
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
+
+        selected_op_key = None
+        if selected_operation and " " in selected_operation:
+            selected_operation_path = selected_operation.split(" ")[1]
+            selected_operation_method = selected_operation.split(" ")[0]
+            selected_op_key = (
+                f"{selected_operation_path}_{selected_operation_method}"
+            )
+
         for key in manifest_obj.get("plugin_operations"):
-            if selected_operation is not None and selected_operation != key:
-                continue
             methods = manifest_obj.get("plugin_operations").get(key).keys()
             for method in methods:
-                valid_operations.append(key + "_" + method)
+                if selected_op_key:
+                    if selected_op_key.lower() == f"{key}_{method}".lower():
+                        valid_operations.append(selected_op_key)
+                else:
+                    valid_operations.append(key + "_" + method)
+
         self.add_from_openapi_spec(
             open_api_spec_url,
             plugin=plugin,
@@ -323,7 +337,9 @@ class Functions(BaseModel):
                         continue
                 details = paths[path][method]
                 function_values: Dict[str, Any] = {}
-                function_values["api"] = API(url=f"{server_url}{path}", method=method)
+                function_values["api"] = API(
+                    url=f"{server_url}{path}", method=method
+                )
                 function_values["name"] = f"{method}{path.replace('/', '_')}"
                 if details.get("summary") is None:
                     function_values["description"] = function_values["name"]
@@ -339,7 +355,9 @@ class Functions(BaseModel):
                         if param.get("description") is None:
                             properties_values["description"] = param.get("name")
                         else:
-                            properties_values["description"] = param.get("description")
+                            properties_values["description"] = param.get(
+                                "description"
+                            )
                         properties_values["is_required"] = param.get("required")
                         g_properties.append(FunctionProperty(**properties_values))
                     function_values["param_properties"] = g_properties
@@ -406,7 +424,9 @@ class Functions(BaseModel):
                         .get(method, {})
                         .get("prompt_signature_helpers", [])
                     )
-                function_values["prompt_signature_helpers"] = prompt_signature_helpers
+                function_values[
+                    "prompt_signature_helpers"
+                ] = prompt_signature_helpers
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin

@@ -3,6 +3,7 @@ from typing import Annotated, List, Optional, Union
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
+from pydantic import BaseModel
 
 from openplugin.api import auth
 from openplugin.bindings.imprompt.imprompt_operation_signature_builder import (
@@ -20,18 +21,22 @@ router = APIRouter(
 )
 
 
+class OperationSignatureParam(BaseModel):
+    messages: List[Message]
+    plugin: Plugin
+    config: Config
+    llm: LLM
+    selected_operation: Optional[str] = None
+    pre_prompts: Optional[List[Message]] = None
+
+
 # Define a POST endpoint for /api-signature-selector
 @router.post("/operation-signature-builder")
 def operation_signature_builder(
-    messages: List[Message],
-    plugin: Plugin,
-    config: Config,
-    llm: LLM,
+    input: OperationSignatureParam,
     pipeline_name: Annotated[
         Union[str, None], Query(description="pipeline_nam")
     ] = None,
-    pre_prompts: Optional[List[Message]] = None,
-    selected_operation: Optional[str] = None,
     api_key: APIKey = Depends(auth.get_api_key),
 ):
     # Based on the provider specified in tool_selector_config, create the appropriate
@@ -40,25 +45,37 @@ def operation_signature_builder(
         # TODO:Find a way to detect best pipeline for a prompt
         if pipeline_name is None:
             openai_selector = OpenAIOperationSignatureBuilder(
-                plugin, config, llm, pre_prompts, selected_operation
+                input.plugin,
+                input.config,
+                input.llm,
+                input.pre_prompts,
+                input.selected_operation,
             )
-            return openai_selector.run(messages)
+            return openai_selector.run(input.messages)
         if (
             pipeline_name.lower()
             == ImpromptOperationSignatureBuilder.get_pipeline_name().lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
-                plugin, config, llm, pre_prompts, selected_operation
+                input.plugin,
+                input.config,
+                input.llm,
+                input.pre_prompts,
+                input.selected_operation,
             )
-            return imprompt_selector.run(messages)
+            return imprompt_selector.run(input.messages)
         elif (
             pipeline_name.lower()
             == OpenAIOperationSignatureBuilder.get_pipeline_name().lower()
         ):
             openai_selector = OpenAIOperationSignatureBuilder(
-                plugin, config, llm, pre_prompts, selected_operation
+                input.plugin,
+                input.config,
+                input.llm,
+                input.pre_prompts,
+                input.selected_operation,
             )
-            return openai_selector.run(messages)
+            return openai_selector.run(input.messages)
         else:
             # If an incorrect pipeline is specified, return a 400 Bad
             # Request response
