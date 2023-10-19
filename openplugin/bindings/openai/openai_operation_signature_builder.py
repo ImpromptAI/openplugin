@@ -2,6 +2,8 @@ import json
 import time
 from typing import List, Optional
 
+import litellm
+
 from openplugin.bindings.openai.openai_helpers import chat_completion_with_backoff
 from openplugin.interfaces.models import (
     LLM,
@@ -50,6 +52,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             self.openai_api_key = config.openai_api_key
         else:
             raise ValueError("OpenAI API Key is not configured")
+        litellm.api_key = self.openai_api_key
 
     def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
@@ -76,6 +79,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         count = 0
         final_text_response = None
         total_tokens = 0
+        llm_api_cost = 0
         detected_plugin_operations = []
         # while is_a_function_call and count < 5:
         count += 1
@@ -92,8 +96,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             top_p = 1.0
             if self.llm and self.llm.top_p:
                 top_p = self.llm.top_p
-            response = chat_completion_with_backoff(
-                openai_api_key=self.openai_api_key,
+            response = litellm.completion(
                 model=self.llm.model_name if self.llm else None,
                 temperature=temperature,
                 max_tokens=max_tokens,
@@ -103,6 +106,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 functions=function_json,
                 function_call="auto",
             )
+            llm_api_cost = litellm.completion_cost(completion_response=response)
         except Exception as e:
             print(e)
             return SelectedApiSignatureResponse(
@@ -148,7 +152,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             detected_plugin_operations=detected_plugin_operations,
             response_time=round(time.time() - start_test_case_time, 2),
             tokens_used=total_tokens,
-            llm_api_cost=0,
+            llm_api_cost=llm_api_cost,
         )
         return response_obj
 
