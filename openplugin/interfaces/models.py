@@ -196,11 +196,14 @@ class Function(BaseModel):
         return self.api.call(params)
 
     def get_required_properties(self):
+        return []
+        """
         return [
             param_property.name
             for param_property in self.param_properties
             if param_property.is_required
         ]
+        """
 
     def get_property_map(self):
         map = {}
@@ -559,3 +562,5 @@ class OperationExecutionParams(BaseModel):
 class OperationExecutionResponse(BaseModel):
     response: Optional[Any]
     post_cleanup_text: Optional[str]
+    is_a_clarifying_question: Optional[bool] = False
+    clarifying_questions: Optional[List[str]]

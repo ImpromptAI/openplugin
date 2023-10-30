@@ -87,7 +87,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             temperature = 0.0
             if self.llm and self.llm.temperature:
                 temperature = self.llm.temperature
-            max_tokens = 1024
+            max_tokens = 2048
             if self.llm and self.llm.max_tokens:
                 max_tokens = self.llm.max_tokens
             n = 1
@@ -123,6 +123,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             arguments = json.loads(message["function_call"]["arguments"])
+
             p_detected = PluginDetectedParams(
                 plugin=detected_plugin,
                 api_called=detected_function.get_api_url(),

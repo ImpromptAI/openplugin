@@ -177,7 +177,6 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
                                         {"role": "assistant", "content": content}
                                     )
         except Exception as e:
-            print("++++")
             print(e)
         """
 

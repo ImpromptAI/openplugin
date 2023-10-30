@@ -1,6 +1,7 @@
 import json
 import os
 import traceback
+from calendar import c
 
 import requests
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -29,8 +30,6 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )
-        # print(response.status_code)
-        # print(response.json())
         if response.status_code == 200:
             response_json = response.json()
             if not isinstance(response_json, list):
@@ -48,7 +47,9 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                         f"{response.status_code}, Response: {response.text[0:100]}..."
                     )
                     raise Exception("{}".format(failed_message))
-            return response.json()
+            return response.json(), response.status_code
+        elif response.status_code == 400:
+            return response.text, response.status_code
         failed_message = (
             f"API: {url}, Params: {params},Status code: "
             f"{response.status_code}, Response: {response.text[0:100]}..."
@@ -69,7 +70,7 @@ class OperationExecutionImpl(OperationExecution):
 
     def run(self) -> OperationExecutionResponse:
         try:
-            response_json = _call(
+            response_json, status_code = _call(
                 self.params.api,
                 self.params.method,
                 self.params.header,
@@ -79,12 +80,35 @@ class OperationExecutionImpl(OperationExecution):
         except Exception as e:
             raise Exception("{}".format(e.args[0].result()))
         post_cleanup_text = None
-        if self.params.post_processing_cleanup_prompt:
+        is_a_clarifying_question = False
+        if status_code == 400:
+            c_prompt = f"{response_json}\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations."
+            model_name = "gpt-3.5-turbo-0613"
+            if (
+                self.params.llm is not None
+                and self.params.llm.model_name is not None
+            ):
+                model_name = self.params.llm.model_name
+            response = chat_completion_with_backoff(
+                openai_api_key=self.openai_api_key,
+                model=model_name,
+                messages=[{"role": "user", "content": c_prompt}],
+            )
+            is_a_clarifying_question = True
+            try:
+                post_cleanup_text = response["choices"][0]["message"]["content"]
+            except Exception as e:
+                print(e)
+        elif self.params.post_processing_cleanup_prompt:
             c_prompt = (
                 f"{self.params.post_processing_cleanup_prompt} For: {response_json}"
             )
+            print(c_prompt)
             model_name = "gpt-3.5-turbo-0613"
-            if self.params.llm is not None and self.params.llm.model_name is not None:
+            if (
+                self.params.llm is not None
+                and self.params.llm.model_name is not None
+            ):
                 model_name = self.params.llm.model_name
             response = chat_completion_with_backoff(
                 openai_api_key=self.openai_api_key,
@@ -96,5 +120,7 @@ class OperationExecutionImpl(OperationExecution):
             except Exception as e:
                 print(e)
         return OperationExecutionResponse(
-            response=response_json, post_cleanup_text=post_cleanup_text
+            response=response_json,
+            post_cleanup_text=post_cleanup_text,
+            is_a_clarifying_question=is_a_clarifying_question,
         )
