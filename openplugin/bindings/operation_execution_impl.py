@@ -103,7 +103,6 @@ class OperationExecutionImpl(OperationExecution):
             c_prompt = (
                 f"{self.params.post_processing_cleanup_prompt} For: {response_json}"
             )
-            print(c_prompt)
             model_name = "gpt-3.5-turbo-0613"
             if (
                 self.params.llm is not None

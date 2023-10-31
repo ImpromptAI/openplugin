@@ -563,4 +563,3 @@ class OperationExecutionResponse(BaseModel):
     response: Optional[Any]
     post_cleanup_text: Optional[str]
     is_a_clarifying_question: Optional[bool] = False
-    clarifying_questions: Optional[List[str]]
