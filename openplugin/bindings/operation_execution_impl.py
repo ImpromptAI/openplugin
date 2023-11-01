@@ -82,7 +82,7 @@ class OperationExecutionImpl(OperationExecution):
         post_cleanup_text = None
         is_a_clarifying_question = False
         if status_code == 400:
-            c_prompt = f"{response_json}\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations."
+            c_prompt = f"{response_json}\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations. Make sure you prettify the parameter name. Don't mention about JSON or API call."
             model_name = "gpt-3.5-turbo-0613"
             if (
                 self.params.llm is not None
