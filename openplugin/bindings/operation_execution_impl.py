@@ -1,7 +1,6 @@
 import json
 import os
 import traceback
-from calendar import c
 
 import requests
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -32,6 +31,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         )
         if response.status_code == 200:
             response_json = response.json()
+
             if not isinstance(response_json, list):
                 if response_json.get("message") and response_json.get(
                     "message"

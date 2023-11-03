@@ -24,7 +24,7 @@ class PluginOperation(BaseModel):
     """
 
     human_usage_examples: Optional[List[str]] = []
-    prompt_signature_helpers: Optional[List[str]] = []
+    plugin_signature_helpers: Optional[List[str]] = []
     plugin_cleanup_helpers: Optional[List[str]] = []
 
 
@@ -117,7 +117,7 @@ class Plugin(BaseModel):
         if self.plugin_operations:
             for value in self.plugin_operations.values():
                 for val in value.values():
-                    for helper in val.prompt_signature_helpers:
+                    for helper in val.plugin_signature_helpers:
                         pre_prompt += f"{index}: {helper}\n"
                         index = index + 1
                     for example in val.human_usage_examples:
@@ -184,7 +184,7 @@ class Function(BaseModel):
     param_type: Optional[str]
     param_properties: Optional[List[FunctionProperty]]
     human_usage_examples: Optional[List[str]] = []
-    prompt_signature_helpers: Optional[List[str]] = []
+    plugin_signature_helpers: Optional[List[str]] = []
 
     def get_api_url(self):
         return self.api.url
@@ -293,15 +293,14 @@ class Functions(BaseModel):
         prompt = ""
         index = 1
         for function in self.functions:
-            for helper in function.prompt_signature_helpers:
+            for helper in function.plugin_signature_helpers:
+                if not helper.endswith("."):
+                    helper = f"{helper}."
                 prompt += f"{helper} "
                 index = index + 1
         prompt = prompt.strip()
         if len(prompt) > 0:
-            prompt = (
-                "The prompt signature helper prompts to help map API parameters:  "
-                + prompt
-            )
+            prompt = "#system=( " + prompt + ") "
         return prompt.strip()
 
     def get_examples_prompt(self):
@@ -420,16 +419,16 @@ class Functions(BaseModel):
                         .get("human_usage_examples", [])
                     )
                 function_values["human_usage_examples"] = human_usage_examples
-                prompt_signature_helpers = []
+                plugin_signature_helpers = []
                 if plugin_operations_map is not None:
-                    prompt_signature_helpers = (
+                    plugin_signature_helpers = (
                         plugin_operations_map.get(path, {})
                         .get(method, {})
-                        .get("prompt_signature_helpers", [])
+                        .get("plugin_signature_helpers", [])
                     )
                 function_values[
-                    "prompt_signature_helpers"
-                ] = prompt_signature_helpers
+                    "plugin_signature_helpers"
+                ] = plugin_signature_helpers
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin

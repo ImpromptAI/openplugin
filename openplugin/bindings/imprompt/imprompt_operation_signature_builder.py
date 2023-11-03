@@ -164,10 +164,10 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
                     if plugin_operation_method_map:
                         for method in plugin_operation_method_map.keys():
                             ops = plugin_operation_method_map.get(method)
-                            if ops and ops.prompt_signature_helpers:
+                            if ops and ops.plugin_signature_helpers:
                                 for (
                                     prompt_signature_helper
-                                ) in ops.prompt_signature_helpers:
+                                ) in ops.plugin_signature_helpers:
                                     content = (
                                         f"For operation={ops} and method={method}, "
                                         f"{prompt_signature_helper}",

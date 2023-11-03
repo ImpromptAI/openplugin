@@ -44,7 +44,7 @@ def get_openplugin_manifest_from_openai_manifest(
                 plugin_operations[key] = {}
                 plugin_operations[key][method] = PluginOperation(
                     human_usage_examples=["hello", "world"],
-                    prompt_signature_helpers=["hello", "world"],
+                    plugin_signature_helpers=["hello", "world"],
                 )
     # If selected_operations is provided, use it; otherwise, use the extracted ops
     if selected_operations and len(selected_operations) > 0:

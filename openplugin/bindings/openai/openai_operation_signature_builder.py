@@ -4,7 +4,6 @@ from typing import List, Optional
 
 import litellm
 
-from openplugin.bindings.openai.openai_helpers import chat_completion_with_backoff
 from openplugin.interfaces.models import (
     LLM,
     Config,
@@ -56,11 +55,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
 
     def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
-        f_messages = [
-            msg.get_openai_message()
-            for msg in messages
-            if msg.get_openai_message() is not None
-        ]
+
         functions = Functions()
         functions.add_from_plugin(self.plugin, self.selected_operation)
         if len(functions.functions) == 0:
@@ -73,20 +68,31 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 llm_api_cost=0,
             )
         helper_pre_prompt = functions.get_prompt_signatures_prompt()
-        if helper_pre_prompt and len(helper_pre_prompt) > 0:
-            f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
+        # if helper_pre_prompt and len(helper_pre_prompt) > 0:
+        #    f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
+
+        for message in messages:
+            if message.message_type == MessageType.HumanMessage:
+                message.content = f"{helper_pre_prompt} #PROMPT={message.content}"
+
+        f_messages = [
+            msg.get_openai_message()
+            for msg in messages
+            if msg.get_openai_message() is not None
+        ]
         function_json = functions.get_json()
         count = 0
         final_text_response = None
         total_tokens = 0
         llm_api_cost = 0
-        detected_plugin_operations = []
+        detected_plugin_operations: list[PluginDetectedParams] = []
         # while is_a_function_call and count < 5:
         count += 1
         try:
             temperature = 0.0
             if self.llm and self.llm.temperature:
                 temperature = self.llm.temperature
+
             max_tokens = 2048
             if self.llm and self.llm.max_tokens:
                 max_tokens = self.llm.max_tokens
@@ -96,6 +102,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             top_p = 1.0
             if self.llm and self.llm.top_p:
                 top_p = self.llm.top_p
+
             response = litellm.completion(
                 model=self.llm.model_name if self.llm else None,
                 temperature=temperature,
@@ -117,8 +124,9 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 tokens_used=0,
                 llm_api_cost=0,
             )
+
         message = response["choices"][0]["message"]
-        if message.get("function_call"):
+        if message and isinstance(message, dict) and message.get("function_call"):
             function_name = message["function_call"]["name"]
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
