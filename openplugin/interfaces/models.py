@@ -154,7 +154,7 @@ class Config(BaseModel):
 
 class FunctionProperty(BaseModel):
     name: str
-    type: str
+    type: Optional[str] = "string"
     description: Optional[str]
     enum: Optional[List[str]]
     items: Optional[dict]
@@ -556,9 +556,11 @@ class OperationExecutionParams(BaseModel):
     header: Optional[dict]
     post_processing_cleanup_prompt: Optional[str]
     llm: Optional[LLM]
+    plugin_response_filter_template: Optional[str]
 
 
 class OperationExecutionResponse(BaseModel):
     response: Optional[Any]
     post_cleanup_text: Optional[str]
+    filter_response: Optional[str]
     is_a_clarifying_question: Optional[bool] = False

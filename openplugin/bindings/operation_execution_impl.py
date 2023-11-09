@@ -2,6 +2,7 @@ import json
 import os
 import traceback
 
+import jinja2
 import requests
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
@@ -81,6 +82,13 @@ class OperationExecutionImpl(OperationExecution):
             raise Exception("{}".format(e.args[0].result()))
         post_cleanup_text = None
         is_a_clarifying_question = False
+
+        template_str = self.params.plugin_response_filter_template
+        filter_response = ""
+        if template_str and len(template_str) > 0:
+            template = jinja2.Template(template_str)
+            filter_response = template.render(json_data=response_json)
+
         if status_code == 400:
             c_prompt = f"{response_json}\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations. Make sure you prettify the parameter name. Don't mention about JSON or API call."
             model_name = "gpt-3.5-turbo-0613"
@@ -121,5 +129,6 @@ class OperationExecutionImpl(OperationExecution):
         return OperationExecutionResponse(
             response=response_json,
             post_cleanup_text=post_cleanup_text,
+            filter_response=filter_response,
             is_a_clarifying_question=is_a_clarifying_question,
         )
