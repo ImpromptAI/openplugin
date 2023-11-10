@@ -556,11 +556,14 @@ class OperationExecutionParams(BaseModel):
     header: Optional[dict]
     post_processing_cleanup_prompt: Optional[str]
     llm: Optional[LLM]
-    plugin_response_filter_template: Optional[str]
+    plugin_response_template: Optional[str]
+    run_summary_response: bool = True
 
 
 class OperationExecutionResponse(BaseModel):
-    response: Optional[Any]
-    post_cleanup_text: Optional[str]
-    filter_response: Optional[str]
+    original_response: Optional[Any]
+    cleanup_response: Optional[str]
+    template_response: Optional[str]
+    summary_response: Optional[str]
+    clarifying_response: Optional[str]
     is_a_clarifying_question: Optional[bool] = False

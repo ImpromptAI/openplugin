@@ -13,6 +13,9 @@ from openplugin.interfaces.models import (
 )
 from openplugin.interfaces.operation_execution import OperationExecution
 
+CLARIFYING_QUESTION_PROMPT = "#INPUT_JSON\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations. Make sure you prettify the parameter name. Don't mention about JSON or API call."
+DEFAULT_MODEL_NAME = "gpt-3.5-turbo-0613"
+
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(2))
 def _call(url, method="GET", headers=None, params=None, body=None):
@@ -80,55 +83,94 @@ class OperationExecutionImpl(OperationExecution):
             )
         except Exception as e:
             raise Exception("{}".format(e.args[0].result()))
-        post_cleanup_text = None
-        is_a_clarifying_question = False
 
-        template_str = self.params.plugin_response_filter_template
-        filter_response = ""
+        template_response = None
+        template_str = self.params.plugin_response_template
         if template_str and len(template_str) > 0:
             template = jinja2.Template(template_str)
-            filter_response = template.render(json_data=response_json)
+            template_response = template.render(json_data=response_json)
+
+        cleanup_response = None
+        is_a_clarifying_question = False
+        clarifying_response = None
 
         if status_code == 400:
-            c_prompt = f"{response_json}\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations. Make sure you prettify the parameter name. Don't mention about JSON or API call."
-            model_name = "gpt-3.5-turbo-0613"
-            if (
-                self.params.llm is not None
-                and self.params.llm.model_name is not None
-            ):
-                model_name = self.params.llm.model_name
-            response = chat_completion_with_backoff(
-                openai_api_key=self.openai_api_key,
-                model=model_name,
-                messages=[{"role": "user", "content": c_prompt}],
-            )
             is_a_clarifying_question = True
             try:
-                post_cleanup_text = response["choices"][0]["message"]["content"]
+                model_name = DEFAULT_MODEL_NAME
+                if (
+                    self.params.llm is not None
+                    and self.params.llm.model_name is not None
+                ):
+                    model_name = self.params.llm.model_name
+                response = chat_completion_with_backoff(
+                    openai_api_key=self.openai_api_key,
+                    model=model_name,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": CLARIFYING_QUESTION_PROMPT.replace(
+                                "#INPUT_JSON", response_json
+                            ),
+                        }
+                    ],
+                )
+                clarifying_response = response["choices"][0]["message"]["content"]
             except Exception as e:
-                print(e)
+                clarifying_response = f"Failed: {e}"
         elif self.params.post_processing_cleanup_prompt:
-            c_prompt = (
-                f"{self.params.post_processing_cleanup_prompt} For: {response_json}"
-            )
-            model_name = "gpt-3.5-turbo-0613"
-            if (
-                self.params.llm is not None
-                and self.params.llm.model_name is not None
-            ):
-                model_name = self.params.llm.model_name
-            response = chat_completion_with_backoff(
-                openai_api_key=self.openai_api_key,
-                model=model_name,
-                messages=[{"role": "user", "content": c_prompt}],
-            )
             try:
-                post_cleanup_text = response["choices"][0]["message"]["content"]
+                if template_response:
+                    c_prompt = f"{self.params.post_processing_cleanup_prompt} For: {template_response}"
+                else:
+                    c_prompt = f"{self.params.post_processing_cleanup_prompt} For: {response_json}"
+
+                model_name = DEFAULT_MODEL_NAME
+                if (
+                    self.params.llm is not None
+                    and self.params.llm.model_name is not None
+                ):
+                    model_name = self.params.llm.model_name
+                response = chat_completion_with_backoff(
+                    openai_api_key=self.openai_api_key,
+                    model=model_name,
+                    messages=[{"role": "user", "content": c_prompt}],
+                )
+                cleanup_response = response["choices"][0]["message"]["content"]
             except Exception as e:
-                print(e)
+                cleanup_response = f"Failed: {e}"
+
+        summary_response = None
+        if self.params.run_summary_response:
+            try:
+                if cleanup_response:
+                    summary_snippet = cleanup_response
+                elif template_response:
+                    summary_snippet = template_response
+                else:
+                    summary_snippet = response_json
+                summary_prompt = f"""Use a random way to rewrite the #PROMPT to indicate that it has finished either successfully or unsuccessfully based on the #RESPONSE 
+
+                #RESPONSE
+                {summary_snippet}
+                """
+                model_name = DEFAULT_MODEL_NAME
+                summary_response = chat_completion_with_backoff(
+                    openai_api_key=self.openai_api_key,
+                    model=model_name,
+                    messages=[{"role": "user", "content": summary_prompt}],
+                )
+                summary_response = summary_response["choices"][0]["message"][
+                    "content"
+                ]
+            except Exception as e:
+                summary_response = f"Failed: {e}"
+
         return OperationExecutionResponse(
-            response=response_json,
-            post_cleanup_text=post_cleanup_text,
-            filter_response=filter_response,
+            original_response=response_json,
+            clarifying_response=clarifying_response,
+            cleanup_response=cleanup_response,
+            template_response=template_response,
+            summary_response=summary_response,
             is_a_clarifying_question=is_a_clarifying_question,
         )
