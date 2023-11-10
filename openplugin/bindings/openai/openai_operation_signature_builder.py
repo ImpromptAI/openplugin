@@ -93,7 +93,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             if self.llm and self.llm.temperature:
                 temperature = self.llm.temperature
 
-            max_tokens = 2048
+            max_tokens = 4096
             if self.llm and self.llm.max_tokens:
                 max_tokens = self.llm.max_tokens
             n = 1
@@ -102,7 +102,6 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             top_p = 1.0
             if self.llm and self.llm.top_p:
                 top_p = self.llm.top_p
-
             response = litellm.completion(
                 model=self.llm.model_name if self.llm else None,
                 temperature=temperature,

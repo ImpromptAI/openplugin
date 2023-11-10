@@ -35,7 +35,6 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         )
         if response.status_code == 200:
             response_json = response.json()
-
             if not isinstance(response_json, list):
                 if response_json.get("message") and response_json.get(
                     "message"
@@ -141,7 +140,10 @@ class OperationExecutionImpl(OperationExecution):
                 cleanup_response = f"Failed: {e}"
 
         summary_response = None
-        if self.params.run_summary_response:
+        if (
+            self.params.post_call_evaluator_prompt
+            and len(self.params.post_call_evaluator_prompt) > 0
+        ):
             try:
                 if cleanup_response:
                     summary_snippet = cleanup_response
@@ -149,9 +151,8 @@ class OperationExecutionImpl(OperationExecution):
                     summary_snippet = template_response
                 else:
                     summary_snippet = response_json
-                summary_prompt = f"""Use a random way to rewrite the #PROMPT to indicate that it has finished either successfully or unsuccessfully based on the #RESPONSE 
 
-                #RESPONSE
+                summary_prompt = f"""{self.params.post_call_evaluator_prompt}
                 {summary_snippet}
                 """
                 model_name = DEFAULT_MODEL_NAME

@@ -154,7 +154,7 @@ class Config(BaseModel):
 
 class FunctionProperty(BaseModel):
     name: str
-    type: Optional[str] = "string"
+    type: str
     description: Optional[str]
     enum: Optional[List[str]]
     items: Optional[dict]
@@ -353,7 +353,10 @@ class Functions(BaseModel):
                     for param in details.get("parameters"):
                         properties_values = {}
                         properties_values["name"] = param.get("name")
-                        properties_values["type"] = param.get("schema").get("type")
+                        type = "string"
+                        if param.get("schema").get("type"):
+                            type = param.get("schema").get("type")
+                        properties_values["type"] = type
                         if param.get("description") is None:
                             properties_values["description"] = param.get("name")
                         else:
@@ -393,7 +396,11 @@ class Functions(BaseModel):
                     for param in params:
                         properties_values_put: dict[str, Any] = {}
                         properties_values_put["name"] = param
-                        properties_values_put["type"] = params.get(param).get("type")
+
+                        type = "string"
+                        if params.get(param).get("type"):
+                            type = params.get(param).get("type")
+                        properties_values_put["type"] = type
                         if params.get(param).get("type") == "array":
                             properties_values_put["items"] = params.get(param).get(
                                 "items"
@@ -557,7 +564,7 @@ class OperationExecutionParams(BaseModel):
     post_processing_cleanup_prompt: Optional[str]
     llm: Optional[LLM]
     plugin_response_template: Optional[str]
-    run_summary_response: bool = True
+    post_call_evaluator_prompt: Optional[str]
 
 
 class OperationExecutionResponse(BaseModel):
