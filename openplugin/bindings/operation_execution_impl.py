@@ -1,6 +1,7 @@
 import json
 import os
 import traceback
+from urllib.parse import urlencode
 
 import jinja2
 import requests
@@ -53,6 +54,12 @@ def _call(url, method="GET", headers=None, params=None, body=None):
             return response.json(), response.status_code
         elif response.status_code == 400:
             return response.text, response.status_code
+        elif method.upper() == "GET":
+            encoded_params = urlencode(params)
+            full_url = f"{url}?{encoded_params}"
+            response = requests.get(full_url)
+            if response.status_code == 200:
+                return response.json(), response.status_code
         failed_message = (
             f"API: {url}, Params: {params},Status code: "
             f"{response.status_code}, Response: {response.text[0:100]}..."
