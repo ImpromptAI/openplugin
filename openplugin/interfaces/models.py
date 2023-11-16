@@ -574,3 +574,5 @@ class OperationExecutionResponse(BaseModel):
     summary_response: Optional[str]
     clarifying_response: Optional[str]
     is_a_clarifying_question: Optional[bool] = False
+    api_call_status_code: Optional[str]
+    api_call_response_seconds: Optional[float]

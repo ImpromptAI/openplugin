@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 import jinja2
 import requests
+from regex import E
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from openplugin.bindings.openai.openai_helpers import chat_completion_with_backoff
@@ -16,6 +17,12 @@ from openplugin.interfaces.operation_execution import OperationExecution
 
 CLARIFYING_QUESTION_PROMPT = "#INPUT_JSON\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations. Make sure you prettify the parameter name. Don't mention about JSON or API call."
 DEFAULT_MODEL_NAME = "gpt-3.5-turbo-0613"
+
+
+class ExecutionException(Exception):
+    def __init__(self, message, metadata=None):
+        super().__init__(message)
+        self.metadata = metadata if metadata is not None else {}
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(2))
@@ -51,15 +58,27 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                         f"{response.status_code}, Response: {response.text[0:100]}..."
                     )
                     raise Exception("{}".format(failed_message))
-            return response.json(), response.status_code
+            return (
+                response.json(),
+                response.status_code,
+                response.elapsed.total_seconds(),
+            )
         elif response.status_code == 400:
-            return response.text, response.status_code
+            return (
+                response.text,
+                response.status_code,
+                response.elapsed.total_seconds(),
+            )
         elif method.upper() == "GET":
             encoded_params = urlencode(params)
             full_url = f"{url}?{encoded_params}"
             response = requests.get(full_url)
             if response.status_code == 200:
-                return response.json(), response.status_code
+                return (
+                    response.json(),
+                    response.status_code,
+                    response.elapsed.total_seconds(),
+                )
         failed_message = (
             f"API: {url}, Params: {params},Status code: "
             f"{response.status_code}, Response: {response.text[0:100]}..."
@@ -80,22 +99,31 @@ class OperationExecutionImpl(OperationExecution):
 
     def run(self) -> OperationExecutionResponse:
         try:
-            response_json, status_code = _call(
+            response_json, status_code, api_call_response_seconds = _call(
                 self.params.api,
                 self.params.method,
                 self.params.header,
                 self.params.query_params,
                 self.params.body,
             )
+
         except Exception as e:
-            raise Exception("{}".format(e.args[0].result()))
+            raise ExecutionException(str(e), metadata={})
 
         template_response = None
         template_str = self.params.plugin_response_template
         if template_str and len(template_str) > 0:
-            template = jinja2.Template(template_str)
-            template_response = template.render(json_data=response_json)
-
+            try:
+                template = jinja2.Template(template_str)
+                template_response = template.render(json_data=response_json)
+            except Exception as e:
+                raise ExecutionException(
+                    str(e),
+                    metadata={
+                        "api_call_status_code": status_code,
+                        "api_call_response_seconds": api_call_response_seconds,
+                    },
+                )
         cleanup_response = None
         is_a_clarifying_question = False
         clarifying_response = None
@@ -181,4 +209,6 @@ class OperationExecutionImpl(OperationExecution):
             template_response=template_response,
             summary_response=summary_response,
             is_a_clarifying_question=is_a_clarifying_question,
+            api_call_status_code=status_code,
+            api_call_response_seconds=api_call_response_seconds,
         )
