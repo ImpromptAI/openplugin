@@ -576,3 +576,11 @@ class OperationExecutionResponse(BaseModel):
     is_a_clarifying_question: Optional[bool] = False
     api_call_status_code: Optional[str]
     api_call_response_seconds: Optional[float]
+    template_execution_status_code: Optional[str]
+    template_execution_response_seconds: Optional[float]
+    cleanup_helper_status_code: Optional[str]
+    cleanup_helper_response_seconds: Optional[float]
+    summary_response_status_code: Optional[str]
+    summary_response_seconds: Optional[float]
+    clarifying_question_status_code: Optional[str]
+    clarifying_question_response_seconds: Optional[float]

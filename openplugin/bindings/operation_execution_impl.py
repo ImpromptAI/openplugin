@@ -1,11 +1,11 @@
 import json
 import os
+import time
 import traceback
 from urllib.parse import urlencode
 
 import jinja2
 import requests
-from regex import E
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from openplugin.bindings.openai.openai_helpers import chat_completion_with_backoff
@@ -112,11 +112,17 @@ class OperationExecutionImpl(OperationExecution):
 
         template_response = None
         template_str = self.params.plugin_response_template
+        template_execution_status_code = "200"
+        template_execution_response_seconds = None
         if template_str and len(template_str) > 0:
             try:
+                # response time
+                start_time = time.time()
                 template = jinja2.Template(template_str)
                 template_response = template.render(json_data=response_json)
+                template_execution_response_seconds = time.time() - start_time
             except Exception as e:
+                template_execution_status_code = "500"
                 raise ExecutionException(
                     str(e),
                     metadata={
@@ -124,6 +130,16 @@ class OperationExecutionImpl(OperationExecution):
                         "api_call_response_seconds": api_call_response_seconds,
                     },
                 )
+
+        cleanup_helper_status_code = None
+        cleanup_helper_response_seconds = None
+
+        clarifying_question_status_code = None
+        clarifying_question_response_seconds = None
+
+        summary_response_status_code = None
+        summary_response_seconds = None
+
         cleanup_response = None
         is_a_clarifying_question = False
         clarifying_response = None
@@ -131,6 +147,7 @@ class OperationExecutionImpl(OperationExecution):
         if status_code == 400:
             is_a_clarifying_question = True
             try:
+                start_time = time.time()
                 model_name = DEFAULT_MODEL_NAME
                 if (
                     self.params.llm is not None
@@ -150,10 +167,14 @@ class OperationExecutionImpl(OperationExecution):
                     ],
                 )
                 clarifying_response = response["choices"][0]["message"]["content"]
+                clarifying_question_status_code = "200"
+                clarifying_question_response_seconds = time.time() - start_time
             except Exception as e:
                 clarifying_response = f"Failed: {e}"
+                clarifying_question_status_code = "500"
         elif self.params.post_processing_cleanup_prompt:
             try:
+                start_time = time.time()
                 if template_response:
                     c_prompt = f"{self.params.post_processing_cleanup_prompt} For: {template_response}"
                 else:
@@ -171,7 +192,10 @@ class OperationExecutionImpl(OperationExecution):
                     messages=[{"role": "user", "content": c_prompt}],
                 )
                 cleanup_response = response["choices"][0]["message"]["content"]
+                cleanup_helper_response_seconds = time.time() - start_time
+                cleanup_helper_status_code = "200"
             except Exception as e:
+                cleanup_helper_status_code = "500"
                 cleanup_response = f"Failed: {e}"
 
         summary_response = None
@@ -180,6 +204,7 @@ class OperationExecutionImpl(OperationExecution):
             and len(self.params.post_call_evaluator_prompt) > 0
         ):
             try:
+                start_time = time.time()
                 if cleanup_response:
                     summary_snippet = cleanup_response
                 elif template_response:
@@ -199,7 +224,10 @@ class OperationExecutionImpl(OperationExecution):
                 summary_response = summary_response["choices"][0]["message"][
                     "content"
                 ]
+                summary_response_status_code = "200"
+                summary_response_seconds = time.time() - start_time
             except Exception as e:
+                summary_response_status_code = "500"
                 summary_response = f"Failed: {e}"
 
         return OperationExecutionResponse(
@@ -211,4 +239,12 @@ class OperationExecutionImpl(OperationExecution):
             is_a_clarifying_question=is_a_clarifying_question,
             api_call_status_code=status_code,
             api_call_response_seconds=api_call_response_seconds,
+            template_execution_status_code=template_execution_status_code,
+            template_execution_response_seconds=template_execution_response_seconds,
+            cleanup_helper_status_code=cleanup_helper_status_code,
+            cleanup_helper_response_seconds=cleanup_helper_response_seconds,
+            summary_response_status_code=summary_response_status_code,
+            summary_response_seconds=summary_response_seconds,
+            clarifying_question_status_code=clarifying_question_status_code,
+            clarifying_question_response_seconds=clarifying_question_response_seconds,
         )
