@@ -158,7 +158,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             run_completed=True,
             final_text_response=final_text_response,
             detected_plugin_operations=detected_plugin_operations,
-            response_time=round(time.time() - start_test_case_time, 2),
+            response_time=time.time() - start_test_case_time,
             tokens_used=total_tokens,
             llm_api_cost=llm_api_cost,
         )
