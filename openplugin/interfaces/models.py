@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Set
 
 import requests
 import yaml
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, root_validator
 
 
 class PluginAuth(BaseModel):
@@ -71,6 +71,36 @@ class Plugin(BaseModel):
     def get_openapi_doc_json(self):
         return requests.get(self.openapi_doc_url).json()
 
+    def get_stuffed_openapi_doc_json(self):
+        manifest_obj = requests.get(self.manifest_url).json()
+        api_properties = {}
+        for path in manifest_obj.get("plugin_operations", {}).keys():
+            path_obj = manifest_obj.get("plugin_operations", {}).get(path, {})
+            for method in path_obj.keys():
+                method_obj = path_obj.get(method, {})
+                plugin_signature_helpers = method_obj.get(
+                    "plugin_signature_helpers", []
+                )
+                human_usage_examples = method_obj.get("human_usage_examples", [])
+                api_properties[f"{path.lower()}_{method.lower()}"] = {
+                    "plugin_signature_helpers": plugin_signature_helpers,
+                    "human_usage_examples": human_usage_examples,
+                }
+
+        openapi_doc_json = requests.get(self.openapi_doc_url).json()
+        for path in openapi_doc_json.get("paths", {}).keys():
+            path_obj = openapi_doc_json.get("paths", {}).get(path, {})
+            for method in path_obj.keys():
+                method_obj = path_obj.get(method, {})
+                method_obj["x-plugin-signature-helpers"] = api_properties.get(
+                    f"{path.lower()}_{method.lower()}", {}
+                ).get("plugin_signature_helpers", [])
+                method_obj["x-human-usage-examples"] = api_properties.get(
+                    f"{path.lower()}_{method.lower()}", {}
+                ).get("human_usage_examples", [])
+
+        return openapi_doc_json
+
     @root_validator(pre=True)
     def _set_fields(cls, values: dict) -> dict:
         """This is a validator that sets the field values based on the manifest_url"""
@@ -127,6 +157,18 @@ class Plugin(BaseModel):
             pre_prompt = f"For plugin: {self.name}:\n" + pre_prompt
         return pre_prompt.strip()
 
+    def get_plugin_helpers(self):
+        pre_prompt = ""
+        if self.plugin_operations:
+            for value in self.plugin_operations.values():
+                for val in value.values():
+                    for helper in val.plugin_signature_helpers:
+                        pre_prompt += f"signature_helper= {helper}\n"
+                    for example in val.human_usage_examples:
+                        pre_prompt += f"human_usage_example= {example}\n"
+        pre_prompt = f"For plugin: {self.name}:\n" + pre_prompt
+        return pre_prompt.strip()
+
 
 class PluginDetected(BaseModel):
     """
@@ -150,6 +192,9 @@ class Config(BaseModel):
     openai_api_key: Optional[str]
     cohere_api_key: Optional[str]
     google_palm_key: Optional[str]
+    aws_access_key_id: Optional[str]
+    aws_secret_access_key: Optional[str]
+    aws_region_name: Optional[str]
 
 
 class FunctionProperty(BaseModel):
@@ -451,8 +496,9 @@ class LLMProvider(str, Enum):
 
     OpenAI = "OpenAI"
     OpenAIChat = "OpenAIChat"
-    GooglePalm = "GooglePalm"
+    GooglePalm = "Google"
     Cohere = "Cohere"
+    AwsBedrock = "AWS Bedrock"
 
 
 class LLM(BaseModel):
@@ -462,15 +508,15 @@ class LLM(BaseModel):
 
     provider: LLMProvider
     model_name: str
-    temperature: float = 0.7
-    max_tokens: int = 1024
+    temperature: float = 0
+    max_tokens: int = 2048
     top_p: float = 1
     frequency_penalty: float = 0
     presence_penalty: float = 0
     n: int = 1
     best_of: int = 1
     max_retries: int = 6
-
+    """
     @validator("model_name")
     def _chk_model_name(cls, model_name: str, values, **kwargs) -> str:
         is_correct_model_name = False
@@ -502,6 +548,7 @@ class LLM(BaseModel):
                 f" {values['provider']}"
             )
         return model_name
+    """
 
 
 class SelectedPluginsResponse(BaseModel):

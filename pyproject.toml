@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openplugin"
-version = "0.0.27"
+version = "0.0.28"
 description = ""
 authors = ["shrikant <shrikant.pm14@gmail.com>"]
 readme = "README.md"
@@ -17,6 +17,8 @@ pydantic = "^1.0.0"
 typer = { extras = ["all"], version = "^0.9.0" }
 websockets = "^11.0.3"
 litellm = "^0.7.10"
+google-cloud-aiplatform = "1.35.0"
+boto3 = "^1.29.3"
 
 
 [tool.poetry.group.docs.dependencies]

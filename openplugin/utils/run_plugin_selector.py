@@ -53,7 +53,25 @@ def run_api_signature_selector(inp_json):
 
     # Check the provider specified in tool_selector_config and select the appropriate
     # API signature selector
-    if (
+    if pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower():
+        imprompt_selector = ImpromptOperationSignatureBuilder(
+            plugin=plugin, config=config, llm=llm, use="openplugin-swagger"
+        )
+        response = imprompt_selector.run(messages)
+        return response.dict()
+    elif pipeline_name.lower() == "LLM Passthrough (Stuffed Swagger)".lower():
+        imprompt_selector = ImpromptOperationSignatureBuilder(
+            plugin=plugin, config=config, llm=llm, use="stuffed-swagger"
+        )
+        response = imprompt_selector.run(messages)
+        return response.dict()
+    elif pipeline_name.lower() == "LLM Passthrough (Bare)".lower():
+        imprompt_selector = ImpromptOperationSignatureBuilder(
+            plugin=plugin, config=config, llm=llm, use="bare"
+        )
+        response = imprompt_selector.run(messages)
+        return response.dict()
+    elif (
         pipeline_name.lower()
         == ImpromptOperationSignatureBuilder.get_pipeline_name().lower()
     ):

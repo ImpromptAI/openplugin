@@ -4,8 +4,6 @@ import time
 from typing import List, Optional
 from urllib.parse import parse_qs, urlparse
 
-import openai
-
 from openplugin.bindings.llm_manager_handler import get_llm_response_from_messages
 from openplugin.interfaces.models import (
     LLM,
@@ -20,22 +18,25 @@ from openplugin.interfaces.operation_signature_builder import (
     OperationSignatureBuilder,
 )
 
+DEBUG = True
 plugin_operation_prompt = """
-// You are an AI assistant.
-// Here is a tool you can use, named {name_for_model}. The description for this plugin is: {description_for_model}.
-// The Plugin rules:
-// 1. Assistant ALWAYS asks user's input for ONLY the MANDATORY parameters BEFORE calling the API.
-// 2. Assistant pays attention to instructions given below.
-// 3. Create an HTTPS API url that represents this query.
-// 4. Use this format: <HTTP VERB> <URL>
-//   - An example: GET https://api.example.com/v1/products
-// 5. Remove any starting periods and new lines.
-// 6. Do not structure as a sentence.
-// 7. Never use https://api.example.com/ in the API.
+You are an AI assistant.
+Here is a tool you can use, named {name_for_model}.
+
+The Plugin rules:
+ 1. Assistant ALWAYS asks user's input for ONLY the MANDATORY parameters BEFORE calling the API.
+ 2. Assistant pays attention to instructions given below.
+ 3. Create an HTTPS API url that represents this query.
+ 4. Use this format: <HTTP VERB> <URL>
+    - An example: GET https://api.example.com/v1/products
+ 5. Remove any starting periods and new lines.
+ 6. Do not structure as a sentence.
+ 7. Never use https://api.example.com/ in the API.
 
 {pre_prompt}
 
 The openapi spec file = {openapi_spec}
+
 The instructions are: {prompt}
 """  # noqa: E501
 
@@ -56,18 +57,15 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         llm: Optional[LLM],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
+        use: Optional[str] = None,
     ):
         if llm is None:
             llm = LLM(
                 provider=LLMProvider.OpenAIChat, model_name="gpt-3.5-turbo-0613"
             )
-
         super().__init__(plugin, config, llm, pre_prompts, selected_operation)
         self.total_tokens_used = 0
-        if config and config.openai_api_key:
-            openai.api_key = config.openai_api_key
-        else:
-            raise ValueError("OpenAI API Key is not configured")
+        self.use = use
 
     def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
@@ -79,13 +77,29 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         mapped_operation_parameters = None
         # TODO Find a better way to find the API called
         openapi_spec_json = self.plugin.get_openapi_doc_json()
-        formatted_plugin_operation_prompt = plugin_operation_prompt.format(
-            name_for_model=self.plugin.name,
-            description_for_model=self.plugin.description,
-            pre_prompt=self.plugin.get_plugin_pre_prompts(),
-            openapi_spec=json.dumps(openapi_spec_json),
-            prompt=prompt,
-        )
+
+        if self.use == "bare":
+            formatted_plugin_operation_prompt = plugin_operation_prompt.format(
+                name_for_model=self.plugin.name,
+                pre_prompt="",
+                openapi_spec=json.dumps(openapi_spec_json),
+                prompt=prompt,
+            )
+        elif self.use == "stuffed-swagger":
+            stuffed_openapi_spec_json = self.plugin.get_stuffed_openapi_doc_json()
+            formatted_plugin_operation_prompt = plugin_operation_prompt.format(
+                name_for_model=self.plugin.name,
+                pre_prompt="",
+                openapi_spec=json.dumps(stuffed_openapi_spec_json),
+                prompt=prompt,
+            )
+        else:
+            formatted_plugin_operation_prompt = plugin_operation_prompt.format(
+                name_for_model=self.plugin.name,
+                pre_prompt=self.plugin.get_plugin_helpers(),
+                openapi_spec=json.dumps(openapi_spec_json),
+                prompt=prompt,
+            )
         response = self.run_llm_prompt(formatted_plugin_operation_prompt)
         method = "get"
         if "post" in response.get("response").lower():
@@ -136,7 +150,6 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
             raise ValueError("LLM is not configured")
         if self.config is None:
             raise ValueError("Config is not configured")
-
         llm_api_key = None
         if (
             self.llm.provider == LLMProvider.OpenAI
@@ -147,44 +160,23 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
             llm_api_key = self.config.cohere_api_key
         elif self.llm.provider == LLMProvider.GooglePalm:
             llm_api_key = self.config.google_palm_key
+        elif self.llm.provider == LLMProvider.AwsBedrock:
+            llm_api_key = self.config.aws_secret_access_key
 
         if llm_api_key is None:
             raise ValueError("LLM API Key is not configured")
 
         msgs = []
-
-        # add signature helpers
-        """
-        try:
-            if self.plugin.plugin_operations:
-                for api_endpoint in self.plugin.plugin_operations.keys():
-                    plugin_operation_method_map = self.plugin.plugin_operations.get(
-                        api_endpoint
-                    )
-                    if plugin_operation_method_map:
-                        for method in plugin_operation_method_map.keys():
-                            ops = plugin_operation_method_map.get(method)
-                            if ops and ops.plugin_signature_helpers:
-                                for (
-                                    prompt_signature_helper
-                                ) in ops.plugin_signature_helpers:
-                                    content = (
-                                        f"For operation={ops} and method={method}, "
-                                        f"{prompt_signature_helper}",
-                                    )
-
-                                    msgs.append(
-                                        {"role": "assistant", "content": content}
-                                    )
-        except Exception as e:
-            print(e)
-        """
-
         if self.pre_prompts:
             for pre_prompt in self.pre_prompts:
                 msgs.append(pre_prompt.get_openai_message())
         msgs.append({"role": "user", "content": prompt})
-        return get_llm_response_from_messages(
+        if DEBUG:
+            print("=-=-=-=-=-= LLM -=--=-=-=-=-=--=")
+            print(self.llm)
+            print("\n=-=-=-=-=-=- PROMPT =--=-=-=-=-=--=")
+            print(prompt)
+        response = get_llm_response_from_messages(
             msgs=msgs,
             model=self.llm.model_name,
             llm_api_key=llm_api_key,
@@ -193,7 +185,14 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
             top_p=self.llm.top_p,
             frequency_penalty=self.llm.frequency_penalty,
             presence_penalty=self.llm.presence_penalty,
+            aws_access_key_id=self.config.aws_access_key_id,
+            aws_region_name=self.config.aws_region_name,
         )
+        if DEBUG:
+            print("=-=-=-=-=-=-=--=-=-=-=-=--=")
+            print(f"use= {self.use}")
+            print(f"response= {response}")
+        return response
 
     @classmethod
     def get_pipeline_name(cls) -> str:
