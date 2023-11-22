@@ -8,7 +8,6 @@ from openplugin.interfaces.models import (
     LLM,
     Config,
     Functions,
-    LLMProvider,
     Message,
     MessageType,
     Plugin,
@@ -41,11 +40,11 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         )
 
         if llm is None:
-            llm = LLM(
-                provider=LLMProvider.OpenAIChat, model_name="gpt-3.5-turbo-0613"
-            )
-        if llm.provider not in [LLMProvider.OpenAI, LLMProvider.OpenAIChat]:
-            raise ValueError(f"LLM provider {llm.provider} not supported")
+            llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
+        if llm.provider.lower() != "openai":
+            # only support openai for functions now
+            llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
+            # raise ValueError(f"LLM provider {llm.provider} not supported")
         super().__init__(plugin, config, llm, pre_prompts, selected_operation)
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key

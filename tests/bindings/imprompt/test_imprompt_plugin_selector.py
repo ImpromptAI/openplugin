@@ -8,7 +8,6 @@ from openplugin.bindings.imprompt.imprompt_plugin_selector import (
 from openplugin.interfaces.models import (
     LLM,
     Config,
-    LLMProvider,
     Message,
     MessageType,
     Plugin,
@@ -31,7 +30,7 @@ def test_klarna_plugins():
     # ADD YOU OPENAI API KEY HERE
     config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
     llm = LLM(
-        provider=LLMProvider.OpenAIChat,
+        provider="openai",
         model_name="gpt-3.5-turbo",
     )
     selector = ImpromptPluginSelector(

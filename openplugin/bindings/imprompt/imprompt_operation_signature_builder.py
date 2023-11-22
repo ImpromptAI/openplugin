@@ -8,7 +8,6 @@ from openplugin.bindings.llm_manager_handler import get_llm_response_from_messag
 from openplugin.interfaces.models import (
     LLM,
     Config,
-    LLMProvider,
     Message,
     Plugin,
     PluginDetectedParams,
@@ -60,9 +59,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         use: Optional[str] = None,
     ):
         if llm is None:
-            llm = LLM(
-                provider=LLMProvider.OpenAIChat, model_name="gpt-3.5-turbo-0613"
-            )
+            llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
         super().__init__(plugin, config, llm, pre_prompts, selected_operation)
         self.total_tokens_used = 0
         self.use = use
@@ -152,18 +149,20 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
             raise ValueError("Config is not configured")
         llm_api_key = None
         if (
-            self.llm.provider == LLMProvider.OpenAI
-            or self.llm.provider == LLMProvider.OpenAIChat
+            self.llm.provider.lower() == "openai"
+            or self.llm.provider.lower() == "openaichat"
         ):
             llm_api_key = self.config.openai_api_key
-        elif self.llm.provider == LLMProvider.Cohere:
+        elif self.llm.provider.lower() == "cohere":
             llm_api_key = self.config.cohere_api_key
-        elif self.llm.provider == LLMProvider.GooglePalm:
+        elif self.llm.provider.lower() == "google":
             llm_api_key = self.config.google_palm_key
-        elif self.llm.provider == LLMProvider.AwsBedrock:
+        elif self.llm.provider.lower() == "aws":
             llm_api_key = self.config.aws_secret_access_key
 
         if llm_api_key is None:
+            print("****")
+            print(self.config)
             raise ValueError("LLM API Key is not configured")
 
         msgs = []

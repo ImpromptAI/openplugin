@@ -189,6 +189,7 @@ class Config(BaseModel):
     Represents the API configuration for a plugin.
     """
 
+    provider: str
     openai_api_key: Optional[str]
     cohere_api_key: Optional[str]
     google_palm_key: Optional[str]
@@ -489,24 +490,12 @@ class Functions(BaseModel):
         self.functions.extend(functions)
 
 
-class LLMProvider(str, Enum):
-    """
-    Enumeration for different LLM providers.
-    """
-
-    OpenAI = "OpenAI"
-    OpenAIChat = "OpenAIChat"
-    GooglePalm = "Google"
-    Cohere = "Cohere"
-    AwsBedrock = "AWS Bedrock"
-
-
 class LLM(BaseModel):
     """
     Represents the configuration for an LLM (Language Model) provider.
     """
 
-    provider: LLMProvider
+    provider: str
     model_name: str
     temperature: float = 0
     max_tokens: int = 2048
@@ -516,39 +505,6 @@ class LLM(BaseModel):
     n: int = 1
     best_of: int = 1
     max_retries: int = 6
-    """
-    @validator("model_name")
-    def _chk_model_name(cls, model_name: str, values, **kwargs) -> str:
-        is_correct_model_name = False
-        if values["provider"] == LLMProvider.OpenAI and model_name in [
-            "text-davinci-003"
-        ]:
-            is_correct_model_name = True
-        if values["provider"] == LLMProvider.OpenAIChat and model_name in [
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-0613",
-            "gpt-4-0613",
-            "gpt-4",
-        ]:
-            is_correct_model_name = True
-        if values["provider"] == LLMProvider.GooglePalm and model_name in [
-            "text-bison-001",
-            "chat-bison@001",
-        ]:
-            is_correct_model_name = True
-        if values["provider"] == LLMProvider.Cohere and model_name in [
-            "command",
-            "command-light",
-            "command-xlarge-nightly",
-        ]:
-            is_correct_model_name = True
-        if not is_correct_model_name:
-            raise ValueError(
-                f"model_name {model_name} not supported for provider"
-                f" {values['provider']}"
-            )
-        return model_name
-    """
 
 
 class SelectedPluginsResponse(BaseModel):
@@ -602,7 +558,7 @@ class Message(BaseModel):
 
 
 class OperationExecutionParams(BaseModel):
-    openai_api_key: Optional[str]
+    config: Config
     api: str
     method: str
     query_params: Optional[dict]
@@ -612,6 +568,31 @@ class OperationExecutionParams(BaseModel):
     llm: Optional[LLM]
     plugin_response_template: Optional[str]
     post_call_evaluator_prompt: Optional[str]
+
+    def get_temperature(self):
+        if self.llm:
+            return self.llm.temperature
+        return None
+
+    def get_top_p(self):
+        if self.llm:
+            return self.llm.top_p
+        return None
+
+    def get_max_tokens(self):
+        if self.llm:
+            return self.llm.max_tokens
+        return None
+
+    def get_frequency_penalty(self):
+        if self.llm:
+            return self.llm.frequency_penalty
+        return None
+
+    def get_presence_penalty(self):
+        if self.llm:
+            return self.llm.presence_penalty
+        return None
 
 
 class OperationExecutionResponse(BaseModel):

@@ -8,7 +8,6 @@ import openai
 from openplugin.interfaces.models import (
     LLM,
     Config,
-    LLMProvider,
     Message,
     MessageType,
     Plugin,
@@ -124,9 +123,13 @@ class ImpromptPluginSelector(PluginSelector):
                             val = val.split("-")[0].strip()
                         if "," in val:
                             for v in val.split(","):
-                                found_plugins.append(self.get_plugin_by_name(v.strip()))
+                                found_plugins.append(
+                                    self.get_plugin_by_name(v.strip())
+                                )
                         else:
-                            found_plugins.append(self.get_plugin_by_name(val.strip()))
+                            found_plugins.append(
+                                self.get_plugin_by_name(val.strip())
+                            )
 
         detected_plugins = []
         for plugin in found_plugins:
@@ -166,9 +169,7 @@ class ImpromptPluginSelector(PluginSelector):
         return detected_plugins
 
     def run_llm_prompt(self, prompt):
-        if self.llm.provider == LLMProvider.OpenAI:
-            return self.openai_completion(prompt)
-        elif self.llm.provider == LLMProvider.OpenAIChat:
+        if self.llm.provider.lower() == "openai":
             msgs = [{"role": "user", "content": prompt}]
             return self.openai_chat(msgs)
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
@@ -176,12 +177,7 @@ class ImpromptPluginSelector(PluginSelector):
     def run_llm(self, messages: List[Message]):
         if self.llm is None:
             raise ValueError("LLM is not configured")
-        if self.llm.provider == LLMProvider.OpenAI:
-            prompt = ""
-            for message in messages:
-                prompt += f"{message.message_type}: {message.content}\n"
-            return self.openai_completion(prompt)
-        elif self.llm.provider == LLMProvider.OpenAIChat:
+        if self.llm.provider.lower() == "openai":
             msgs = []
             for message in messages:
                 if message.message_type == MessageType.HumanMessage:

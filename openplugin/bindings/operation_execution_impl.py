@@ -1,5 +1,4 @@
 import json
-import os
 import time
 import traceback
 from urllib.parse import urlencode
@@ -8,7 +7,7 @@ import jinja2
 import requests
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from openplugin.bindings.openai.openai_helpers import chat_completion_with_backoff
+from openplugin.bindings.llm_manager_handler import get_llm_response_from_messages
 from openplugin.interfaces.models import (
     OperationExecutionParams,
     OperationExecutionResponse,
@@ -91,10 +90,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
 
 class OperationExecutionImpl(OperationExecution):
     def __init__(self, params: OperationExecutionParams):
-        if params.openai_api_key is not None:
-            self.openai_api_key = params.openai_api_key
-        else:
-            self.openai_api_key = os.environ["OPENAI_API_KEY"]
+        self.config = params.config
         super().__init__(params)
 
     def run(self) -> OperationExecutionResponse:
@@ -144,6 +140,16 @@ class OperationExecutionImpl(OperationExecution):
         is_a_clarifying_question = False
         clarifying_response = None
 
+        llm_api_key = None
+        if self.config.provider.lower() == "cohere":
+            llm_api_key = self.config.cohere_api_key
+        elif self.config.provider.lower() == "openai":
+            llm_api_key = self.config.openai_api_key
+        elif self.config.provider.lower() == "google":
+            llm_api_key = self.config.google_palm_key
+        elif self.config.provider.lower() == "aws":
+            llm_api_key = self.config.aws_secret_access_key
+
         if status_code == 400:
             is_a_clarifying_question = True
             try:
@@ -154,10 +160,9 @@ class OperationExecutionImpl(OperationExecution):
                     and self.params.llm.model_name is not None
                 ):
                     model_name = self.params.llm.model_name
-                response = chat_completion_with_backoff(
-                    openai_api_key=self.openai_api_key,
-                    model=model_name,
-                    messages=[
+
+                response = get_llm_response_from_messages(
+                    msgs=[
                         {
                             "role": "user",
                             "content": CLARIFYING_QUESTION_PROMPT.replace(
@@ -165,8 +170,17 @@ class OperationExecutionImpl(OperationExecution):
                             ),
                         }
                     ],
+                    temperature=self.params.get_temperature(),
+                    max_tokens=self.params.get_max_tokens(),
+                    top_p=self.params.get_top_p(),
+                    frequency_penalty=self.params.get_frequency_penalty(),
+                    presence_penalty=self.params.get_presence_penalty(),
+                    model=model_name,
+                    llm_api_key=llm_api_key,
+                    aws_access_key_id=self.config.aws_access_key_id,
+                    aws_region_name=self.config.aws_region_name,
                 )
-                clarifying_response = response["choices"][0]["message"]["content"]
+                clarifying_response = response.get("response")
                 clarifying_question_status_code = "200"
                 clarifying_question_response_seconds = time.time() - start_time
             except Exception as e:
@@ -186,12 +200,18 @@ class OperationExecutionImpl(OperationExecution):
                     and self.params.llm.model_name is not None
                 ):
                     model_name = self.params.llm.model_name
-                response = chat_completion_with_backoff(
-                    openai_api_key=self.openai_api_key,
+                response = get_llm_response_from_messages(
+                    msgs=[{"role": "user", "content": c_prompt}],
                     model=model_name,
-                    messages=[{"role": "user", "content": c_prompt}],
+                    llm_api_key=llm_api_key,
+                    aws_access_key_id=self.config.aws_access_key_id,
+                    aws_region_name=self.config.aws_region_name,
+                    max_tokens=self.params.get_max_tokens(),
+                    top_p=self.params.get_top_p(),
+                    frequency_penalty=self.params.get_frequency_penalty(),
+                    presence_penalty=self.params.get_presence_penalty(),
                 )
-                cleanup_response = response["choices"][0]["message"]["content"]
+                cleanup_response = response.get("response")
                 cleanup_helper_response_seconds = time.time() - start_time
                 cleanup_helper_status_code = "200"
             except Exception as e:
@@ -216,14 +236,18 @@ class OperationExecutionImpl(OperationExecution):
                 {summary_snippet}
                 """
                 model_name = DEFAULT_MODEL_NAME
-                summary_response = chat_completion_with_backoff(
-                    openai_api_key=self.openai_api_key,
+                summary_response = get_llm_response_from_messages(
+                    msgs=[{"role": "user", "content": summary_prompt}],
                     model=model_name,
-                    messages=[{"role": "user", "content": summary_prompt}],
+                    llm_api_key=llm_api_key,
+                    aws_access_key_id=self.config.aws_access_key_id,
+                    aws_region_name=self.config.aws_region_name,
+                    max_tokens=self.params.get_max_tokens(),
+                    top_p=self.params.get_top_p(),
+                    frequency_penalty=self.params.get_frequency_penalty(),
+                    presence_penalty=self.params.get_presence_penalty(),
                 )
-                summary_response = summary_response["choices"][0]["message"][
-                    "content"
-                ]
+                summary_response = summary_response.get("response")
                 summary_response_status_code = "200"
                 summary_response_seconds = time.time() - start_time
             except Exception as e:

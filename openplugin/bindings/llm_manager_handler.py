@@ -1,3 +1,4 @@
+import ast
 import json
 import os
 
@@ -5,6 +6,14 @@ import boto3
 import litellm
 import vertexai
 from google.oauth2 import service_account
+
+AWS_MODELS = [
+    "anthropic.claude-v1",
+    "anthropic.claude-instant-v1",
+    "anthropic.claude-v2",
+    "ai21.j2-mid-v1",
+    "ai21.j2-ultra-v1",
+]
 
 
 def get_llm_response_from_messages(
@@ -19,7 +28,7 @@ def get_llm_response_from_messages(
     aws_access_key_id=None,
     aws_region_name=None,
 ):
-    if aws_access_key_id and aws_region_name:
+    if model.lower() in AWS_MODELS and aws_access_key_id and aws_region_name:
         bedrock = boto3.client(
             service_name="bedrock-runtime",
             region_name="us-east-1",
@@ -44,7 +53,8 @@ def get_llm_response_from_messages(
     if "bison" in model:
         google_key = llm_api_key
         if isinstance(google_key, str):
-            google_key = json.loads(google_key)
+            google_key = ast.literal_eval(google_key)
+
         credentials = service_account.Credentials.from_service_account_info(
             google_key
         )

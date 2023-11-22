@@ -6,7 +6,7 @@ from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 
-from openplugin.interfaces.models import LLM, LLMProvider
+from openplugin.interfaces.models import LLM
 
 
 def get_agent_type(pipeline_name: str) -> AgentType:
@@ -30,7 +30,7 @@ def get_agent_type(pipeline_name: str) -> AgentType:
 def get_llm(llm: LLM, api_key: str):
     if llm is None:
         raise ValueError("LLM is not set.")
-    if llm.provider == LLMProvider.OpenAI:
+    if llm.provider.lower() =="openai":
         if api_key is None:
             api_key = os.environ["OPENAI_API_KEY"]
         os.environ["OPENAI_API_KEY"] = api_key
@@ -45,7 +45,7 @@ def get_llm(llm: LLM, api_key: str):
             best_of=llm.best_of,
             client=None,
         )
-    elif llm.provider == LLMProvider.OpenAIChat:
+    elif llm.provider.lower() == "openai":
         if api_key is None:
             api_key = os.environ["OPENAI_API_KEY"]
         os.environ["OPENAI_API_KEY"] = api_key
