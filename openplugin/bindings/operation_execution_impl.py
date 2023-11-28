@@ -108,6 +108,7 @@ class OperationExecutionImpl(OperationExecution):
 
         template_response = None
         template_str = self.params.plugin_response_template
+
         template_execution_status_code = "200"
         template_execution_response_seconds = None
         if template_str and len(template_str) > 0:
@@ -115,7 +116,7 @@ class OperationExecutionImpl(OperationExecution):
                 # response time
                 start_time = time.time()
                 template = jinja2.Template(template_str)
-                template_response = template.render(json_data=response_json)
+                template_response = template.render(response_json)
                 template_execution_response_seconds = time.time() - start_time
             except Exception as e:
                 template_execution_status_code = "500"
