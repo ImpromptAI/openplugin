@@ -1,5 +1,6 @@
 import json
 
+
 from openplugin.bindings.imprompt.imprompt_operation_signature_builder import (
     ImpromptOperationSignatureBuilder,
 )
@@ -53,7 +54,10 @@ def run_api_signature_selector(inp_json):
 
     # Check the provider specified in tool_selector_config and select the appropriate
     # API signature selector
-    if pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower():
+    if (
+        pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+        or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+    ):
         imprompt_selector = ImpromptOperationSignatureBuilder(
             plugin=plugin, config=config, llm=llm, use="openplugin-swagger"
         )

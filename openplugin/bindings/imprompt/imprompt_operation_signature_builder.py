@@ -17,7 +17,7 @@ from openplugin.interfaces.operation_signature_builder import (
     OperationSignatureBuilder,
 )
 
-DEBUG = True
+DEBUG = False
 plugin_operation_prompt = """
 You are an AI assistant.
 Here is a tool you can use, named {name_for_model}.
