@@ -69,9 +69,9 @@ def run_api_signature_selector(inp_json):
         )
         response = imprompt_selector.run(messages)
         return response.dict()
-    elif pipeline_name.lower() == "LLM Passthrough (Bare)".lower():
+    elif pipeline_name.lower() == "LLM Passthrough (Bare Swagger)".lower():
         imprompt_selector = ImpromptOperationSignatureBuilder(
-            plugin=plugin, config=config, llm=llm, use="bare"
+            plugin=plugin, config=config, llm=llm, use="bare-swagger"
         )
         response = imprompt_selector.run(messages)
         return response.dict()

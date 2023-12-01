@@ -75,7 +75,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         # TODO Find a better way to find the API called
         openapi_spec_json = self.plugin.get_openapi_doc_json()
 
-        if self.use == "bare":
+        if self.use == "bare-swagger":
             formatted_plugin_operation_prompt = plugin_operation_prompt.format(
                 name_for_model=self.plugin.name,
                 pre_prompt="",

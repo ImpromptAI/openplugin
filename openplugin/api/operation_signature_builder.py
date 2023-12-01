@@ -55,6 +55,8 @@ def operation_signature_builder(
         if (
             pipeline_name.lower()
             == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 input.plugin,
@@ -75,14 +77,14 @@ def operation_signature_builder(
                 "stuffed-swagger",
             )
             return imprompt_selector.run(input.messages)
-        elif pipeline_name.lower() == "LLM Passthrough (Bare)".lower():
+        elif pipeline_name.lower() == "LLM Passthrough (Bare Swagger)".lower():
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 input.plugin,
                 input.config,
                 input.llm,
                 input.pre_prompts,
                 input.selected_operation,
-                "bare",
+                "bare-swagger",
             )
             return imprompt_selector.run(input.messages)
         elif (
