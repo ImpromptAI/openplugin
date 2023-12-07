@@ -28,7 +28,7 @@ def operation_execution(
         return JSONResponse(
             status_code=500,
             content={
-                "message": "Operation Execution Failed: {}".format(e),
+                "message": "{}".format(e),
                 "metadata": e.metadata,
             },
         )
@@ -37,7 +37,7 @@ def operation_execution(
         return JSONResponse(
             status_code=500,
             content={
-                "message": "Operation Execution Failed: {}".format(e),
+                "message": "{}".format(e),
                 "metadata": {},
             },
         )

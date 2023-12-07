@@ -1,8 +1,7 @@
 import json
 import time
-import traceback
 from urllib.parse import urlencode
-
+from tenacity import RetryError
 import jinja2
 import requests
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -46,17 +45,21 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                 if response_json.get("message") and response_json.get(
                     "message"
                 ).startswith("Internal Server Error"):
-                    failed_message = (
-                        f"API: {url}, Params: {params},Status code: "
-                        f"{response.status_code}, Response: {response.text[0:100]}..."
+                    raise ExecutionException(
+                        "API Execution Failed",
+                        metadata={
+                            "status_code": response.status_code,
+                            "response": response.text,
+                        },
                     )
-                    raise Exception("{}".format(failed_message))
                 if response_json.get("error"):
-                    failed_message = (
-                        f"API: {url}, Params: {params},Status code: "
-                        f"{response.status_code}, Response: {response.text[0:100]}..."
+                    raise ExecutionException(
+                        "API Execution Failed",
+                        metadata={
+                            "status_code": response.status_code,
+                            "response": response.text,
+                        },
                     )
-                    raise Exception("{}".format(failed_message))
             return (
                 response.json(),
                 response.status_code,
@@ -78,13 +81,16 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                     response.status_code,
                     response.elapsed.total_seconds(),
                 )
-        failed_message = (
-            f"API: {url}, Params: {params},Status code: "
-            f"{response.status_code}, Response: {response.text[0:100]}..."
+        raise ExecutionException(
+            "API Execution Failed",
+            metadata={
+                "status_code": response.status_code,
+                "response": response.text,
+            },
         )
-        raise Exception("{}".format(failed_message))
+    except ExecutionException as e:
+        raise e
     except Exception as e:
-        traceback.print_exc()
         raise Exception("{}".format(e))
 
 
@@ -95,6 +101,9 @@ class OperationExecutionImpl(OperationExecution):
 
     def run(self) -> OperationExecutionResponse:
         try:
+            # print(self.params.api)
+            # print(self.params.method)
+            # print(self.params.query_params)
             response_json, status_code, api_call_response_seconds = _call(
                 self.params.api,
                 self.params.method,
@@ -102,7 +111,9 @@ class OperationExecutionImpl(OperationExecution):
                 self.params.query_params,
                 self.params.body,
             )
-
+        except RetryError as e:
+            original_exception = e.__cause__
+            raise original_exception
         except Exception as e:
             raise ExecutionException(str(e), metadata={})
 
