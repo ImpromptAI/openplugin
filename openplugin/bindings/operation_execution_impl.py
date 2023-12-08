@@ -125,9 +125,13 @@ class OperationExecutionImpl(OperationExecution):
 
         if (
             self.params.plugin_response_template_engine is not None
-            and self.params.plugin_response_template_engine in ("jinja2", "jinja")
+            and template_str
+            and len(template_str) > 0
         ):
-            if template_str and len(template_str) > 0:
+            if self.params.plugin_response_template_engine.lower() in (
+                "jinja2",
+                "jinja",
+            ):
                 try:
                     # response time
                     start_time = time.time()
@@ -143,6 +147,8 @@ class OperationExecutionImpl(OperationExecution):
                             "api_call_response_seconds": api_call_response_seconds,
                         },
                     )
+            elif self.params.plugin_response_template_engine.lower() in ("jsx"):
+                template_response = template_str
 
         cleanup_helper_status_code = None
         cleanup_helper_response_seconds = None
