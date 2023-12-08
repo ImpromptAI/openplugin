@@ -122,22 +122,27 @@ class OperationExecutionImpl(OperationExecution):
 
         template_execution_status_code = "200"
         template_execution_response_seconds = None
-        if template_str and len(template_str) > 0:
-            try:
-                # response time
-                start_time = time.time()
-                template = jinja2.Template(template_str)
-                template_response = template.render(response_json)
-                template_execution_response_seconds = time.time() - start_time
-            except Exception as e:
-                template_execution_status_code = "500"
-                raise ExecutionException(
-                    str(e),
-                    metadata={
-                        "api_call_status_code": status_code,
-                        "api_call_response_seconds": api_call_response_seconds,
-                    },
-                )
+
+        if (
+            self.params.plugin_response_template_engine is not None
+            and self.params.plugin_response_template_engine in ("jinja2", "jinja")
+        ):
+            if template_str and len(template_str) > 0:
+                try:
+                    # response time
+                    start_time = time.time()
+                    template = jinja2.Template(template_str)
+                    template_response = template.render(response_json)
+                    template_execution_response_seconds = time.time() - start_time
+                except Exception as e:
+                    template_execution_status_code = "500"
+                    raise ExecutionException(
+                        str(e),
+                        metadata={
+                            "api_call_status_code": status_code,
+                            "api_call_response_seconds": api_call_response_seconds,
+                        },
+                    )
 
         cleanup_helper_status_code = None
         cleanup_helper_response_seconds = None

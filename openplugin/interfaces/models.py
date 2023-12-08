@@ -566,6 +566,7 @@ class OperationExecutionParams(BaseModel):
     header: Optional[dict]
     post_processing_cleanup_prompt: Optional[str]
     llm: Optional[LLM]
+    plugin_response_template_engine: Optional[str]
     plugin_response_template: Optional[str]
     post_call_evaluator_prompt: Optional[str]
 
