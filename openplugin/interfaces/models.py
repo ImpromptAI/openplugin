@@ -397,6 +397,10 @@ class Functions(BaseModel):
                 if method.lower() == "get":
                     g_properties = []
                     for param in details.get("parameters"):
+                        if param.get('$ref'):
+                            ref = param.get('$ref')
+                            ref = ref.replace("#/components/parameters/", "")
+                            param = openapi_doc_json.get("components").get("parameters").get(ref)
                         properties_values = {}
                         properties_values["name"] = param.get("name")
                         type = "string"
@@ -406,10 +410,8 @@ class Functions(BaseModel):
                         if param.get("description") is None:
                             properties_values["description"] = param.get("name")
                         else:
-                            properties_values["description"] = param.get(
-                                "description"
-                            )
-                        properties_values["is_required"] = param.get("required")
+                            properties_values["description"] = param.get("description")
+                        properties_values["is_required"] = param.get("required", False)
                         g_properties.append(FunctionProperty(**properties_values))
                     function_values["param_properties"] = g_properties
                 elif method.lower() == "post" or method.lower() == "put":
