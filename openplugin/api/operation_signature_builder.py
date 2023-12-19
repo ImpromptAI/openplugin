@@ -13,6 +13,7 @@ from openplugin.bindings.openai.openai_operation_signature_builder import (
     OpenAIOperationSignatureBuilder,
 )
 from openplugin.interfaces.models import LLM, Config, Message, Plugin
+import traceback
 
 # Create a FastAPI router instance
 router = APIRouter(
@@ -107,6 +108,7 @@ def operation_signature_builder(
                 content={"message": "Incorrect pipeline"},
             )
     except Exception as e:
+        traceback.print_exc()
         print(e)
         # Return a 500 Internal Server Error response if there's a failure in
         # running the plugin
