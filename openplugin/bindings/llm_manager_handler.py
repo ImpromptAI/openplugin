@@ -1,7 +1,7 @@
 import ast
 import json
 import os
-
+import time
 import boto3
 import litellm
 import vertexai
@@ -28,6 +28,9 @@ def get_llm_response_from_messages(
     aws_access_key_id=None,
     aws_region_name=None,
 ):
+    request_prompt = ""
+    for msg in msgs:
+        request_prompt = request_prompt + " " + msg.get("content", "")
     if model.lower() in AWS_MODELS and aws_access_key_id and aws_region_name:
         bedrock = boto3.client(
             service_name="bedrock-runtime",
@@ -35,6 +38,7 @@ def get_llm_response_from_messages(
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=llm_api_key,
         )
+        start_time = time.time()
         response = litellm.completion(
             messages=msgs,
             aws_bedrock_client=bedrock,
@@ -44,10 +48,33 @@ def get_llm_response_from_messages(
             top_p=top_p,
         )
         cost = litellm.completion_cost(completion_response=response)
+
+        choices = response.get("choices")
+        response_prompt = ""
+        if choices and len(choices) > 0:
+            response_prompt = choices[0].get("message", {}).get("content")
+
+        llm_latency_seconds = time.time() - start_time
         return {
             "response": response["choices"][0].get("message").get("content"),
             "usage": response.get("usage").get("total_tokens"),
             "cost": float(cost),
+            "llm_details": {
+                "response": response["choices"],
+                "model": model,
+                "cost": float(cost),
+                "usage": response.get("usage"),
+                "messages": msgs,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "top_p": top_p,
+                "status_code": "200",
+                "response_prompt": response_prompt,
+                "request_prompt": request_prompt,
+                "llm_latency_seconds": llm_latency_seconds,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+            },
         }
 
     if "bison" in model:
@@ -66,6 +93,7 @@ def get_llm_response_from_messages(
     else:
         litellm.api_key = llm_api_key
     litellm.drop_params = True
+    start_time = time.time()
     response = litellm.completion(
         model=model,
         messages=msgs,
@@ -75,10 +103,32 @@ def get_llm_response_from_messages(
         frequency_penalty=frequency_penalty,
         presence_penalty=presence_penalty,
     )
+    choices = response.get("choices")
+    response_prompt = ""
+    if choices and len(choices) > 0:
+        response_prompt = choices[0].get("message", {}).get("content")
+
     cost = litellm.completion_cost(completion_response=response)
     # formatted_string = f"${float(cost):.10f}"
+    llm_latency_seconds = time.time() - start_time
     return {
         "response": response["choices"][0].get("message").get("content"),
         "usage": response.get("usage").get("total_tokens"),
         "cost": float(cost),
+        "llm_details": {
+            "response": response["choices"],
+            "model": model,
+            "cost": float(cost),
+            "usage": response.get("usage"),
+            "messages": msgs,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "response_prompt": response_prompt,
+            "request_prompt": request_prompt,
+            "llm_latency_seconds": llm_latency_seconds,
+            "top_p": top_p,
+            "status_code": "200",
+            "frequency_penalty": frequency_penalty,
+            "presence_penalty": presence_penalty,
+        },
     }

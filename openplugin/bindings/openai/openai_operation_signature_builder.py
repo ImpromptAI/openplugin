@@ -57,6 +57,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
 
         functions = Functions()
         functions.add_from_plugin(self.plugin, self.selected_operation)
+        llm_calls = []
         if len(functions.functions) == 0:
             return SelectedApiSignatureResponse(
                 run_completed=True,
@@ -65,14 +66,17 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 response_time=round(time.time() - start_test_case_time, 2),
                 tokens_used=0,
                 llm_api_cost=0,
+                llm_calls=llm_calls,
             )
         helper_pre_prompt = functions.get_prompt_signatures_prompt()
         # if helper_pre_prompt and len(helper_pre_prompt) > 0:
         #    f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
 
+        request_prompt = ""
         for message in messages:
             if message.message_type == MessageType.HumanMessage:
                 message.content = f"{helper_pre_prompt} #PROMPT={message.content}"
+                request_prompt = request_prompt + " " + message.content
 
         f_messages = [
             msg.get_openai_message()
@@ -101,6 +105,8 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             top_p = 1.0
             if self.llm and self.llm.top_p:
                 top_p = self.llm.top_p
+
+            start_time = time.time()
             response = litellm.completion(
                 model=self.llm.model_name if self.llm else None,
                 temperature=temperature,
@@ -112,6 +118,30 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 function_call="auto",
             )
             llm_api_cost = litellm.completion_cost(completion_response=response)
+            choices = response.get("choices")
+
+            response_prompt = ""
+            if choices and len(choices) > 0:
+                response_prompt = choices[0].get("message", {}).get("content")
+            llm_latency_seconds = time.time() - start_time
+
+            llm_calls.append(
+                {
+                    "used_for": "signature_builder",
+                    "response": response["choices"],
+                    "model": self.llm.model_name if self.llm else None,
+                    "cost": llm_api_cost,
+                    "usage": response.get("usage"),
+                    "messages": f_messages,
+                    "request_prompt": request_prompt,
+                    "llm_latency_seconds": llm_latency_seconds,
+                    "response_prompt": response_prompt,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                    "top_p": top_p,
+                    "status_code": "200",
+                }
+            )
         except Exception as e:
             print(e)
             return SelectedApiSignatureResponse(
@@ -121,6 +151,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 response_time=round(time.time() - start_test_case_time, 2),
                 tokens_used=0,
                 llm_api_cost=0,
+                llm_calls=llm_calls,
             )
 
         message = response["choices"][0]["message"]
@@ -160,6 +191,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             response_time=time.time() - start_test_case_time,
             tokens_used=total_tokens,
             llm_api_cost=llm_api_cost,
+            llm_calls=llm_calls,
         )
         return response_obj
 

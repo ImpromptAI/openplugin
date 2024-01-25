@@ -172,7 +172,7 @@ class OperationExecutionImpl(OperationExecution):
             llm_api_key = self.config.google_palm_key
         elif self.config.provider.lower() == "aws":
             llm_api_key = self.config.aws_secret_access_key
-
+        llm_calls = []
         if status_code == 400:
             is_a_clarifying_question = True
             try:
@@ -203,6 +203,9 @@ class OperationExecutionImpl(OperationExecution):
                     aws_access_key_id=self.config.aws_access_key_id,
                     aws_region_name=self.config.aws_region_name,
                 )
+                llm_call_details = response.get("llm_details", {})
+                llm_call_details["used_for"] = "clarifying_question"
+                llm_calls.append(llm_call_details)
                 clarifying_response = response.get("response")
                 clarifying_question_status_code = "200"
                 clarifying_question_response_seconds = time.time() - start_time
@@ -234,6 +237,10 @@ class OperationExecutionImpl(OperationExecution):
                     frequency_penalty=self.params.get_frequency_penalty(),
                     presence_penalty=self.params.get_presence_penalty(),
                 )
+                llm_call_details = response.get("llm_details", {})
+                llm_call_details["used_for"] = "cleanup_helper"
+                llm_calls.append(llm_call_details)
+
                 cleanup_response = response.get("response")
                 cleanup_helper_response_seconds = time.time() - start_time
                 cleanup_helper_status_code = "200"
@@ -270,13 +277,16 @@ class OperationExecutionImpl(OperationExecution):
                     frequency_penalty=self.params.get_frequency_penalty(),
                     presence_penalty=self.params.get_presence_penalty(),
                 )
+                llm_call_details = response.get("llm_details", {})
+                llm_call_details["used_for"] = "summary"
+                llm_calls.append(llm_call_details)
+
                 summary_response = summary_response.get("response")
                 summary_response_status_code = "200"
                 summary_response_seconds = time.time() - start_time
             except Exception as e:
                 summary_response_status_code = "500"
                 summary_response = f"Failed: {e}"
-
         return OperationExecutionResponse(
             original_response=response_json,
             clarifying_response=clarifying_response,
@@ -293,5 +303,6 @@ class OperationExecutionImpl(OperationExecution):
             summary_response_status_code=summary_response_status_code,
             summary_response_seconds=summary_response_seconds,
             clarifying_question_status_code=clarifying_question_status_code,
+            llm_calls=llm_calls,
             clarifying_question_response_seconds=clarifying_question_response_seconds,
         )

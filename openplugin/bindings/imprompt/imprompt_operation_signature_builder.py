@@ -161,8 +161,6 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
             llm_api_key = self.config.aws_secret_access_key
 
         if llm_api_key is None:
-            print("****")
-            print(self.config)
             raise ValueError("LLM API Key is not configured")
 
         msgs = []

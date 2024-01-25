@@ -397,10 +397,14 @@ class Functions(BaseModel):
                 if method.lower() == "get":
                     g_properties = []
                     for param in details.get("parameters"):
-                        if param.get('$ref'):
-                            ref = param.get('$ref')
+                        if param.get("$ref"):
+                            ref = param.get("$ref")
                             ref = ref.replace("#/components/parameters/", "")
-                            param = openapi_doc_json.get("components").get("parameters").get(ref)
+                            param = (
+                                openapi_doc_json.get("components")
+                                .get("parameters")
+                                .get(ref)
+                            )
                         properties_values = {}
                         properties_values["name"] = param.get("name")
                         type = "string"
@@ -410,8 +414,12 @@ class Functions(BaseModel):
                         if param.get("description") is None:
                             properties_values["description"] = param.get("name")
                         else:
-                            properties_values["description"] = param.get("description")
-                        properties_values["is_required"] = param.get("required", False)
+                            properties_values["description"] = param.get(
+                                "description"
+                            )
+                        properties_values["is_required"] = param.get(
+                            "required", False
+                        )
                         g_properties.append(FunctionProperty(**properties_values))
                     function_values["param_properties"] = g_properties
                 elif method.lower() == "post" or method.lower() == "put":
@@ -533,6 +541,7 @@ class SelectedApiSignatureResponse(BaseModel):
     response_time: Optional[float]
     tokens_used: Optional[int]
     llm_api_cost: Optional[float]
+    llm_calls: Optional[List[Dict]]
 
 
 class MessageType(str, Enum):
@@ -615,3 +624,4 @@ class OperationExecutionResponse(BaseModel):
     summary_response_seconds: Optional[float]
     clarifying_question_status_code: Optional[str]
     clarifying_question_response_seconds: Optional[float]
+    llm_calls: Optional[Any]
