@@ -72,12 +72,15 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         # if helper_pre_prompt and len(helper_pre_prompt) > 0:
         #    f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
 
-        request_prompt = ""
+        request_prompt = helper_pre_prompt
+        index=0
         for message in messages:
             if message.message_type == MessageType.HumanMessage:
-                message.content = f"{helper_pre_prompt} #PROMPT={message.content}"
+                if index==len(messages)-1:
+                    message.content = f"#PROMPT={message.content}"
                 request_prompt = request_prompt + " " + message.content
-
+            index += 1
+            
         f_messages = [
             msg.get_openai_message()
             for msg in messages
