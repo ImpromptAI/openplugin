@@ -5,7 +5,6 @@ from tenacity import RetryError
 import jinja2
 import requests
 from tenacity import retry, stop_after_attempt, wait_random_exponential
-
 from openplugin.bindings.llm_manager_handler import get_llm_response_from_messages
 from openplugin.interfaces.models import (
     OperationExecutionParams,
@@ -119,7 +118,6 @@ class OperationExecutionImpl(OperationExecution):
 
         template_response = None
         template_str = self.params.plugin_response_template
-
         template_execution_status_code = "200"
         template_execution_response_seconds = None
 
@@ -136,7 +134,10 @@ class OperationExecutionImpl(OperationExecution):
                     # response time
                     start_time = time.time()
                     template = jinja2.Template(template_str)
-                    template_response = template.render(response_json)
+                    if isinstance(response_json, list):
+                        template_response = template.render(data=response_json)
+                    else:
+                        template_response = template.render(response_json)
                     template_execution_response_seconds = time.time() - start_time
                 except Exception as e:
                     template_execution_status_code = "500"
@@ -277,7 +278,7 @@ class OperationExecutionImpl(OperationExecution):
                     frequency_penalty=self.params.get_frequency_penalty(),
                     presence_penalty=self.params.get_presence_penalty(),
                 )
-                llm_call_details = response.get("llm_details", {})
+                llm_call_details = summary_response.get("llm_details", {})
                 llm_call_details["used_for"] = "summary"
                 llm_calls.append(llm_call_details)
 

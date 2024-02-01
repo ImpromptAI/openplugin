@@ -80,7 +80,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                     message.content = f"#PROMPT={message.content}"
                 request_prompt = request_prompt + " " + message.content
             index += 1
-            
+
         f_messages = [
             msg.get_openai_message()
             for msg in messages
@@ -120,6 +120,17 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 functions=function_json,
                 function_call="auto",
             )
+            if response.get("choices")[0].get("finish_reason") != "function_call":
+                response = litellm.completion(
+                    model="gpt-4",
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    top_p=top_p,
+                    n=n,
+                    messages=f_messages,
+                    functions=function_json,
+                    function_call="auto",
+                )
             llm_api_cost = litellm.completion_cost(completion_response=response)
             choices = response.get("choices")
 
