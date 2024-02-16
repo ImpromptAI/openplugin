@@ -1,0 +1,111 @@
+{
+    "schema_version": "v1",
+    "name": "Klarna Shopping",
+    "auth": {
+        "type": "none"
+    },
+    "contact_email": "shrikant@imprompt.ai",
+    "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
+    "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
+    "legal_info_url": null,
+    "logo_url": null,
+    "permutate_doc_url": null,
+    "permutation_test_urls":null,
+    "input_modules":[{
+        "id": "1",
+        "name": "convert_file_to_text",
+        "description": "This will handle file coming to the plugin",
+        "initial_input_port": "filepath",
+        "finish_output_port": "text",
+        "processors": [
+            {
+                "input_port": "filepath",
+                "output_port": "text",
+                "processor_type": "file_to_text",
+                "processor_implementation_type": "file_to_text_with_langchain",
+                "metadata": {}
+            }
+        ]
+    },{
+        "id": "2",
+        "name": "convert_text_to_file",
+        "description": "This will handle text coming to the plugin",
+        "initial_input_port": "json",
+        "finish_output_port": "filepath",
+        "processors": [
+            {
+                "input_port": "text",
+                "output_port": "filepath",
+                "processor_type": "text_to_audio",
+                "processor_implementation_type": "text_to_audio_with_azure",
+                "metadata": {
+                    "azure_endpoint_api_key": "env.AZURE_ENDPOINT_API_KEY",
+                    "template": "{'input': {{json_data['inp']}} }"
+                }
+            }
+        ]
+    }],
+    "plugin_operations": {
+        "/public/openai/v0/products": {
+            "get": {
+                "human_usage_examples": [
+                    "Show me some T Shirts.",
+                    "Show me some pants .",
+                    "Show me winter jackets for men."
+                ],
+                "prompt_signature_helpers": [
+                    "if you can't find the user's clothes size, ask the user about the size.",
+                    "If any error occurs, write an apologetic message to the user"
+                ],
+                "plugin_cleanup_helpers": [],
+                "plugin_response_template": {},
+                "plugin_signature_helpers": [],
+                "post_call_evaluator": ""
+            }
+        }
+    },
+    "output_modules":[{
+        "id": "id 2",
+        "name": "Input 2",
+        "description": "This will handle text coming to the plugin",
+        "initial_input_port": "json",
+        "finish_output_port": "filepath",
+        "processors": [
+             {
+                "input_port": "json",
+                "output_port": "text",
+                "processor_type": "template_engine",
+                "processor_implementation_type": "template_engine_with_jinja",
+                "metadata": {
+                    "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
+                }
+            },
+            {
+                "input_port": "text",
+                "output_port": "filepath",
+                "processor_type": "text_to_file",
+                "processor_implementation_type": "text_to_file_with_default",
+                "metadata": {
+                    "file_type": ".txt",
+                    "file_name":"sample_response"
+                }
+            }
+        ]
+    }],
+    "preferred_approaches": [
+        {
+            "base_strategy": "oai functions",
+            "llm": {
+                "frequency_penalty": 0,
+                "max_tokens": 2048,
+                "model_name": "gpt-3.5-turbo-0613",
+                "presence_penalty": 0,
+                "provider": "OpenAI",
+                "temperature": 0,
+                "top_p": 1
+            },
+            "name": "OAI functions-OpenAI",
+            "pre_prompt": null
+        }
+    ]
+}

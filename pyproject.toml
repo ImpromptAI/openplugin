@@ -7,18 +7,20 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-langchain = "^0.0.178"
-requests = "2.29.0"
+langchain = "0.1.7"
+requests = "2.31.0"
 uvicorn = "^0.22.0"
 fastapi = "^0.95.2"
 load-dotenv = "^0.1.0"
-openai = "^0.27.7"
-pydantic = "^1.0.0"
+openai = "1.12.0"
+pydantic = "1.10.14"
 typer = { extras = ["all"], version = "^0.9.0" }
 websockets = "^11.0.3"
-litellm = "^0.7.10"
+litellm = "1.23.14"
 google-cloud-aiplatform = "1.35.0"
 boto3 = "^1.29.3"
+loguru = "^0.7.2"
+pydub = "^0.25.1"
 
 
 [tool.poetry.group.docs.dependencies]

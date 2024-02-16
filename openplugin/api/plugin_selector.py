@@ -5,11 +5,14 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.api import auth
-from openplugin.bindings.imprompt.imprompt_plugin_selector import (
+from openplugin.plugins.models import LLM, Config, Message
+from openplugin.plugins.plugin import Plugin
+from openplugin.plugins.selectors.plugin_selector_with_imprompt import (
     ImpromptPluginSelector,
 )
-from openplugin.bindings.openai.openai_plugin_selector import OpenAIPluginSelector
-from openplugin.interfaces.models import LLM, Config, Message, Plugin
+from openplugin.plugins.selectors.plugin_selector_with_openai import (
+    OpenAIPluginSelector,
+)
 
 # Create a FastAPI router instance
 router = APIRouter(
@@ -31,15 +34,10 @@ def plugin_selector(
     try:
         # Based on the provider specified in tool_selector_config, create the
         # appropriate plugin selector
-        if (
-            pipeline_name.lower()
-            == ImpromptPluginSelector.get_pipeline_name().lower()
-        ):
+        if pipeline_name.lower() == ImpromptPluginSelector.get_pipeline_name().lower():
             imprompt_selector = ImpromptPluginSelector(plugins, config, llm)
             return imprompt_selector.run(messages)
-        elif (
-            pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower()
-        ):
+        elif pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
             openai_selector = OpenAIPluginSelector(plugins, config, llm)
             return openai_selector.run(messages)
         else:

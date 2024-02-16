@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import requests
 
-from openplugin.interfaces.models import Plugin, PluginOperation
+from openplugin.plugins.plugin import Plugin, PluginOperation
 
 
 # Function to retrieve OpenPlugin manifest from an OpenAI manifest URL
@@ -59,6 +59,8 @@ def get_openplugin_manifest_from_openai_manifest(
         openapi_doc_url=openapi_doc_url,
         auth=auth,
         logo_url=logo_url,
+        input_modules=[],
+        output_modules=[],
         contact_email=contact_email,
         legal_info_url=legal_info_url,
         api_endpoints=api_endpoints,

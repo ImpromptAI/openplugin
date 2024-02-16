@@ -1,3 +1,4 @@
+import traceback
 from typing import Annotated, List, Optional, Union
 
 from fastapi import APIRouter, Depends, Query
@@ -6,14 +7,14 @@ from fastapi.security.api_key import APIKey
 from pydantic import BaseModel
 
 from openplugin.api import auth
-from openplugin.bindings.imprompt.imprompt_operation_signature_builder import (
+from openplugin.plugins.models import LLM, Config, Message
+from openplugin.plugins.operations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from openplugin.bindings.openai.openai_operation_signature_builder import (
+from openplugin.plugins.operations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
-from openplugin.interfaces.models import LLM, Config, Message, Plugin
-import traceback
+from openplugin.plugins.plugin import Plugin
 
 # Create a FastAPI router instance
 router = APIRouter(
@@ -54,10 +55,8 @@ def operation_signature_builder(
             )
             return openai_selector.run(input.messages)
         if (
-            pipeline_name.lower()
-            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower()
-            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 input.plugin,
