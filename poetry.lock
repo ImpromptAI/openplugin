@@ -197,6 +197,21 @@ tests = ["attrs[tests-no-zope]", "zope-interface"]
 tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "azure-cognitiveservices-speech"
+version = "1.35.0"
+description = "Microsoft Cognitive Services Speech SDK for Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "azure_cognitiveservices_speech-1.35.0-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:022b9e6f11a9b7e2043f7969e8a91769f4660e936ff7550aa2ff4b3cd0504990"},
+    {file = "azure_cognitiveservices_speech-1.35.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:283dfd1d393a34f05a8fe3b7ac5f3d22d11585c90f49f0871cf0a713e9338bc4"},
+    {file = "azure_cognitiveservices_speech-1.35.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:57fa21d366b807a4a0d08259537f9999a1b0b9eb326a8abb6450a40262bc399d"},
+    {file = "azure_cognitiveservices_speech-1.35.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:8c3e7f669c49ca418222dd4ecb085db5f897156db742182d193536f1596a84c0"},
+    {file = "azure_cognitiveservices_speech-1.35.0-py3-none-win32.whl", hash = "sha256:112b401b49cd162dd6d89d535ee4b5435a749ab4daf13e086323c6073366f23d"},
+    {file = "azure_cognitiveservices_speech-1.35.0-py3-none-win_amd64.whl", hash = "sha256:35248f297068348e463d23404241209022a66c92ed5237e56ffd75c5983e30b9"},
+]
+
+[[package]]
 name = "babel"
 version = "2.12.1"
 description = "Internationalization utilities"
@@ -4041,4 +4056,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "e2f2dcdec73e796533edfae8178fd62e1af9370b2679b60ec004dc6293eb04e5"
+content-hash = "ed7c4e96ac9d1dddc595bdedd473de1f7ae1fcdd8ec6142beffe386d3c439178"

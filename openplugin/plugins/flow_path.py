@@ -10,6 +10,7 @@ from openplugin.processors import (
     get_processor_from_str,
 )
 
+from . import time_taken
 from .port import PORT_TYPE_MAPPING, Port, PortType
 
 
@@ -28,6 +29,7 @@ class ProcessorNode(BaseModel):
     processor_implementation_type: ProcessorImplementationType
     processor: Processor
     metadata: Dict[Any, Any]
+    log_title: str
 
     @root_validator(pre=True)
     def setup(cls, values):
@@ -42,9 +44,10 @@ class ProcessorNode(BaseModel):
             implementation_type=values["processor_implementation_type"],
             metadata=values["metadata"],
         )
-
+        values["log_title"] = f"[PROCESSING-FINISHED] name={values['processor_type']}"
         return values
 
+    @time_taken
     def run_processor(self, input: Port) -> Port:
         return self.processor.process(input)
 
@@ -56,6 +59,7 @@ class FlowPath(BaseModel):
     initial_input_port: Port
     finish_output_port: Port
     processors: List[ProcessorNode]
+    log_title: str
 
     @root_validator(pre=True)
     def setup(cls, values):
@@ -63,6 +67,7 @@ class FlowPath(BaseModel):
         values["initial_input_port"] = convert_str_to_port(values["initial_input_port"])
         assert "finish_output_port" in values
         values["finish_output_port"] = convert_str_to_port(values["finish_output_port"])
+        values["log_title"] = f"[MODULE-PROCESSING-FINISHED] name={values['name']}"
         return values
 
     def run(self, input: Port) -> Port:

@@ -7,7 +7,8 @@ import uvicorn
 from dotenv import load_dotenv
 from loguru import logger
 from typing_extensions import Annotated
-from utils.run_plugin import run_prompt_on_plugin
+
+from openplugin.plugins.plugin_runner import run_prompt_on_plugin
 
 app = typer.Typer(pretty_exceptions_enable=False)
 
@@ -83,6 +84,7 @@ def run_plugin(
     """
     if log_level:
         logger.remove()
+        logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
         logger.add(sys.stderr, level=log_level.upper())
 
     if openplugin is None:

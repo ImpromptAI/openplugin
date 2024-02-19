@@ -7,6 +7,7 @@ from starlette.exceptions import HTTPException
 from openplugin.api import (
     operation_execution,
     operation_signature_builder,
+    plugin_pipeline,
     plugin_selector,
 )
 from openplugin.api.http_error import http_error_handler
@@ -30,6 +31,8 @@ def create_app() -> FastAPI:
     router.include_router(plugin_selector.router)
     router.include_router(operation_signature_builder.router)
     router.include_router(operation_execution.router)
+    router.include_router(plugin_pipeline.router)
+
     app.include_router(router, prefix=API_PREFIX)
 
     # Add an exception handler for HTTPException using the provided custom handler

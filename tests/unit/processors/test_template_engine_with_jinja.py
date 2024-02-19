@@ -1,7 +1,7 @@
-import os
 import pytest
-from openplugin.processors.processor_factory import get_processor_from_str
+
 from openplugin.plugins.port import Port, PortType
+from openplugin.processors.processor_factory import get_processor_from_str
 
 
 @pytest.fixture

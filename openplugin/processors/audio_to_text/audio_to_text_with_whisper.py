@@ -1,3 +1,5 @@
+from openai import OpenAI
+
 from openplugin.plugins.port import Port, PortType
 from openplugin.processors.audio_to_text.audio_to_text import AudioToText
 
@@ -7,7 +9,6 @@ class AudioToTextWithWhisper(AudioToText):
     model_name: str = "whisper-1"
 
     def process_input(self, input: Port) -> Port:
-        """
         client = OpenAI()
         audio_file = open(input.value, "rb")
         transcript = client.audio.translations.create(
@@ -16,9 +17,4 @@ class AudioToTextWithWhisper(AudioToText):
         return Port(
             data_type=PortType.TEXT,
             value=transcript,
-        )
-        """
-        return Port(
-            data_type=PortType.TEXT,
-            value=f"AUDIO_TO_TEXT {input.value}",
         )

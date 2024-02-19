@@ -3,6 +3,7 @@ from enum import Enum
 
 from loguru import logger
 from pydantic import BaseModel, Field
+from yarl import URL
 
 from openplugin.plugins.port import Port
 
@@ -13,6 +14,9 @@ class ProcessorType(Enum):
     TEMPLATE_ENGINE = "template_engine"
     TEXT_TO_FILE = "text_to_file"
     FILE_TO_TEXT = "file_to_text"
+    FILE_TO_CLOUD = "file_to_cloud"
+    URL_TO_HTML = "url_to_html"
+    HTML_TO_TEXT = "html_to_text"
 
 
 class ProcessorImplementationType(Enum):
@@ -21,6 +25,9 @@ class ProcessorImplementationType(Enum):
     TEMPLATE_ENGINE_WITH_JINJA = "template_engine_with_jinja"
     TEXT_TO_FILE_WITH_DEFAULT = "text_to_file_with_default"
     FILE_TO_TEXT_WITH_LANGCHAIN = "file_to_text_with_langchain"
+    FILE_TO_CLOUD_WITH_S3 = "file_to_cloud_with_s3"
+    URL_TO_HTML_WITH_REQUEST = "url_to_html_with_request"
+    HTML_TO_TEXT_WITH_BS = "html_to_text_with_bs"
 
 
 PROCESSOR_IMPLEMENTATION_MAP = {
@@ -29,6 +36,9 @@ PROCESSOR_IMPLEMENTATION_MAP = {
     ProcessorImplementationType.TEMPLATE_ENGINE_WITH_JINJA: ProcessorType.TEMPLATE_ENGINE,  # noqa: E501
     ProcessorImplementationType.TEXT_TO_FILE_WITH_DEFAULT: ProcessorType.TEXT_TO_FILE,  # noqa: E501
     ProcessorImplementationType.FILE_TO_TEXT_WITH_LANGCHAIN: ProcessorType.FILE_TO_TEXT,  # noqa: E501
+    ProcessorImplementationType.FILE_TO_CLOUD_WITH_S3: ProcessorType.FILE_TO_CLOUD,
+    ProcessorImplementationType.URL_TO_HTML_WITH_REQUEST: ProcessorType.URL_TO_HTML,
+    ProcessorImplementationType.HTML_TO_TEXT_WITH_BS: ProcessorType.HTML_TO_TEXT,
 }
 
 

@@ -17,6 +17,8 @@ class PortType(Enum):
     TEXT = str
     LIST = list
     JSON = dict
+    BINARY = bytes
+    HTML = str
     HTTPURL = HttpUrl
     FILEPATH = FilePath
     DIRECTORYPATH = DirectoryPath
@@ -31,6 +33,8 @@ PORT_TYPE_MAPPING = {
     "text": PortType.TEXT,
     "list": PortType.LIST,
     "json": PortType.JSON,
+    "binary": PortType.BINARY,
+    "html": PortType.HTML,
     "httpurl": PortType.HTTPURL,
     "filepath": PortType.FILEPATH,
     "directorypath": PortType.DIRECTORYPATH,
@@ -59,6 +63,11 @@ class Port(BaseModel):
     data_type: PortType = PortType.TEXT
     type_object: Any = data_type.value
     value: Any
+
+    class Config:
+        json_encoders = {
+            PortType: lambda v: v.value.__name__,
+        }
 
     @classmethod
     def supported_types(cls):

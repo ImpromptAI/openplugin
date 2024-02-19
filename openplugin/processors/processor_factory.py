@@ -59,5 +59,24 @@ def get_processor_from_enum(
         return get_file_to_text(
             implementation_type=implementation_type, metadata=metadata
         )
+    elif processor_type == ProcessorType.FILE_TO_CLOUD:
+        from .file_to_cloud.file_to_cloud_factory import get_file_to_cloud
+
+        return get_file_to_cloud(
+            implementation_type=implementation_type, metadata=metadata
+        )
+    elif processor_type == ProcessorType.URL_TO_HTML:
+        from .url_to_html.url_to_html_factory import get_url_to_html
+
+        return get_url_to_html(
+            implementation_type=implementation_type, metadata=metadata
+        )
+    elif processor_type == ProcessorType.HTML_TO_TEXT:
+        from .html_to_text.html_to_text_factory import get_html_to_text
+
+        return get_html_to_text(
+            implementation_type=implementation_type, metadata=metadata
+        )
+
     else:
         raise ValueError("Invalid processor type: {}".format(processor_type))

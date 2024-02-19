@@ -4,17 +4,17 @@ from openplugin.plugins.port import Port, PortType
 from openplugin.processors import Processor
 
 
-class TextToAudio(Processor):
-    name: str = "Text To Audio"
-    description: str = "Converts text to audio"
+class HtmlToText(Processor):
+    name: str = "HTML To Text"
+    description: str = "Converts html to text"
 
     def validate_input_port(self, input: Port) -> bool:
-        if input.data_type != PortType.TEXT:
-            raise ValueError("Input data type must be text")
+        if input.data_type != PortType.HTML:
+            raise ValueError("Input data type must be html")
         return True
 
     def validate_output_port(self, output: Port) -> bool:
-        if output.data_type != PortType.FILEPATH:
+        if output.data_type != PortType.TEXT:
             raise ValueError("Output data type must be text")
         return True
 
