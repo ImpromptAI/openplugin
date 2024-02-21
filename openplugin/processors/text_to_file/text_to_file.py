@@ -1,25 +1,35 @@
 from abc import abstractmethod
+from typing import Optional
 
-from openplugin.plugins.port import Port, PortType
-from openplugin.processors import Processor
+from openplugin.plugins.models import Config
+from openplugin.plugins.port import Port, PortType, PortValueError
+from openplugin.processors import (
+    InvalidInputPortError,
+    InvalidOutputPortError,
+    Processor,
+)
 
 
 class TextToFile(Processor):
     name: str = "Text To File"
     description: str = "Converts text to file"
 
-    def validate_input_port(self, input: Port) -> bool:
+    async def validate_input_port(self, input: Port) -> bool:
         if input.data_type != PortType.TEXT:
-            raise ValueError("Input data type must be text")
+            raise InvalidInputPortError("Input data type must be Text")
+        if input.value is None:
+            raise PortValueError("Input value cannot be None")
         return True
 
-    def validate_output_port(self, output: Port) -> bool:
+    async def validate_output_port(self, output: Port) -> bool:
         if output.data_type != PortType.FILEPATH:
-            raise ValueError("Output data type must be text")
+            raise InvalidOutputPortError("Output data type must be Filepath")
+        if output.value is None:
+            raise PortValueError("Output value cannot be None")
         return True
 
     @abstractmethod
-    def process_input(self, input: Port) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         pass
 
     def __str__(self):

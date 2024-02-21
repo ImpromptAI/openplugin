@@ -11,6 +11,4 @@ def get_html_to_text(
 
         return HtmlToTextWithBS(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

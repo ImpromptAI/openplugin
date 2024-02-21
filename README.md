@@ -7,10 +7,10 @@ Please see the complete documentation here: https://openplugin.org/
 # Using Project
 python openplugin/main.py --help
 
-python openplugin/main.py run-plugin examples/sample_klarna.json "show me some t shirts" --log-level Warning
+python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 
- python openplugin/main.py run-plugin examples/sample_klarna.json "show me some t shirts"
- 
+python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json --prompt "show me some t shirts" --log-level="INFO"
+
 # Using PIP
 pip install openplugin
 openplugin --help

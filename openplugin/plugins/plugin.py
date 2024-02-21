@@ -56,6 +56,12 @@ class Plugin(BaseModel):
     def build_from_manifest_url(manifest_url: str):
         manifest_obj = requests.get(manifest_url).json()
         manifest_obj["manifest_url"] = manifest_url
+        if manifest_obj.get("auth"):
+            if (
+                manifest_obj.get("auth").get("type")
+                and manifest_obj.get("auth").get("type") == "none"
+            ):
+                manifest_obj["auth"] = None
         return Plugin(**manifest_obj)
 
     @staticmethod
@@ -64,6 +70,12 @@ class Plugin(BaseModel):
             data = file.read()
             openplugin_manifest_json = json.loads(data)
             openplugin_manifest_json["manifest_url"] = openplugin_manifest_file
+            if openplugin_manifest_json.get("auth"):
+                if (
+                    openplugin_manifest_json.get("auth").get("type")
+                    and openplugin_manifest_json.get("auth").get("type") == "none"
+                ):
+                    openplugin_manifest_json["auth"] = None
             return Plugin(**openplugin_manifest_json)
 
     @root_validator(pre=True)

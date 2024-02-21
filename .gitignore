@@ -17,6 +17,8 @@ package-lock.json
 package.json
 node_modules/
 
+poetry.lock
+sample_prompt.txt
 push_to_ecs.sh
 # C extensions
 *.so
@@ -30,6 +32,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+assets/
 lib/
 lib64/
 parts/

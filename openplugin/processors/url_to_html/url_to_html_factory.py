@@ -11,6 +11,4 @@ def get_url_to_html(
 
         return UrlToHtmlWithRequest(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

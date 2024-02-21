@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Optional
 
 from loguru import logger
 from pydantic import BaseModel, Field
-from yarl import URL
 
+from openplugin.plugins.models import Config
 from openplugin.plugins.port import Port
 
 
@@ -42,27 +43,51 @@ PROCESSOR_IMPLEMENTATION_MAP = {
 }
 
 
+class InvalidInputPortError(Exception):
+    """Raised when the input port is invalid"""
+
+    def __init__(self, message="Invalid input port"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class InvalidOutputPortError(Exception):
+    """Raised when the output port is invalid"""
+
+    def __init__(self, message="Invalid output port"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class ProcessingError(Exception):
+    """Raised when there is an error during processing"""
+
+    def __init__(self, message="Error during processing"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class Processor(ABC, BaseModel):
     name: str = Field(...)
     description: str = Field(...)
 
-    def process(self, input: Port) -> Port:
-        self.validate_input_port(input)
-        output = self.process_input(input)
-        self.validate_output_port(output)
+    async def process(self, input: Port, config: Optional[Config] = None) -> Port:
+        await self.validate_input_port(input)
+        output = await self.process_input(input=input, config=config)
+        await self.validate_output_port(output)
         logger.info(
             f"\n[PROCESSOR_TRANSFORMATION] name={self.name}, {input.data_type} >> {output.data_type}"  # noqa: E501
         )
         return output
 
     @abstractmethod
-    def validate_input_port(self, input: Port) -> bool:
-        raise NotImplementedError("Subclasses must implement the process method")
+    async def validate_input_port(self, input: Port) -> bool:
+        raise InvalidInputPortError()
 
     @abstractmethod
-    def validate_output_port(self, input: Port) -> bool:
-        raise NotImplementedError("Subclasses must implement the process method")
+    async def validate_output_port(self, input: Port) -> bool:
+        raise InvalidOutputPortError()
 
     @abstractmethod
-    def process_input(self, input: Port) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         raise NotImplementedError("Subclasses must implement the process method")

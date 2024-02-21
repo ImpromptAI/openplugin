@@ -26,9 +26,9 @@ class API(BaseModel):
 class FunctionProperty(BaseModel):
     name: str
     type: str
-    description: Optional[str]
-    enum: Optional[List[str]]
-    items: Optional[dict]
+    description: Optional[str] = None
+    enum: Optional[List[str]] = None
+    items: Optional[dict] = None
     is_required: bool = False
 
 

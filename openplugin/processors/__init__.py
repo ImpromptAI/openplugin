@@ -1,4 +1,7 @@
 from .processor import (
+    InvalidInputPortError,
+    InvalidOutputPortError,
+    ProcessingError,
     Processor,
     ProcessorImplementationType,
     ProcessorType,
@@ -10,4 +13,7 @@ __all__ = (
     "ProcessorType",
     "ProcessorImplementationType",
     "get_processor_from_str",
+    "InvalidInputPortError",
+    "InvalidOutputPortError",
+    "ProcessingError",
 )

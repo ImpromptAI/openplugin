@@ -14,10 +14,11 @@ load_dotenv()
 
 
 @time_taken
-def run_prompt_on_plugin(
+async def run_prompt_on_plugin(
     openplugin_manifest: str,
     prompt: str,
     config: Optional[Config] = None,
+    output_port_types: Optional[List[PortType]] = None,
     preferred_approach: Optional[PreferredApproach] = None,
 ) -> List[Port]:
     """
@@ -41,22 +42,17 @@ def run_prompt_on_plugin(
         input = Port(data_type=PortType.TEXT, value=prompt)
 
     if config is None:
-        config = Config(
-            provider="openai",
-            openai_api_key=os.environ["OPENAI_API_KEY"],
-            cohere_api_key="",
-            google_palm_key="",
-            aws_access_key_id="",
-            aws_secret_access_key="",
-            aws_region_name="",
-        )
+        config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
     if preferred_approach is None:
         preferred_approach = plugin_obj.preferred_approaches[0]
 
+    if output_port_types is None:
+        output_port_types = plugin_obj.get_output_port_types()
+
     pipeline = PluginPipeline(plugin=plugin_obj)
-    output_ports = pipeline.start(
+    output_ports = await pipeline.start(
         input=input,
-        outputs=plugin_obj.get_output_port_types(),
+        outputs=output_port_types,
         config=config,
         preferred_approach=preferred_approach,
     )

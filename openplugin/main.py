@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 from typing import Optional
@@ -53,21 +54,14 @@ def start_server(
 
 @app.command()
 def run_plugin(
-    openplugin: Optional[
-        Annotated[
-            str,
-            typer.Option(
-                help="Openplugin Manifest Local File or URL",
-                rich_help_panel="Customization and Utils",
-            ),
-        ]
-    ],
-    prompt: Optional[
-        Annotated[
-            str,
-            typer.Option(help="Prompt", rich_help_panel="Customization and Utils"),
-        ]
-    ],
+    openplugin: str = typer.Option(
+        ...,
+        prompt="Provide your openplugin manifest: ",
+        help="OpenPlugin Manifest File or URL",
+    ),
+    prompt: str = typer.Option(
+        ..., prompt="Provide your prompt: ", help="Prompt to execute the plugin"
+    ),
     log_level: Optional[
         Annotated[
             str,
@@ -93,7 +87,7 @@ def run_plugin(
     if prompt is None:
         typer.echo("Pass Prompt.")
         raise typer.Exit(code=1)
-    run_prompt_on_plugin(openplugin, prompt)
+    asyncio.run(run_prompt_on_plugin(openplugin, prompt))
 
 
 if __name__ == "__main__":

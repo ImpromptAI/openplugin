@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 from loguru import logger
@@ -21,24 +22,32 @@ from .operations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
 from .plugin import Plugin
-from .port import Port, PortType
+from .port import Port, PortType, PortValueError
+
+
+async def run_module(output_module, flow_port):
+    logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
+    output_port = await output_module.run(flow_port)
+    logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
+    return output_port
 
 
 class PluginPipeline(BaseModel):
     plugin: Plugin
 
-    def start(
+    async def start(
         self,
         input: Port,
-        outputs: List[Port],
+        outputs: List[PortType],
         config: Config,
         preferred_approach: PreferredApproach,
     ) -> List[Port]:
+
         flow_port = input
         for input_module in self.plugin.input_modules:
             if input_module.initial_input_port.data_type == flow_port.data_type:
                 logger.info(f"\n[RUNNING_INPUT_MODULE] {input_module}")
-                flow_port = input_module.run(flow_port)
+                flow_port = await input_module.run(flow_port)
                 break
 
         flow_port = self._run_plugin(
@@ -48,13 +57,19 @@ class PluginPipeline(BaseModel):
         )
 
         output_ports: List[Port] = []
+
         expected_output_types = [output for output in outputs]
-        for output_module in self.plugin.output_modules:
-            if output_module.finish_output_port.data_type in expected_output_types:
-                logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
-                output_port = output_module.run(flow_port)
-                output_ports.append(output_port)
-                logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
+        selected_output_modules = [
+            output_module
+            for output_module in self.plugin.output_modules
+            if output_module.finish_output_port.data_type in expected_output_types
+        ]
+        output_ports = await asyncio.gather(
+            *(
+                run_module(output_module, flow_port)
+                for output_module in selected_output_modules
+            )
+        )
 
         return output_ports
 
@@ -83,14 +98,20 @@ class PluginPipeline(BaseModel):
     ) -> Port:
         if input.data_type != PortType.TEXT:
             raise Exception("Input data type to plugin must be text.")
-        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
+        if input.value is None:
+            raise PortValueError("Input value cannot be None")
+        messages = [
+            Message(content=input.value, message_type=MessageType.HumanMessage)
+        ]
         pipeline_name = preferred_approach.base_strategy
         llm = preferred_approach.llm
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] pipeline={pipeline_name}, {llm}")
         # API signature selector
         if (
-            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin=self.plugin, config=config, llm=llm, use="openplugin-swagger"
@@ -137,10 +158,16 @@ class PluginPipeline(BaseModel):
         config: Config,
         preferred_approach: PreferredApproach,
     ) -> Port:
+        if input.data_type != PortType.JSON:
+            raise Exception("Input data type to plugin must be JSON.")
+        if input.value is None:
+            raise PortValueError("Input value cannot be None")
         api_called = input.value.get("api_called")
         method = input.value.get("method")
         query_params = input.value.get("mapped_operation_parameters")
-        logger.info(f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}")
+        logger.info(
+            f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
+        )
         params = OperationExecutionParams(
             config=config,
             api=api_called,

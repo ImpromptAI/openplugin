@@ -48,8 +48,8 @@ class ProcessorNode(BaseModel):
         return values
 
     @time_taken
-    def run_processor(self, input: Port) -> Port:
-        return self.processor.process(input)
+    async def run_processor(self, input: Port) -> Port:
+        return await self.processor.process(input)
 
 
 class FlowPath(BaseModel):
@@ -70,10 +70,10 @@ class FlowPath(BaseModel):
         values["log_title"] = f"[MODULE-PROCESSING-FINISHED] name={values['name']}"
         return values
 
-    def run(self, input: Port) -> Port:
+    async def run(self, input: Port) -> Port:
         port = input
         for processor in self.processors:
-            port = processor.run_processor(port)
+            port = await processor.run_processor(port)
         return port
 
     def get_output_port_type(self) -> PortType:

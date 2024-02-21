@@ -3,7 +3,7 @@
 import json
 import uuid
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, DirectoryPath, FilePath, HttpUrl
 
@@ -58,11 +58,19 @@ def type_conversion(value, data_type: PortType):
         return None
 
 
+class PortValueError(Exception):
+    """Raised when the port value is invalid"""
+
+    def __init__(self, message="Invalid port value"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class Port(BaseModel):
     name: str = str(uuid.uuid4())
     data_type: PortType = PortType.TEXT
-    type_object: Any = data_type.value
-    value: Any
+    type_object: Optional[Any] = None
+    value: Optional[Any] = None
 
     class Config:
         json_encoders = {
@@ -78,3 +86,10 @@ class Port(BaseModel):
 
     def __str__(self):
         return f"name= {self.name}, value= {self.value}, type= {self.data_type}"
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "data_type": str(self.data_type),
+            "value": self.value,
+        }
