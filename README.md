@@ -1,9 +1,9 @@
 ### OpenPlugin
 
-Please see the complete documentation here: https://openplugin.org/
+## :open_hands: :electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces. serverless optional.
 
 
-#### About: :open_hands:: electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces. serverless optional.
+##### Please see the complete documentation here: https://openplugin.org/
 
 #### OpenPlugin
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
@@ -31,14 +31,16 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
 
 #### Usage:
 
-# Using Project
+#### Openplugin commands:
 python openplugin/main.py --help
 
 python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 
 python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json --prompt "show me some t shirts" --log-level="INFO"
 
-# Using PIP
+#### Install Openplugin using PYPI
+
 pip install openplugin
+
 openplugin --help
 
