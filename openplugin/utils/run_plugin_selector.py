@@ -1,19 +1,19 @@
 import json
 
-
-from openplugin.bindings.imprompt.imprompt_operation_signature_builder import (
+from openplugin.plugins.models import LLM, Config, Message
+from openplugin.plugins.operations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from openplugin.bindings.imprompt.imprompt_plugin_selector import (
-    ImpromptPluginSelector,
-)
-from openplugin.bindings.openai.openai_operation_signature_builder import (
+from openplugin.plugins.operations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
-from openplugin.bindings.openai.openai_plugin_selector import (
+from openplugin.plugins.plugin import Plugin
+from openplugin.plugins.selectors.plugin_selector_with_imprompt import (
+    ImpromptPluginSelector,
+)
+from openplugin.plugins.selectors.plugin_selector_with_openai import (
     OpenAIPluginSelector,
 )
-from openplugin.interfaces.models import LLM, Config, Message, Plugin
 
 
 # Function to run a plugin selector based on input JSON

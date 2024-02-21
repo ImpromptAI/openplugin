@@ -3,11 +3,11 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.api import auth
-from openplugin.bindings.operation_execution_impl import (
+from openplugin.plugins.execution.operation_execution_impl import (
     ExecutionException,
     OperationExecutionImpl,
 )
-from openplugin.interfaces.models import OperationExecutionParams
+from openplugin.plugins.models import OperationExecutionParams
 
 # Create a FastAPI router instance
 router = APIRouter(

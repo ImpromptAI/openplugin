@@ -1,6 +1,3 @@
-from openplugin.utils.run_plugin_selector import (
-    run_api_signature_selector,
-    run_plugin_selector,
-)
+from plugins.plugin_runner import run_prompt_on_plugin
 
-__all__ = ("run_api_signature_selector", "run_plugin_selector")
+__all__ = "run_prompt_on_plugin"

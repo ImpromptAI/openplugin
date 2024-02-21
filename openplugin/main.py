@@ -1,12 +1,18 @@
+import asyncio
 import os
+import sys
 from typing import Optional
 
 import typer
 import uvicorn
 from dotenv import load_dotenv
+from loguru import logger
 from typing_extensions import Annotated
 
-app = typer.Typer()
+from openplugin.plugins.plugin_runner import run_prompt_on_plugin
+
+
+app = typer.Typer(pretty_exceptions_enable=False)
 
 
 @app.callback()
@@ -45,3 +51,45 @@ def start_server(
         host=os.environ.get("HOST", "0.0.0.0"),
         port=int(os.environ.get("PORT", 8012)),
     )
+
+
+@app.command()
+def run_plugin(
+    openplugin: str = typer.Option(
+        ...,
+        prompt="Provide your openplugin manifest: ",
+        help="OpenPlugin Manifest File or URL",
+    ),
+    prompt: str = typer.Option(
+        ..., prompt="Provide your prompt: ", help="Prompt to execute the plugin"
+    ),
+    log_level: Optional[
+        Annotated[
+            str,
+            typer.Option(
+                "--log-level",
+                help="Set the level of log",
+                show_default=True,
+            ),
+        ]
+    ] = "INFO",
+):
+    """
+    Execute a plugin with custom prompt
+    """
+    if log_level:
+        logger.remove()
+        logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
+        logger.add(sys.stderr, level=log_level.upper())
+
+    if openplugin is None:
+        typer.echo("Pass OpenPlugin Manifest File or URL.")
+        raise typer.Exit(code=1)
+    if prompt is None:
+        typer.echo("Pass Prompt.")
+        raise typer.Exit(code=1)
+    asyncio.run(run_prompt_on_plugin(openplugin, prompt))
+
+
+if __name__ == "__main__":
+    app()
