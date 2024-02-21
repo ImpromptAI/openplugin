@@ -1,6 +1,4 @@
-### OpenPlugin
-
-## :open_hands: :electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces. serverless optional.
+## :open_hands: :electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces using OpenPlugin
 
 
 ##### Please see the complete documentation here: https://openplugin.org/
