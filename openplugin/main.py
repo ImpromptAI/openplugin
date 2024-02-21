@@ -11,6 +11,7 @@ from typing_extensions import Annotated
 
 from openplugin.plugins.plugin_runner import run_prompt_on_plugin
 
+
 app = typer.Typer(pretty_exceptions_enable=False)
 
 
