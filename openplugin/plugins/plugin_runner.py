@@ -28,7 +28,10 @@ async def run_prompt_on_plugin(
     """
 
     logger.remove()
-    logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
+    try:
+        logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
+    except Exception as e:
+        print(e)
     if log_level:
         logger.add(sys.stderr, level=log_level.upper())
 

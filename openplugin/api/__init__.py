@@ -5,20 +5,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from openplugin.api import (
+    info,
     operation_execution,
     operation_signature_builder,
     plugin_pipeline,
     plugin_selector,
-    info,
 )
-from openplugin.plugins.functions import API
 
 
 # Define a function to create the FastAPI application
 def create_app(root_path: Optional[str] = None) -> FastAPI:
     logger.remove()
-    logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
-
+    try:
+        logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
+    except Exception as e:
+        print(e)
     API_PREFIX = "/api"
     if root_path:
         API_PREFIX = f"/{root_path}{API_PREFIX}"
