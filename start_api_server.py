@@ -1,23 +1,16 @@
 import os
-import sys
 
 import uvicorn
 from dotenv import load_dotenv
-from loguru import logger
 
-from openplugin.api import app
-
-load_dotenv()
-
-log_level = os.environ.get("LOG_LEVEL", "FLOW")
-if log_level:
-    logger.remove()
-    logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
-    logger.add(sys.stderr, level=log_level.upper())
+from openplugin.api import create_app
 
 if __name__ == "__main__":
-    host = os.environ.get("HOST", "0.0.0.0")
-    port = int(os.environ.get("PORT", 8007))
-    port = 8006
-    print("Server listening on port " + str(port))
+    load_dotenv()
+    host = os.environ["HOST"]
+    port = int(os.environ["PORT"])
+    root_path = os.environ.get("ROOT_PATH")
+
+    print("STARTED OPENPLUGIN SERVER ON PORT: " + str(port))
+    app = create_app(root_path=root_path)
     uvicorn.run(app, host=host, port=port)

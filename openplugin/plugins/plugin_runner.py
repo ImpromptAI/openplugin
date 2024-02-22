@@ -1,4 +1,5 @@
 import os
+import sys
 from typing import List, Optional
 
 from dotenv import load_dotenv
@@ -20,10 +21,17 @@ async def run_prompt_on_plugin(
     config: Optional[Config] = None,
     output_port_types: Optional[List[PortType]] = None,
     preferred_approach: Optional[PreferredApproach] = None,
+    log_level: Optional[str] = "INFO",
 ) -> List[Port]:
     """
     Execute a plugin with custom prompt
     """
+
+    logger.remove()
+    logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
+    if log_level:
+        logger.add(sys.stderr, level=log_level.upper())
+
     logger.info(f"\n[INPUT_MANIFEST_FILE_LOCATION] {openplugin_manifest}")
     logger.info(f"\n[INPUT_PROMPT] {prompt}")
     logger.log("FLOW", "[PLUGIN-PIPELINE-STARTED]")

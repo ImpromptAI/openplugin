@@ -1,16 +1,13 @@
 import asyncio
 import os
-import sys
 from typing import Optional
 
 import typer
 import uvicorn
 from dotenv import load_dotenv
-from loguru import logger
 from typing_extensions import Annotated
 
 from openplugin.plugins.plugin_runner import run_prompt_on_plugin
-
 
 app = typer.Typer(pretty_exceptions_enable=False)
 
@@ -44,8 +41,9 @@ def start_server(
         load_dotenv()
         os.environ["OPENAI_API_KEY"] = openai_api_key
 
-    from openplugin.api import app
+    from openplugin.api import create_app
 
+    app = create_app()
     uvicorn.run(
         app,
         host=os.environ.get("HOST", "0.0.0.0"),
@@ -77,18 +75,13 @@ def run_plugin(
     """
     Execute a plugin with custom prompt
     """
-    if log_level:
-        logger.remove()
-        logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
-        logger.add(sys.stderr, level=log_level.upper())
-
     if openplugin is None:
         typer.echo("Pass OpenPlugin Manifest File or URL.")
         raise typer.Exit(code=1)
     if prompt is None:
         typer.echo("Pass Prompt.")
         raise typer.Exit(code=1)
-    asyncio.run(run_prompt_on_plugin(openplugin, prompt))
+    asyncio.run(run_prompt_on_plugin(openplugin, prompt, log_level=log_level))
 
 
 if __name__ == "__main__":

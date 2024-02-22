@@ -1,13 +1,14 @@
 import traceback
-from typing import Optional, List
+from typing import List, Optional
 
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
-from openplugin.plugins.port import PortType, PORT_TYPE_MAPPING
+
 from openplugin.api import auth
 from openplugin.plugins.models import Config, PreferredApproach
 from openplugin.plugins.plugin_runner import run_prompt_on_plugin
+from openplugin.plugins.port import PORT_TYPE_MAPPING, PortType
 
 # Create a FastAPI router instance
 router = APIRouter(

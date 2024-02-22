@@ -13,9 +13,7 @@ class TextToFileWithDefault(TextToFile):
     file_name: str = Field("response")
     folder_name: str = Field("assets")
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         if not os.path.exists(self.folder_name):
