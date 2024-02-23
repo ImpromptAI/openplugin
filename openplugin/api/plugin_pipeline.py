@@ -1,4 +1,5 @@
 import traceback
+import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Body, Depends
@@ -28,6 +29,7 @@ async def plugin_pipeline(
     api_key: APIKey = Depends(auth.get_api_key),
 ) -> JSONResponse:
     try:
+        start = datetime.datetime.now()
         selected_output_ports: Optional[List[PortType]] = (
             [PORT_TYPE_MAPPING[port_type.lower()] for port_type in output_port_types]
             if output_port_types
@@ -41,7 +43,16 @@ async def plugin_pipeline(
             preferred_approach=preferred_approach,
         )
         outputs = [port.to_dict() for port in ports]
-        return JSONResponse(status_code=200, content=outputs)
+        end = datetime.datetime.now()
+        elapsed_time = end - start
+        response = {
+            "outputs": outputs,
+            "start_time": start.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": end.strftime("%Y-%m-%d %H:%M:%S"),
+            "time_taken_seconds": elapsed_time.seconds,
+            "time_taken_ms": elapsed_time.microseconds,
+        }
+        return JSONResponse(status_code=200, content=response)
     except Exception as e:
         print(e)
         traceback.print_exc()

@@ -1,3 +1,4 @@
+import datetime
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -10,9 +11,23 @@ router = APIRouter(
 
 @router.get("/info")
 def info():
-    return JSONResponse(
+    # time taken to run this function
+    start = datetime.datetime.now()
+    response = JSONResponse(
         status_code=200,
         content={"message": "OpenPlugin API"},
+    )
+    end = datetime.datetime.now()
+    elapsed_time = end - start
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "OpenPlugin API",
+            "start_time": start.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": end.strftime("%Y-%m-%d %H:%M:%S"),
+            "time_taken_seconds": elapsed_time.seconds,
+            "time_taken_ms": elapsed_time.microseconds,
+        },
     )
 
 
