@@ -12,12 +12,17 @@ Table of Contents
 Installing Dependencies
 =======================
 
-OpenPlugin uses Poetry to manage dependencies. See https://github.com/python-poetry/install.python-poetry.org for universal installation instructions. Once Poetry is available on your system, run ``poetry install`` in the root directory of your OpenPlugin Git workspace.
+OpenPlugin uses Poetry to manage dependencies. 
 
+Poetry: https://github.com/python-poetry/install.python-poetry.org
 
-Starting API Server
+Once Poetry is available on your system, run:
+
+``poetry install`` in the root directory of your OpenPlugin Git workspace.
+
+Starting an OpenPlugin Server
 ===================
-
+You can run your own OpenPlugin Servers, or use public instances that are already hosted in the cloud. 
 OpenPlugin comes with a simple REST API server. An OpenAI API key is required to use it with OpenAI-based plugin selectors. It can be supplied to the OpenPlugin API server via ``OPENAI_API_KEY`` environment variable or via ``.env`` file in the root directory of the OpenPlugin Git workspace. The latter method is preferable for our purposes, as it facilitates reproducibility of the runtime environment and allows for preservation of secrecy of the API key better than specifying it in the shell prompt.
 
 The content of your ``.env`` file should be just the following one line:
@@ -90,7 +95,7 @@ The details of the manifest format are defined in :ref:`openplugin-manifest`. Fo
 Requesting Plugin Selection
 ===========================
 
-The core of the OpenPlugin functionality is plugin selection. The API server provides an interface to perform this function. The input to the call specifies:
+A key feature of OpenPlugin is plugin selection. The API server provides an interface to perform this function. The input to the call specifies:
 
 1. User's natural language message that may require the use of a plugin to optimally respond to.
 2. Set of plugins to consider.
@@ -183,10 +188,10 @@ A successful response will return HTTP response code 200 with a response body th
     } 
 
 
-Requesting Call Signature
+Building an API Call
 =========================
 
-The next OpenPlugin API server operation that is typically invoked after plugin selection is the call signature request. This function produces the specific plugin API call semantics, generating the parameter values for plugin invocation. The request is the same as for the plugin selection, the only difference being the URL path of the API server:
+The next OpenPlugin API server operation that is typically invoked after plugin selection is the request to build an API call. This function produces the specific plugin API call semantics, generating the parameter values for plugin invocation. The request is the same as for the plugin selection, the only difference being the URL path of the API server:
 
 .. code-block:: bash
 
