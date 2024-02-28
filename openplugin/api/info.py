@@ -1,3 +1,4 @@
+import toml
 import datetime
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -7,6 +8,11 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+
+def get_project_version():
+    pyproject_data = toml.load("pyproject.toml")
+    return pyproject_data["tool"]["poetry"]["version"]
 
 
 @router.get("/info")
@@ -19,9 +25,12 @@ def info():
     )
     end = datetime.datetime.now()
     elapsed_time = end - start
+    import toml
+
     return JSONResponse(
         status_code=200,
         content={
+            "version": get_project_version(),
             "message": "OpenPlugin API",
             "start_time": start.strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": end.strftime("%Y-%m-%d %H:%M:%S"),

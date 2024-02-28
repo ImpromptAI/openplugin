@@ -23,8 +23,6 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
     API_PREFIX = "/api"
     if root_path:
         API_PREFIX = f"/{root_path}{API_PREFIX}"
-    print("+++")
-    print(API_PREFIX)
     app = FastAPI(
         title="OpenPlugin",
         openapi_url=f"{API_PREFIX}/openapi.json",
