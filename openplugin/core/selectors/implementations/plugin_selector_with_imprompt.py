@@ -5,10 +5,12 @@ from typing import List, Optional
 
 import openai
 
-from openplugin.core.llms import LLM, Config
-from openplugin.core.messages import Message, MessageType
-from openplugin.core.plugin import Plugin
-from openplugin.core.plugin_detected import (
+from openplugin.core import (
+    LLM,
+    Config,
+    Message,
+    MessageType,
+    Plugin,
     PluginDetected,
     SelectedPluginsResponse,
 )

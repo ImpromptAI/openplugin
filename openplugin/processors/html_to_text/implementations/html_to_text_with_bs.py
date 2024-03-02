@@ -2,15 +2,13 @@ from typing import Optional
 
 from bs4 import BeautifulSoup
 
-from openplugin.core import Port, PortType, PortValueError, Config
+from openplugin.core import Config, Port, PortType, PortValueError
 
 from ..html_to_text import HtmlToText
 
 
 class HtmlToTextWithBS(HtmlToText):
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         # Parse the HTML content
         if input.value is None:
             raise PortValueError("Input value cannot be None")

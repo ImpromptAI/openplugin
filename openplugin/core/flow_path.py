@@ -10,7 +10,7 @@ from openplugin.processors import (
     get_processor_from_str,
 )
 
-from . import time_taken
+from .helper import time_taken
 from .port import PORT_TYPE_MAPPING, Port, PortType
 
 

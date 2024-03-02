@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 import requests
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
-from openplugin.utils.llm_manager_handler import get_llm_response_from_messages
+from openplugin.utils import get_llm_response_from_messages
 
 from ..operation_execution import (
     OperationExecution,

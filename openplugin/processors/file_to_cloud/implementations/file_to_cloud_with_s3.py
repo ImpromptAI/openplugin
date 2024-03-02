@@ -2,7 +2,7 @@ from typing import Optional
 
 import boto3
 
-from openplugin.core import Port, PortType, Config
+from openplugin.core import Config, Port, PortType
 
 from ..file_to_cloud import FileToCloud
 
@@ -14,9 +14,7 @@ class FileToCloudWithS3(FileToCloud):
     bucket_name: str
     save_filename: Optional[str]
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         # Upload the file
         client = boto3.client(
             "s3",

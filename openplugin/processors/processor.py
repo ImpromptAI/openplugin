@@ -5,7 +5,7 @@ from typing import Optional
 from loguru import logger
 from pydantic import BaseModel, Field
 
-from openplugin.core import Port, Config
+from openplugin.core import Config, Port
 
 
 class ProcessorType(Enum):
@@ -91,7 +91,5 @@ class Processor(ABC, BaseModel):
         raise InvalidOutputPortError()
 
     @abstractmethod
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         raise NotImplementedError("Subclasses must implement the process method")

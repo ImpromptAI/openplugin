@@ -1,7 +1,8 @@
 from abc import abstractmethod
 from typing import Optional
 
-from openplugin.core import Port, PortType, PortValueError, Config
+from openplugin.core import Config, Port, PortType, PortValueError
+
 from ..processor import (
     InvalidInputPortError,
     InvalidOutputPortError,
@@ -28,7 +29,5 @@ class UrlToHtml(Processor):
         return True
 
     @abstractmethod
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         pass

@@ -2,7 +2,7 @@ from typing import Optional
 
 import requests
 
-from openplugin.core import Port, PortType, PortValueError, Config
+from openplugin.core import Config, Port, PortType, PortValueError
 
 from ..url_to_html import UrlToHtml
 

@@ -1,5 +1,4 @@
 from ..processor import ProcessorImplementationType
-
 from .file_to_cloud import FileToCloud
 
 
@@ -11,6 +10,4 @@ def get_file_to_cloud(
 
         return FileToCloudWithS3(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

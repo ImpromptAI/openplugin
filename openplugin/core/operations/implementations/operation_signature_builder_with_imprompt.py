@@ -4,14 +4,15 @@ import time
 from typing import List, Optional
 from urllib.parse import parse_qs, urlparse
 
-from openplugin.core.llms import LLM, Config
-from openplugin.core.messages import Message
-from openplugin.core.plugin import Plugin
-from openplugin.core.plugin_detected import (
+from openplugin.core import (
+    LLM,
+    Config,
+    Message,
+    Plugin,
     PluginDetectedParams,
     SelectedApiSignatureResponse,
 )
-from openplugin.utils.llm_manager_handler import get_llm_response_from_messages
+from openplugin.utils import get_llm_response_from_messages
 
 from ..operation_signature_builder import (
     OperationSignatureBuilder,

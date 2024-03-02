@@ -5,7 +5,7 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from loguru import logger
 
-from . import time_taken
+from .helper import time_taken
 from .llms import Config
 from .plugin import PluginBuilder, PreferredApproach
 from .plugin_execution_pipeline import PluginExecutionPipeline
