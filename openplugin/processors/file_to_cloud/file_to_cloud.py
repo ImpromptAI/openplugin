@@ -29,7 +29,5 @@ class FileToCloud(Processor):
         return True
 
     @abstractmethod
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         pass

@@ -11,6 +11,4 @@ def get_text_to_file(
 
         return TextToFileWithDefault(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

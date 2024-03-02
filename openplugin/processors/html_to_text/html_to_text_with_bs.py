@@ -9,9 +9,7 @@ from .html_to_text import HtmlToText
 
 
 class HtmlToTextWithBS(HtmlToText):
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         # Parse the HTML content
         if input.value is None:
             raise PortValueError("Input value cannot be None")

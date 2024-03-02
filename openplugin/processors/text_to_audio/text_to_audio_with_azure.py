@@ -29,9 +29,7 @@ class TextToAudioWithAzure(TextToAudio):
             v = os.environ.get(v.split("env.")[1])
         return v
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if config and config.azure_api_key:
             self.azure_api_key = config.azure_api_key
         if input.value is None:

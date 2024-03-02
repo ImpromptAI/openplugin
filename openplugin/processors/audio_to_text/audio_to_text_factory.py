@@ -11,6 +11,4 @@ def get_audio_to_text(
 
         return AudioToTextWithWhisper(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

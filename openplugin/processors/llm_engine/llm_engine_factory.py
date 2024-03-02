@@ -11,6 +11,4 @@ def get_llm_engine(
 
         return LLMEngineWithOpenAI(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

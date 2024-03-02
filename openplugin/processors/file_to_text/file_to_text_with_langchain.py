@@ -9,9 +9,7 @@ from openplugin.processors.file_to_text.file_to_text import FileToText
 
 
 class FileToTextWithLangchain(FileToText):
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
 

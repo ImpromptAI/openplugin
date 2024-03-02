@@ -11,9 +11,7 @@ class AudioToTextWithWhisper(AudioToText):
     openai_api_key: str
     model_name: str = "whisper-1"
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         client = OpenAI()

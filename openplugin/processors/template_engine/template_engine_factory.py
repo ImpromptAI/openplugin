@@ -11,6 +11,4 @@ def get_template_engine(
 
         return TemplateEngineWithJinja(**metadata)
     else:
-        raise ValueError(
-            "Invalid implementation type: {}".format(implementation_type)
-        )
+        raise ValueError("Invalid implementation type: {}".format(implementation_type))

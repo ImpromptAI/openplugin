@@ -5,8 +5,8 @@ from typing import List, Optional
 import litellm
 
 from openplugin.plugins.functions import Functions
-from openplugin.plugins.messages import Message, MessageType
 from openplugin.plugins.llms import LLM, Config
+from openplugin.plugins.messages import Message, MessageType
 from openplugin.plugins.plugin import Plugin
 from openplugin.plugins.plugin_detected import (
     PluginDetectedParams,
