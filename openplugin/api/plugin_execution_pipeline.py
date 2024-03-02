@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.api import auth
-from openplugin.plugins.models import Config
+from openplugin.plugins.llms import Config
 from openplugin.plugins.plugin import PluginBuilder, PreferredApproach
 from openplugin.plugins.plugin_execution_pipeline import PluginExecutionPipeline
 from openplugin.plugins.port import Port, PortType
@@ -35,9 +35,13 @@ async def plugin_execution_pipeline(
         start = datetime.datetime.now()
         input = Port(data_type=PortType.TEXT, value=prompt)
         if openplugin_manifest_url.startswith("http"):
-            plugin_obj = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
+            plugin_obj = PluginBuilder.build_from_manifest_url(
+                openplugin_manifest_url
+            )
         else:
-            plugin_obj = PluginBuilder.build_from_manifest_file(openplugin_manifest_url)
+            plugin_obj = PluginBuilder.build_from_manifest_file(
+                openplugin_manifest_url
+            )
 
         if config is None:
             config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])

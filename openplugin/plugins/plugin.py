@@ -7,7 +7,7 @@ from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
 
 from openplugin.plugins.flow_path import FlowPath
 
-from .models import LLM
+from .llms import LLM
 
 
 class PreferredApproach(BaseModel):

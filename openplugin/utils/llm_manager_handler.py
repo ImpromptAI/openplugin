@@ -82,7 +82,9 @@ def get_llm_response_from_messages(
         if isinstance(google_key, str):
             google_key = ast.literal_eval(google_key)
 
-        credentials = service_account.Credentials.from_service_account_info(google_key)
+        credentials = service_account.Credentials.from_service_account_info(
+            google_key
+        )
         vertexai.init(
             project=os.environ["GOOGLE_PROJECT_NAME"],
             location=os.environ["GOOGLE_PROJECT_LOC"],

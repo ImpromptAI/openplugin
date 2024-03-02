@@ -11,4 +11,6 @@ def get_text_to_audio(
 
         return TextToAudioWithAzure(**metadata)
     else:
-        raise ValueError("Invalid implementation type: {}".format(implementation_type))
+        raise ValueError(
+            "Invalid implementation type: {}".format(implementation_type)
+        )

@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Optional
 
-from openplugin.plugins.models import Config
+from openplugin.plugins.llms import Config
 from openplugin.plugins.port import Port, PortType, PortValueError
 from openplugin.processors import (
     InvalidInputPortError,
@@ -29,5 +29,7 @@ class AudioToText(Processor):
         return True
 
     @abstractmethod
-    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
+    async def process_input(
+        self, input: Port, config: Optional[Config] = None
+    ) -> Port:
         pass

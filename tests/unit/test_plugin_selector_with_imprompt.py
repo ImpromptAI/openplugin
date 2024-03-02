@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 from openplugin.plugins.messages import Message, MessageType
-from openplugin.plugins.models import LLM, Config
+from openplugin.plugins.llms import LLM, Config
 from openplugin.plugins.plugin import Plugin
 from openplugin.plugins.selectors.plugin_selector_with_imprompt import (
     ImpromptPluginSelector,

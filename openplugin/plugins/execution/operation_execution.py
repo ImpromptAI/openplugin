@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
-from openplugin.plugins.models import LLM, Config
+from openplugin.plugins.llms import LLM, Config
 
 
 class OperationExecutionResponse(BaseModel):
