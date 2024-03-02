@@ -35,15 +35,10 @@ def plugin_selector(
     try:
         # Based on the provider specified in tool_selector_config, create the
         # appropriate plugin selector
-        if (
-            pipeline_name.lower()
-            == ImpromptPluginSelector.get_pipeline_name().lower()
-        ):
+        if pipeline_name.lower() == ImpromptPluginSelector.get_pipeline_name().lower():
             imprompt_selector = ImpromptPluginSelector(plugins, config, llm)
             return imprompt_selector.run(messages)
-        elif (
-            pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower()
-        ):
+        elif pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
             openai_selector = OpenAIPluginSelector(plugins, config, llm)
             return openai_selector.run(messages)
         else:

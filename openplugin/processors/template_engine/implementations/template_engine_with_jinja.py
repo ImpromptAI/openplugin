@@ -3,9 +3,8 @@ from typing import Optional
 import jinja2
 from pydantic import Field
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors.template_engine.template_engine import TemplateEngine
+from openplugin.core import Port, PortType, PortValueError, Config
+from ..template_engine import TemplateEngine
 
 
 class TemplateEngineWithJinja(TemplateEngine):

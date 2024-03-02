@@ -35,13 +35,9 @@ async def plugin_execution_pipeline(
         start = datetime.datetime.now()
         input = Port(data_type=PortType.TEXT, value=prompt)
         if openplugin_manifest_url.startswith("http"):
-            plugin_obj = PluginBuilder.build_from_manifest_url(
-                openplugin_manifest_url
-            )
+            plugin_obj = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
         else:
-            plugin_obj = PluginBuilder.build_from_manifest_file(
-                openplugin_manifest_url
-            )
+            plugin_obj = PluginBuilder.build_from_manifest_file(openplugin_manifest_url)
 
         if config is None:
             config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])

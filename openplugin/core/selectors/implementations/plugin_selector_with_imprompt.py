@@ -122,13 +122,9 @@ class ImpromptPluginSelector(PluginSelector):
                             val = val.split("-")[0].strip()
                         if "," in val:
                             for v in val.split(","):
-                                found_plugins.append(
-                                    self.get_plugin_by_name(v.strip())
-                                )
+                                found_plugins.append(self.get_plugin_by_name(v.strip()))
                         else:
-                            found_plugins.append(
-                                self.get_plugin_by_name(val.strip())
-                            )
+                            found_plugins.append(self.get_plugin_by_name(val.strip()))
 
         detected_plugins = []
         for plugin in found_plugins:

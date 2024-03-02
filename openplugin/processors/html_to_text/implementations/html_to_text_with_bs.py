@@ -2,10 +2,9 @@ from typing import Optional
 
 from bs4 import BeautifulSoup
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
+from openplugin.core import Port, PortType, PortValueError, Config
 
-from .html_to_text import HtmlToText
+from ..html_to_text import HtmlToText
 
 
 class HtmlToTextWithBS(HtmlToText):

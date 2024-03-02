@@ -1,9 +1,8 @@
 from abc import abstractmethod
 from typing import Optional
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors import (
+from openplugin.core import Port, PortType, PortValueError, Config
+from ..processor import (
     InvalidInputPortError,
     InvalidOutputPortError,
     Processor,

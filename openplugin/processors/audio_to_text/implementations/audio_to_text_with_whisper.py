@@ -2,9 +2,8 @@ from typing import Optional
 
 from openai import OpenAI
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors.audio_to_text.audio_to_text import AudioToText
+from openplugin.core import Config, Port, PortType, PortValueError
+from ..audio_to_text import AudioToText
 
 
 class AudioToTextWithWhisper(AudioToText):

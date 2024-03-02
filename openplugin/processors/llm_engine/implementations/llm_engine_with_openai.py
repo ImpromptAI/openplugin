@@ -3,9 +3,8 @@ from typing import Optional
 from litellm import completion
 from pydantic import Field
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors.llm_engine.llm_engine import LLMEngine
+from openplugin.core import Port, PortType, PortValueError, Config
+from ..llm_engine import LLMEngine
 
 
 class LLMEngineWithOpenAI(LLMEngine):

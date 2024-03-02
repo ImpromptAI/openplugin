@@ -2,10 +2,9 @@ from typing import Optional
 
 import boto3
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType
+from openplugin.core import Port, PortType, Config
 
-from .file_to_cloud import FileToCloud
+from ..file_to_cloud import FileToCloud
 
 
 class FileToCloudWithS3(FileToCloud):

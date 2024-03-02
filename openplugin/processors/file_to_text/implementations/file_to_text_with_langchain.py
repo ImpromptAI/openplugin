@@ -3,9 +3,8 @@ from typing import Optional
 
 from langchain_community.document_loaders import TextLoader
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors.file_to_text.file_to_text import FileToText
+from openplugin.core import Port, PortType, PortValueError, Config
+from ..file_to_text import FileToText
 
 
 class FileToTextWithLangchain(FileToText):

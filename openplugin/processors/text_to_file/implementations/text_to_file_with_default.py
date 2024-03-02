@@ -3,9 +3,8 @@ from typing import Optional
 
 from pydantic import Field
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors.text_to_file.text_to_file import TextToFile
+from openplugin.core import Port, PortType, PortValueError, Config
+from ..text_to_file import TextToFile
 
 
 class TextToFileWithDefault(TextToFile):

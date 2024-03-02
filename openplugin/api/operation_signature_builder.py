@@ -63,10 +63,8 @@ def operation_signature_builder(
             )
             return openai_selector.run(input.messages)
         if (
-            pipeline_name.lower()
-            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower()
-            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin,

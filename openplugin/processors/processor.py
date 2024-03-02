@@ -5,8 +5,7 @@ from typing import Optional
 from loguru import logger
 from pydantic import BaseModel, Field
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port
+from openplugin.core import Port, Config
 
 
 class ProcessorType(Enum):

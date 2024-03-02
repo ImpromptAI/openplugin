@@ -7,9 +7,8 @@ import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
 from pydantic import Field, validator
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
-from openplugin.processors.text_to_audio.text_to_audio import TextToAudio
+from openplugin.core import Port, PortType, PortValueError, Config
+from ..text_to_audio import TextToAudio
 
 load_dotenv()
 

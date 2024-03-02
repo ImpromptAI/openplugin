@@ -2,10 +2,9 @@ from typing import Optional
 
 import requests
 
-from openplugin.core.llms import Config
-from openplugin.core.port import Port, PortType, PortValueError
+from openplugin.core import Port, PortType, PortValueError, Config
 
-from .url_to_html import UrlToHtml
+from ..url_to_html import UrlToHtml
 
 
 class UrlToHtmlWithRequest(UrlToHtml):
