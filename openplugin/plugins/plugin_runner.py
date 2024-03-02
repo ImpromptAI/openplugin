@@ -7,7 +7,7 @@ from loguru import logger
 
 from . import time_taken
 from .models import Config, PreferredApproach
-from .plugin import Plugin
+from .plugin import PluginBuilder
 from .plugin_pipeline import PluginPipeline
 from .port import Port, PortType
 
@@ -39,9 +39,9 @@ async def run_prompt_on_plugin(
     logger.info(f"\n[INPUT_PROMPT] {prompt}")
     logger.log("FLOW", "[PLUGIN-PIPELINE-STARTED]")
     if openplugin_manifest.startswith("http"):
-        plugin_obj = Plugin.build_from_manifest_url(openplugin_manifest)
+        plugin_obj = PluginBuilder.build_from_manifest_url(openplugin_manifest)
     else:
-        plugin_obj = Plugin.build_from_manifest_file(openplugin_manifest)
+        plugin_obj = PluginBuilder.build_from_manifest_file(openplugin_manifest)
 
     logger.info(f"\n[OPENPLUGIN_OBJ] {plugin_obj}")
 

@@ -14,7 +14,7 @@ from openplugin.plugins.operations.operation_signature_builder_with_imprompt imp
 from openplugin.plugins.operations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
-from openplugin.plugins.plugin import Plugin
+from openplugin.plugins.plugin import PluginBuilder
 
 # Create a FastAPI router instance
 router = APIRouter(
@@ -50,7 +50,7 @@ def operation_signature_builder(
 ):
     # Based on the provider specified in tool_selector_config, create the appropriate
     # API signature selector
-    plugin = Plugin.build_from_manifest_url(input.plugin_manifest_url)
+    plugin = PluginBuilder.build_from_manifest_url(input.plugin_manifest_url)
     try:
         if pipeline_name is None:
             openai_selector = OpenAIOperationSignatureBuilder(

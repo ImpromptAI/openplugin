@@ -54,32 +54,6 @@ class Plugin(BaseModel):
     # first str is the path, second str is the method
     plugin_operations: Optional[Dict[str, Dict[str, PluginOperation]]] = None
 
-    @staticmethod
-    def build_from_manifest_url(manifest_url: str):
-        manifest_obj = requests.get(manifest_url).json()
-        manifest_obj["manifest_url"] = manifest_url
-        if manifest_obj.get("auth"):
-            if (
-                manifest_obj.get("auth").get("type")
-                and manifest_obj.get("auth").get("type") == "none"
-            ):
-                manifest_obj["auth"] = None
-        return Plugin(**manifest_obj)
-
-    @staticmethod
-    def build_from_manifest_file(openplugin_manifest_file: str):
-        with open(openplugin_manifest_file, "r") as file:
-            data = file.read()
-            openplugin_manifest_json = json.loads(data)
-            openplugin_manifest_json["manifest_url"] = openplugin_manifest_file
-            if openplugin_manifest_json.get("auth"):
-                if (
-                    openplugin_manifest_json.get("auth").get("type")
-                    and openplugin_manifest_json.get("auth").get("type") == "none"
-                ):
-                    openplugin_manifest_json["auth"] = None
-            return Plugin(**openplugin_manifest_json)
-
     @root_validator(pre=True)
     def _set_fields(cls, values: dict) -> dict:
         """This is a validator that sets the field values based on the manifest_url"""
@@ -227,3 +201,31 @@ class Plugin(BaseModel):
                             ].plugin_response_template
 
         return {}
+
+
+class PluginBuilder:
+    @staticmethod
+    def build_from_manifest_url(manifest_url: str):
+        manifest_obj = requests.get(manifest_url).json()
+        manifest_obj["manifest_url"] = manifest_url
+        if manifest_obj.get("auth"):
+            if (
+                manifest_obj.get("auth").get("type")
+                and manifest_obj.get("auth").get("type") == "none"
+            ):
+                manifest_obj["auth"] = None
+        return Plugin(**manifest_obj)
+
+    @staticmethod
+    def build_from_manifest_file(openplugin_manifest_file: str):
+        with open(openplugin_manifest_file, "r") as file:
+            data = file.read()
+            openplugin_manifest_json = json.loads(data)
+            openplugin_manifest_json["manifest_url"] = openplugin_manifest_file
+            if openplugin_manifest_json.get("auth"):
+                if (
+                    openplugin_manifest_json.get("auth").get("type")
+                    and openplugin_manifest_json.get("auth").get("type") == "none"
+                ):
+                    openplugin_manifest_json["auth"] = None
+            return Plugin(**openplugin_manifest_json)

@@ -1,6 +1,6 @@
 # inspired by this: https://github.com/gangtao/pyflow/blob/master/src/fbp/port.py
-import uuid
 import json
+import uuid
 from enum import Enum
 from typing import Any, Dict, Optional
 

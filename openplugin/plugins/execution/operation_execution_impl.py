@@ -5,13 +5,13 @@ from urllib.parse import urlencode
 import requests
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
+from openplugin.utils.llm_manager_handler import get_llm_response_from_messages
+
 from .operation_execution import (
+    OperationExecution,
     OperationExecutionParams,
     OperationExecutionResponse,
 )
-from openplugin.utils.llm_manager_handler import get_llm_response_from_messages
-
-from .operation_execution import OperationExecution
 
 CLARIFYING_QUESTION_PROMPT = "#INPUT_JSON\n This is a json describing what is missing in the API call. Write a clarifying question asking user to provide missing informations. Make sure you prettify the parameter name. Don't mention about JSON or API call."  # noqa: E501
 DEFAULT_MODEL_NAME = "gpt-3.5-turbo-0613"
