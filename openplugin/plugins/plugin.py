@@ -1,9 +1,9 @@
 import json
-from typing import Any, Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 import requests
 import yaml
-from pydantic import BaseModel, root_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
 
 from openplugin.plugins.flow_path import FlowPath
 
@@ -26,11 +26,9 @@ class PluginOperation(BaseModel):
     Represents the result of a plugin operation.
     """
 
-    human_usage_examples: Optional[List[str]] = []
-    plugin_signature_helpers: Optional[List[str]] = []
-    plugin_cleanup_helpers: Optional[List[str]] = []
-    post_call_evaluator: Optional[str] = None
-    plugin_response_template: Optional[Dict[Any, Any]] = None
+    human_usage_examples: List[str] = Field(default=[])
+    plugin_signature_helpers: List[str] = Field(default=[])
+    # output_modules: List[FlowPath] = Field(default=[])
 
 
 class Plugin(BaseModel):
@@ -39,18 +37,22 @@ class Plugin(BaseModel):
     """
 
     schema_version: str
+    openplugin_manifest_version: str
     manifest_url: str
-    name: Optional[str] = None
+    name: str
+    contact_email: Optional[str] = None
     description: Optional[str] = None
-    openapi_doc_url: Optional[str] = None
+    openapi_doc_url: Optional[AnyHttpUrl] = None
+    logo_url: Optional[AnyHttpUrl] = None
+    legal_info_url: Optional[AnyHttpUrl] = None
+    permutate_doc_url: Optional[AnyHttpUrl] = None
+    permutation_test_urls: Optional[AnyHttpUrl] = None
+    auth: Optional[PluginAuth] = None
     input_modules: Optional[List[FlowPath]] = []
     output_modules: Optional[List[FlowPath]] = []
-    auth: Optional[PluginAuth] = None
-    logo_url: Optional[str] = None
-    contact_email: Optional[str] = None
-    legal_info_url: Optional[str] = None
+    preferred_approaches: Optional[List[PreferredApproach]] = []
+
     api_endpoints: Optional[Set[str]] = None
-    preferred_approaches: List[PreferredApproach] = []
     # first str is the path, second str is the method
     plugin_operations: Optional[Dict[str, Dict[str, PluginOperation]]] = None
 
@@ -153,54 +155,6 @@ class Plugin(BaseModel):
 
     def get_output_port_types(self):
         return [output.get_output_port_type() for output in self.output_modules]
-
-    def get_get_post_call_evaluator(
-        self, api_endpoint: str, method: str
-    ) -> Optional[str]:
-        if self.plugin_operations:
-            for key in self.plugin_operations.keys():
-                if key.lower() == api_endpoint.lower() or api_endpoint.lower().endswith(
-                    key.lower()
-                ):
-                    for method_key in self.plugin_operations[key].keys():
-                        if method_key.lower() == method.lower():
-                            return self.plugin_operations[key][
-                                method_key
-                            ].post_call_evaluator
-
-        return None
-
-    def get_post_processing_cleanup_prompts(
-        self, api_endpoint: str, method: str
-    ) -> Optional[List[str]]:
-        if self.plugin_operations:
-            for key in self.plugin_operations.keys():
-                if key.lower() == api_endpoint.lower() or api_endpoint.lower().endswith(
-                    key.lower()
-                ):
-                    for method_key in self.plugin_operations[key].keys():
-                        if method_key.lower() == method.lower():
-                            return self.plugin_operations[key][
-                                method_key
-                            ].plugin_cleanup_helpers
-
-        return []
-
-    def get_plugin_response_template(
-        self, api_endpoint: str, method: str
-    ) -> Optional[Dict[Any, Any]]:
-        if self.plugin_operations:
-            for key in self.plugin_operations.keys():
-                if key.lower() == api_endpoint.lower() or api_endpoint.lower().endswith(
-                    key.lower()
-                ):
-                    for method_key in self.plugin_operations[key].keys():
-                        if method_key.lower() == method.lower():
-                            return self.plugin_operations[key][
-                                method_key
-                            ].plugin_response_template
-
-        return {}
 
 
 class PluginBuilder:

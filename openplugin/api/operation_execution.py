@@ -7,7 +7,9 @@ from openplugin.plugins.execution.operation_execution_impl import (
     ExecutionException,
     OperationExecutionImpl,
 )
-from openplugin.plugins.models import OperationExecutionParams
+from openplugin.plugins.execution.operation_execution_impl import (
+    OperationExecutionParams,
+)
 
 # Create a FastAPI router instance
 router = APIRouter(

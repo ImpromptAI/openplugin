@@ -54,6 +54,7 @@ def get_openplugin_manifest_from_openai_manifest(
     plugin_obj = Plugin(
         manifest_url=manifest_url,
         schema_version=schema_version,
+        openplugin_manifest_version="0.1.0",
         name=name,
         description=description,
         openapi_doc_url=openapi_doc_url,
