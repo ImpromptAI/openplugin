@@ -8,7 +8,7 @@ from loguru import logger
 from . import time_taken
 from .llms import Config
 from .plugin import PluginBuilder, PreferredApproach
-from .plugin_pipeline import PluginPipeline
+from .plugin_execution_pipeline import PluginExecutionPipeline
 from .port import Port, PortType
 
 load_dotenv()
@@ -22,7 +22,7 @@ async def run_prompt_on_plugin(
     output_port_types: Optional[List[PortType]] = None,
     preferred_approach: Optional[PreferredApproach] = None,
     log_level: Optional[str] = "INFO",
-) -> List[Port]:
+) -> Port:
     """
     Execute a plugin with custom prompt
     """
@@ -59,12 +59,11 @@ async def run_prompt_on_plugin(
 
     if output_port_types is None:
         output_port_types = plugin_obj.get_output_port_types()
-
-    pipeline = PluginPipeline(plugin=plugin_obj)
-    output_ports = await pipeline.start(
+    pipeline = PluginExecutionPipeline(plugin=plugin_obj)
+    execution_response = await pipeline.start(
         input=input,
-        outputs=output_port_types,
         config=config,
         preferred_approach=preferred_approach,
+        output_module_ids=[],
     )
-    return output_ports
+    return execution_response.default_output
