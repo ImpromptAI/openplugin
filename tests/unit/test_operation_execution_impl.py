@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-from openplugin.plugins.execution.implementations.operation_execution_with_imprompt import (
+from openplugin.core.execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
     OperationExecutionWithImprompt,
 )
