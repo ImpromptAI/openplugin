@@ -71,11 +71,7 @@ class OperationExecutionParams(BaseModel):
     query_params: Optional[dict]
     body: Optional[dict]
     header: Optional[dict]
-    post_processing_cleanup_prompt: Optional[str]
     llm: Optional[LLM]
-    plugin_response_template_engine: Optional[str]
-    plugin_response_template: Optional[str]
-    post_call_evaluator_prompt: Optional[str]
 
     def get_temperature(self):
         if self.llm:
@@ -105,19 +101,10 @@ class OperationExecutionParams(BaseModel):
 
 class OperationExecutionResponse(BaseModel):
     original_response: Optional[Any]
-    cleanup_response: Optional[str]
-    template_response: Optional[str]
-    summary_response: Optional[str]
     clarifying_response: Optional[str]
     is_a_clarifying_question: Optional[bool] = False
     api_call_status_code: Optional[int]
     api_call_response_seconds: Optional[float]
-    template_execution_status_code: Optional[str]
-    template_execution_response_seconds: Optional[float]
-    cleanup_helper_status_code: Optional[str]
-    cleanup_helper_response_seconds: Optional[float]
-    summary_response_status_code: Optional[str]
-    summary_response_seconds: Optional[float]
     clarifying_question_status_code: Optional[str]
     clarifying_question_response_seconds: Optional[float]
     llm_calls: Optional[Any]

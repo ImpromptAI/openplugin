@@ -211,11 +211,7 @@ class PluginExecutionPipeline(BaseModel):
             query_params=query_params,
             body={},
             header={},
-            post_processing_cleanup_prompt=None,
             llm=preferred_approach.llm,
-            plugin_response_template_engine=None,
-            plugin_response_template=None,
-            post_call_evaluator_prompt=None,
         )
         ex = OperationExecutionImpl(params)
         response = ex.run()

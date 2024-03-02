@@ -64,7 +64,8 @@ class PluginPipeline(BaseModel):
             selected_output_modules = [
                 output_module
                 for output_module in self.plugin.output_modules
-                if output_module.finish_output_port.data_type in expected_output_types
+                if output_module.finish_output_port.data_type
+                in expected_output_types
             ]
         output_ports = await asyncio.gather(
             *(
@@ -102,14 +103,18 @@ class PluginPipeline(BaseModel):
             raise Exception("Input data type to plugin must be text.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
+        messages = [
+            Message(content=input.value, message_type=MessageType.HumanMessage)
+        ]
         pipeline_name = preferred_approach.base_strategy
         llm = preferred_approach.llm
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] pipeline={pipeline_name}, {llm}")
         # API signature selector
         if (
-            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin=self.plugin, config=config, llm=llm, use="openplugin-swagger"
@@ -163,7 +168,9 @@ class PluginPipeline(BaseModel):
         api_called = input.value.get("api_called")
         method = input.value.get("method")
         query_params = input.value.get("mapped_operation_parameters")
-        logger.info(f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}")
+        logger.info(
+            f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
+        )
         params = OperationExecutionParams(
             config=config,
             api=api_called,
@@ -171,11 +178,7 @@ class PluginPipeline(BaseModel):
             query_params=query_params,
             body={},
             header={},
-            post_processing_cleanup_prompt="",
             llm=preferred_approach.llm,
-            plugin_response_template_engine="",
-            plugin_response_template="",
-            post_call_evaluator_prompt="",
         )
         ex = OperationExecutionImpl(params)
         response = ex.run()
