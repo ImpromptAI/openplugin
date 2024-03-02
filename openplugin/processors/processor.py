@@ -18,6 +18,7 @@ class ProcessorType(Enum):
     FILE_TO_CLOUD = "file_to_cloud"
     URL_TO_HTML = "url_to_html"
     HTML_TO_TEXT = "html_to_text"
+    LLM_ENGINE = "llm_engine"
 
 
 class ProcessorImplementationType(Enum):
@@ -29,6 +30,7 @@ class ProcessorImplementationType(Enum):
     FILE_TO_CLOUD_WITH_S3 = "file_to_cloud_with_s3"
     URL_TO_HTML_WITH_REQUEST = "url_to_html_with_request"
     HTML_TO_TEXT_WITH_BS = "html_to_text_with_bs"
+    LLM_ENGINE_WITH_OPENAI = "llm_engine_with_openai"
 
 
 PROCESSOR_IMPLEMENTATION_MAP = {
@@ -40,6 +42,7 @@ PROCESSOR_IMPLEMENTATION_MAP = {
     ProcessorImplementationType.FILE_TO_CLOUD_WITH_S3: ProcessorType.FILE_TO_CLOUD,
     ProcessorImplementationType.URL_TO_HTML_WITH_REQUEST: ProcessorType.URL_TO_HTML,
     ProcessorImplementationType.HTML_TO_TEXT_WITH_BS: ProcessorType.HTML_TO_TEXT,
+    ProcessorImplementationType.LLM_ENGINE_WITH_OPENAI: ProcessorType.LLM_ENGINE,
 }
 
 
@@ -89,5 +92,7 @@ class Processor(ABC, BaseModel):
         raise InvalidOutputPortError()
 
     @abstractmethod
-    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
+    async def process_input(
+        self, input: Port, config: Optional[Config] = None
+    ) -> Port:
         raise NotImplementedError("Subclasses must implement the process method")

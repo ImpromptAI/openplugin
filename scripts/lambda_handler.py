@@ -1,4 +1,5 @@
 from mangum import Mangum
+
 from openplugin.api import create_app
 
 

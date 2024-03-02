@@ -1,50 +1,35 @@
 {
-    "schema_version": "v1",
+    "schema_version": "0.0.1",
+    "openplugin_manifest_version": "0.0.1",
     "name": "Klarna Shopping",
-    "auth": {
-        "type": "none"
-    },
     "contact_email": "shrikant@imprompt.ai",
     "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
     "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
     "legal_info_url": null,
     "logo_url": null,
     "permutate_doc_url": null,
-    "permutation_test_urls":null,
-    "input_modules":[{
-        "id": "1",
-        "name": "convert_file_to_text",
-        "description": "This will handle file coming to the plugin",
-        "initial_input_port": "filepath",
-        "finish_output_port": "text",
-        "processors": [
-            {
-                "input_port": "filepath",
-                "output_port": "text",
-                "processor_type": "file_to_text",
-                "processor_implementation_type": "file_to_text_with_langchain",
-                "metadata": {}
-            }
-        ]
-    },{
-        "id": "2",
-        "name": "convert_text_to_file",
-        "description": "This will handle text coming to the plugin",
-        "initial_input_port": "json",
-        "finish_output_port": "filepath",
-        "processors": [
-            {
-                "input_port": "text",
-                "output_port": "filepath",
-                "processor_type": "text_to_audio",
-                "processor_implementation_type": "text_to_audio_with_azure",
-                "metadata": {
-                    "azure_endpoint_api_key": "env.AZURE_API_KEY",
-                    "template": "{'input': {{json_data['inp']}} }"
+    "permutation_test_urls": null,
+    "auth": {
+        "type": "none"
+    },
+    "input_modules": [
+        {
+            "id": "1",
+            "name": "convert_file_to_text",
+            "description": "This will handle file coming to the plugin",
+            "initial_input_port": "filepath",
+            "finish_output_port": "text",
+            "processors": [
+                {
+                    "input_port": "filepath",
+                    "output_port": "text",
+                    "processor_type": "file_to_text",
+                    "processor_implementation_type": "file_to_text_with_langchain",
+                    "metadata": {}
                 }
-            }
-        ]
-    }],
+            ]
+        }
+    ],
     "plugin_operations": {
         "/public/openai/v0/products": {
             "get": {
@@ -53,62 +38,120 @@
                     "Show me some pants .",
                     "Show me winter jackets for men."
                 ],
-                "prompt_signature_helpers": [
+                "plugin_signature_helpers": [
                     "if you can't find the user's clothes size, ask the user about the size.",
                     "If any error occurs, write an apologetic message to the user"
                 ],
-                "plugin_cleanup_helpers": [],
-                "plugin_response_template": {},
-                "plugin_signature_helpers": [],
-                "post_call_evaluator": ""
+                "output_modules": [
+                    {
+                        "id": "a",
+                        "name": "Cleanup Response",
+                        "description": "This will cleanup the response and convert it to text",
+                        "initial_input_port": "json",
+                        "finish_output_port": "text",
+                        "processors": [
+                            {
+                                "input_port": "json",
+                                "output_port": "text",
+                                "processor_type": "llm_engine",
+                                "processor_implementation_type": "llm_engine_with_openai",
+                                "metadata": {
+                                    "pre_prompt": "Get only product names, prices and urls"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "b",
+                        "name": "Summary Response",
+                        "description": "This will write a summary of the response",
+                        "initial_input_port": "json",
+                        "finish_output_port": "text",
+                        "processors": [
+                            {
+                                "input_port": "json",
+                                "output_port": "text",
+                                "processor_type": "llm_engine",
+                                "processor_implementation_type": "llm_engine_with_openai",
+                                "metadata": {
+                                    "pre_prompt": "Write summary of the response"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "c",
+                        "name": "Template Response",
+                        "description": "This will convert to template response",
+                        "initial_input_port": "json",
+                        "finish_output_port": "text",
+                        "processors": [
+                            {
+                                "input_port": "json",
+                                "output_port": "text",
+                                "processor_type": "llm_engine",
+                                "processor_implementation_type": "llm_engine_with_openai",
+                                "metadata": {
+                                    "pre_prompt": "Get only product names, prices and urls",
+                                    "mime_type": "text/jsx",
+                                    "template": "<div className=\"container\">\n  <div className=\"row\">\n    {response.products.map((product, index) => (\n      <div key={index} className=\"col-md-4 mb-4\">\n        <div className=\"card h-100\">\n          <div className=\"card-header\">\n            {product.name}\n          </div>\n          <div className=\"card-body\">\n            <h5 className=\"card-title\">{product.price}</h5>\n            <a href={product.url} className=\"btn btn-primary\" target=\"_blank\" rel=\"noopener noreferrer\">Buy Now</a>\n          </div>\n        </div>\n      </div>\n    ))}\n  </div>\n</div>",
+                                    "template_prompt": "Wrap the items in a card, using the product name in the card header and the details and links in the card body. Allow for 3 products per row"
+                                }
+                            }
+                        ]
+                    }
+                ]
             }
         }
     },
-    "output_modules":[{
-        "id": "id 2",
-        "name": "Input 2",
-        "description": "This will handle text coming to the plugin",
-        "initial_input_port": "json",
-        "finish_output_port": "filepath",
-        "processors": [
-             {
-                "input_port": "json",
-                "output_port": "text",
-                "processor_type": "template_engine",
-                "processor_implementation_type": "template_engine_with_jinja",
-                "metadata": {
-                    "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
+    "output_modules": [
+        {
+            "id": "id 2",
+            "name": "file_response",
+            "description": "This will handle text coming to the plugin",
+            "initial_input_port": "json",
+            "finish_output_port": "filepath",
+            "processors": [
+                {
+                    "input_port": "json",
+                    "output_port": "text",
+                    "processor_type": "template_engine",
+                    "processor_implementation_type": "template_engine_with_jinja",
+                    "metadata": {
+                        "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
+                    }
+                },
+                {
+                    "input_port": "text",
+                    "output_port": "filepath",
+                    "processor_type": "text_to_file",
+                    "processor_implementation_type": "text_to_file_with_default",
+                    "metadata": {
+                        "file_type": "txt",
+                        "file_name": "sample_response"
+                    }
                 }
-            },
-            {
-                "input_port": "text",
-                "output_port": "filepath",
-                "processor_type": "text_to_file",
-                "processor_implementation_type": "text_to_file_with_default",
-                "metadata": {
-                    "file_type": "txt",
-                    "file_name":"sample_response"
+            ]
+        },
+        {
+            "id": "7e38ca43-1832-4173-b000-d1ef1f6bf475",
+            "name": "cleanup_response",
+            "description": "This module will convert the output to text",
+            "initial_input_port": "json",
+            "finish_output_port": "text",
+            "processors": [
+                {
+                    "input_port": "json",
+                    "output_port": "text",
+                    "processor_type": "template_engine",
+                    "processor_implementation_type": "template_engine_with_jinja",
+                    "metadata": {
+                        "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
+                    }
                 }
-            }
-        ]
-    },{
-        "id": "id 3",
-        "name": "Input 3",
-        "description": "This will handle text coming to the plugin",
-        "initial_input_port": "json",
-        "finish_output_port": "text",
-        "processors": [
-             {
-                "input_port": "json",
-                "output_port": "text",
-                "processor_type": "template_engine",
-                "processor_implementation_type": "template_engine_with_jinja",
-                "metadata": {
-                    "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
-                }
-            }
-        ]
-    }],
+            ]
+        }
+    ],
     "preferred_approaches": [
         {
             "base_strategy": "oai functions",

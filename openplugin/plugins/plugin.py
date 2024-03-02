@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 import requests
 import yaml
@@ -11,14 +11,14 @@ from .models import PreferredApproach
 
 
 class PluginAuth(BaseModel):
-    type: Optional[str]
-    authorization_type: Optional[str]
-    verification_tokens: Optional[Dict]
-    scope: Optional[str]
-    client_url: Optional[str]
-    authorization_url: Optional[str]
-    authorization_content_type: Optional[str]
-    token_validation_url: Optional[str]
+    type: Optional[str] = None
+    authorization_type: Optional[str] = None
+    verification_tokens: Optional[Dict] = None
+    scope: Optional[str] = None
+    client_url: Optional[str] = None
+    authorization_url: Optional[str] = None
+    authorization_content_type: Optional[str] = None
+    token_validation_url: Optional[str] = None
 
 
 class PluginOperation(BaseModel):
@@ -29,6 +29,8 @@ class PluginOperation(BaseModel):
     human_usage_examples: Optional[List[str]] = []
     plugin_signature_helpers: Optional[List[str]] = []
     plugin_cleanup_helpers: Optional[List[str]] = []
+    post_call_evaluator: Optional[str] = None
+    plugin_response_template: Optional[Dict[Any, Any]] = None
 
 
 class Plugin(BaseModel):
@@ -36,17 +38,17 @@ class Plugin(BaseModel):
     Represents a plugin configuration.
     """
 
+    schema_version: str
     manifest_url: str
-    schema_version: Optional[str]
-    name: Optional[str]
-    description: Optional[str]
-    openapi_doc_url: Optional[str]
-    input_modules: List[FlowPath]
-    output_modules: List[FlowPath]
-    auth: Optional[PluginAuth]
-    logo_url: Optional[str]
-    contact_email: Optional[str]
-    legal_info_url: Optional[str]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    openapi_doc_url: Optional[str] = None
+    input_modules: Optional[List[FlowPath]] = []
+    output_modules: Optional[List[FlowPath]] = []
+    auth: Optional[PluginAuth] = None
+    logo_url: Optional[str] = None
+    contact_email: Optional[str] = None
+    legal_info_url: Optional[str] = None
     api_endpoints: Optional[Set[str]] = None
     preferred_approaches: List[PreferredApproach] = []
     # first str is the path, second str is the method
@@ -83,6 +85,10 @@ class Plugin(BaseModel):
         """This is a validator that sets the field values based on the manifest_url"""
         openapi_doc_url = str(values.get("openapi_doc_url", ""))
         openapi_doc_json = requests.get(openapi_doc_url).json()
+        if values.get("schema_version") is not None and isinstance(
+            values.get("schema_version"), int
+        ):
+            values["schema_version"] = str(values.get("schema_version"))
         if openapi_doc_json:
             server_url = openapi_doc_json.get("servers")[0].get("url")
             api_endpoints: set = set()
@@ -173,3 +179,51 @@ class Plugin(BaseModel):
 
     def get_output_port_types(self):
         return [output.get_output_port_type() for output in self.output_modules]
+
+    def get_get_post_call_evaluator(
+        self, api_endpoint: str, method: str
+    ) -> Optional[str]:
+        if self.plugin_operations:
+            for key in self.plugin_operations.keys():
+                if key.lower() == api_endpoint.lower() or api_endpoint.lower().endswith(
+                    key.lower()
+                ):
+                    for method_key in self.plugin_operations[key].keys():
+                        if method_key.lower() == method.lower():
+                            return self.plugin_operations[key][
+                                method_key
+                            ].post_call_evaluator
+
+        return None
+
+    def get_post_processing_cleanup_prompts(
+        self, api_endpoint: str, method: str
+    ) -> Optional[List[str]]:
+        if self.plugin_operations:
+            for key in self.plugin_operations.keys():
+                if key.lower() == api_endpoint.lower() or api_endpoint.lower().endswith(
+                    key.lower()
+                ):
+                    for method_key in self.plugin_operations[key].keys():
+                        if method_key.lower() == method.lower():
+                            return self.plugin_operations[key][
+                                method_key
+                            ].plugin_cleanup_helpers
+
+        return []
+
+    def get_plugin_response_template(
+        self, api_endpoint: str, method: str
+    ) -> Optional[Dict[Any, Any]]:
+        if self.plugin_operations:
+            for key in self.plugin_operations.keys():
+                if key.lower() == api_endpoint.lower() or api_endpoint.lower().endswith(
+                    key.lower()
+                ):
+                    for method_key in self.plugin_operations[key].keys():
+                        if method_key.lower() == method.lower():
+                            return self.plugin_operations[key][
+                                method_key
+                            ].plugin_response_template
+
+        return {}

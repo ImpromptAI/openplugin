@@ -77,6 +77,11 @@ def get_processor_from_enum(
         return get_html_to_text(
             implementation_type=implementation_type, metadata=metadata
         )
+    elif processor_type == ProcessorType.LLM_ENGINE:
+        from .llm_engine.llm_engine_factory import get_llm_engine
 
+        return get_llm_engine(
+            implementation_type=implementation_type, metadata=metadata
+        )
     else:
         raise ValueError("Invalid processor type: {}".format(processor_type))

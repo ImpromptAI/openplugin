@@ -125,6 +125,6 @@ class OperationExecutionResponse(BaseModel):
 
 class PreferredApproach(BaseModel):
     base_strategy: str
-    name: str
+    name: Optional[str] = None
     pre_prompt: Optional[str]
     llm: Optional[LLM]

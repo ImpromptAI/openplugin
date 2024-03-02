@@ -8,6 +8,7 @@ from openplugin.api import (
     info,
     operation_execution,
     operation_signature_builder,
+    plugin_execution_pipeline,
     plugin_pipeline,
     plugin_selector,
 )
@@ -35,6 +36,7 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
     router.include_router(operation_execution.router)
     router.include_router(plugin_pipeline.router)
     router.include_router(info.router)
+    router.include_router(plugin_execution_pipeline.router)
 
     app.include_router(router, prefix=API_PREFIX)
 

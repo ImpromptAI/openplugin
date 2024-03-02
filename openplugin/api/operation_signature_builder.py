@@ -4,7 +4,7 @@ from typing import Annotated, List, Optional, Union
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 from openplugin.api import auth
 from openplugin.plugins.models import LLM, Config, Message
@@ -25,11 +25,18 @@ router = APIRouter(
 
 class OperationSignatureParam(BaseModel):
     messages: List[Message]
-    plugin: Plugin
+    # plugin: Plugin
+    plugin_manifest_url: str
     config: Config
     llm: LLM
     selected_operation: Optional[str] = None
     pre_prompts: Optional[List[Message]] = None
+
+    @root_validator(pre=True)
+    def _set_fields(cls, values: dict) -> dict:
+        """This is a validator that sets the field values based on the manifest_url"""
+        values["plugin_manifest_url"] = values.get("plugin", {}).get("manifest_url")
+        return values
 
 
 # Define a POST endpoint for /api-signature-selector
@@ -37,17 +44,17 @@ class OperationSignatureParam(BaseModel):
 def operation_signature_builder(
     input: OperationSignatureParam,
     pipeline_name: Annotated[
-        Union[str, None], Query(description="pipeline_nam")
+        Union[str, None], Query(description="pipeline_name")
     ] = None,
     api_key: APIKey = Depends(auth.get_api_key),
 ):
     # Based on the provider specified in tool_selector_config, create the appropriate
     # API signature selector
+    plugin = Plugin.build_from_manifest_url(input.plugin_manifest_url)
     try:
-        # TODO:Find a way to detect best pipeline for a prompt
         if pipeline_name is None:
             openai_selector = OpenAIOperationSignatureBuilder(
-                input.plugin,
+                plugin,
                 input.config,
                 input.llm,
                 input.pre_prompts,
@@ -59,7 +66,7 @@ def operation_signature_builder(
             or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
-                input.plugin,
+                plugin,
                 input.config,
                 input.llm,
                 input.pre_prompts,
@@ -69,7 +76,7 @@ def operation_signature_builder(
             return imprompt_selector.run(input.messages)
         elif pipeline_name.lower() == "LLM Passthrough (Stuffed Swagger)".lower():
             imprompt_selector = ImpromptOperationSignatureBuilder(
-                input.plugin,
+                plugin,
                 input.config,
                 input.llm,
                 input.pre_prompts,
@@ -79,7 +86,7 @@ def operation_signature_builder(
             return imprompt_selector.run(input.messages)
         elif pipeline_name.lower() == "LLM Passthrough (Bare Swagger)".lower():
             imprompt_selector = ImpromptOperationSignatureBuilder(
-                input.plugin,
+                plugin,
                 input.config,
                 input.llm,
                 input.pre_prompts,
@@ -92,7 +99,7 @@ def operation_signature_builder(
             == OpenAIOperationSignatureBuilder.get_pipeline_name().lower()
         ):
             openai_selector = OpenAIOperationSignatureBuilder(
-                input.plugin,
+                plugin,
                 input.config,
                 input.llm,
                 input.pre_prompts,

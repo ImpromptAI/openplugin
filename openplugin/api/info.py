@@ -1,5 +1,6 @@
-import toml
 import datetime
+
+import toml
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -19,13 +20,12 @@ def get_project_version():
 def info():
     # time taken to run this function
     start = datetime.datetime.now()
-    response = JSONResponse(
+    JSONResponse(
         status_code=200,
         content={"message": "OpenPlugin API"},
     )
     end = datetime.datetime.now()
     elapsed_time = end - start
-    import toml
 
     return JSONResponse(
         status_code=200,

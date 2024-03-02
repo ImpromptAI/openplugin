@@ -1,11 +1,17 @@
 # inspired by this: https://github.com/gangtao/pyflow/blob/master/src/fbp/port.py
-
-import json
 import uuid
+import json
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, DirectoryPath, FilePath, HttpUrl
+from pydantic import (
+    BaseModel,
+    DirectoryPath,
+    Field,
+    FilePath,
+    HttpUrl,
+    field_serializer,
+)
 
 
 # All Supported Types
@@ -66,16 +72,35 @@ class PortValueError(Exception):
         super().__init__(self.message)
 
 
+class PortMetadata(Enum):
+    PROCESSING_TIME_SECONDS = "processing_time"
+    STATUS_CODE = "status_code"
+    TEMPLATE_ENGINE = "template_engine"
+    TEMPLATE_MIME_TYPE = "template_mime_type"
+
+
 class Port(BaseModel):
     name: str = str(uuid.uuid4())
     data_type: PortType = PortType.TEXT
-    type_object: Optional[Any] = None
+    type_object: Any = Field(default=None, alias="type_object", exclude=True)
     value: Optional[Any] = None
+    metadata: Optional[Dict[PortMetadata, Any]] = {}
 
     class Config:
         json_encoders = {
-            PortType: lambda v: v.value.__name__,
+            PortType: lambda v: str(v.value),
         }
+
+    @field_serializer("data_type")
+    def serialize_data_type(self, data_type: PortType, _info):
+        return data_type.name
+
+    @field_serializer("metadata")
+    def serialize_metadata(self, metadata: Dict[PortMetadata, Any], _info):
+        values = {}
+        for key, value in metadata.items():
+            values[key.name.lower()] = value
+        return values
 
     @classmethod
     def supported_types(cls):
