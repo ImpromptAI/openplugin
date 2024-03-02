@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from . import time_taken
-from .models import Config, PreferredApproach
-from .plugin import PluginBuilder
+from .models import Config
+from .plugin import PluginBuilder, PreferredApproach
 from .plugin_pipeline import PluginPipeline
 from .port import Port, PortType
 

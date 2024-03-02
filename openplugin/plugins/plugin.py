@@ -7,7 +7,14 @@ from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
 
 from openplugin.plugins.flow_path import FlowPath
 
-from .models import PreferredApproach
+from .models import LLM
+
+
+class PreferredApproach(BaseModel):
+    base_strategy: str
+    name: Optional[str] = None
+    pre_prompt: Optional[str]
+    llm: Optional[LLM]
 
 
 class PluginAuth(BaseModel):

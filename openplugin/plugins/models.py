@@ -62,10 +62,3 @@ class Message(BaseModel):
             return {"role": "assistant", "content": self.content}
         elif self.message_type == MessageType.SystemMessage:
             return {"role": "system", "content": self.content}
-
-
-class PreferredApproach(BaseModel):
-    base_strategy: str
-    name: Optional[str] = None
-    pre_prompt: Optional[str]
-    llm: Optional[LLM]

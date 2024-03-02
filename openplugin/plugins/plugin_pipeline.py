@@ -12,7 +12,6 @@ from .models import (
     Config,
     Message,
     MessageType,
-    PreferredApproach,
 )
 from .execution.operation_execution_impl import OperationExecutionParams
 from .operations.operation_signature_builder_with_imprompt import (
@@ -21,7 +20,7 @@ from .operations.operation_signature_builder_with_imprompt import (
 from .operations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
-from .plugin import Plugin
+from .plugin import Plugin, PreferredApproach
 from .port import Port, PortType, PortValueError
 
 
