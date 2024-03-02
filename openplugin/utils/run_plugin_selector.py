@@ -1,18 +1,18 @@
 import json
 
-from openplugin.plugins.llms import LLM, Config
-from openplugin.plugins.messages import Message
-from openplugin.plugins.operations.implementations.operation_signature_builder_with_imprompt import (
+from openplugin.core.llms import LLM, Config
+from openplugin.core.messages import Message
+from openplugin.core.operations.implementations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from openplugin.plugins.operations.implementations.operation_signature_builder_with_openai import (
+from openplugin.core.operations.implementations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
-from openplugin.plugins.plugin import Plugin
-from openplugin.plugins.selectors.implementations.plugin_selector_with_imprompt import (
+from openplugin.core.plugin import Plugin
+from openplugin.core.selectors.implementations.plugin_selector_with_imprompt import (
     ImpromptPluginSelector,
 )
-from openplugin.plugins.selectors.implementations.plugin_selector_with_openai import (
+from openplugin.core.selectors.implementations.plugin_selector_with_openai import (
     OpenAIPluginSelector,
 )
 

@@ -7,15 +7,15 @@ from fastapi.security.api_key import APIKey
 from pydantic import BaseModel, root_validator
 
 from openplugin.api import auth
-from openplugin.plugins.llms import LLM, Config
-from openplugin.plugins.messages import Message
-from openplugin.plugins.operations.implementations.operation_signature_builder_with_imprompt import (
+from openplugin.core.llms import LLM, Config
+from openplugin.core.messages import Message
+from openplugin.core.operations.implementations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from openplugin.plugins.operations.implementations.operation_signature_builder_with_openai import (
+from openplugin.core.operations.implementations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
-from openplugin.plugins.plugin import PluginBuilder
+from openplugin.core.plugin import PluginBuilder
 
 # Create a FastAPI router instance
 router = APIRouter(

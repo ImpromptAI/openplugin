@@ -5,7 +5,7 @@ import requests
 import yaml
 from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
 
-from openplugin.plugins.flow_path import FlowPath
+from openplugin.core.flow_path import FlowPath
 
 from .llms import LLM
 

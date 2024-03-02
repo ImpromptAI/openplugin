@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from loguru import logger
 from pydantic import BaseModel
 
-from openplugin.plugins.messages import Message, MessageType
+from openplugin.core.messages import Message, MessageType
 
 from . import time_taken
 from .execution.implementations.operation_execution_with_imprompt import (

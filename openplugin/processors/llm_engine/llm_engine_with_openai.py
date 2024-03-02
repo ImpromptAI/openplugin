@@ -3,8 +3,8 @@ from typing import Optional
 from litellm import completion
 from pydantic import Field
 
-from openplugin.plugins.llms import Config
-from openplugin.plugins.port import Port, PortType, PortValueError
+from openplugin.core.llms import Config
+from openplugin.core.port import Port, PortType, PortValueError
 from openplugin.processors.llm_engine.llm_engine import LLMEngine
 
 
@@ -12,7 +12,9 @@ class LLMEngineWithOpenAI(LLMEngine):
     openai_api_key: str = Field()
     model_name: str = "gpt-3.5-turbo"
 
-    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
+    async def process_input(
+        self, input: Port, config: Optional[Config] = None
+    ) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         messages = [{"content": input.value, "role": "user"}]

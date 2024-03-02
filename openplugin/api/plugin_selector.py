@@ -5,13 +5,13 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.api import auth
-from openplugin.plugins.llms import LLM, Config
-from openplugin.plugins.messages import Message
-from openplugin.plugins.plugin import Plugin
-from openplugin.plugins.selectors.implementations.plugin_selector_with_imprompt import (
+from openplugin.core.llms import LLM, Config
+from openplugin.core.messages import Message
+from openplugin.core.plugin import Plugin
+from openplugin.core.selectors.implementations.plugin_selector_with_imprompt import (
     ImpromptPluginSelector,
 )
-from openplugin.plugins.selectors.implementations.plugin_selector_with_openai import (
+from openplugin.core.selectors.implementations.plugin_selector_with_openai import (
     OpenAIPluginSelector,
 )
 

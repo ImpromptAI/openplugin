@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import requests
 
-from openplugin.plugins.plugin import Plugin, PluginOperation
+from openplugin.core.plugin import Plugin, PluginOperation
 
 
 # Function to retrieve OpenPlugin manifest from an OpenAI manifest URL

@@ -7,8 +7,8 @@ import azure.cognitiveservices.speech as speechsdk
 from dotenv import load_dotenv
 from pydantic import Field, validator
 
-from openplugin.plugins.llms import Config
-from openplugin.plugins.port import Port, PortType, PortValueError
+from openplugin.core.llms import Config
+from openplugin.core.port import Port, PortType, PortValueError
 from openplugin.processors.text_to_audio.text_to_audio import TextToAudio
 
 load_dotenv()
@@ -29,7 +29,9 @@ class TextToAudioWithAzure(TextToAudio):
             v = os.environ.get(v.split("env.")[1])
         return v
 
-    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
+    async def process_input(
+        self, input: Port, config: Optional[Config] = None
+    ) -> Port:
         if config and config.azure_api_key:
             self.azure_api_key = config.azure_api_key
         if input.value is None:

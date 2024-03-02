@@ -4,10 +4,10 @@ import time
 from typing import List, Optional
 from urllib.parse import parse_qs, urlparse
 
-from openplugin.plugins.llms import LLM, Config
-from openplugin.plugins.messages import Message
-from openplugin.plugins.plugin import Plugin
-from openplugin.plugins.plugin_detected import (
+from openplugin.core.llms import LLM, Config
+from openplugin.core.messages import Message
+from openplugin.core.plugin import Plugin
+from openplugin.core.plugin_detected import (
     PluginDetectedParams,
     SelectedApiSignatureResponse,
 )
@@ -108,7 +108,10 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         urls = _extract_urls(response.get("response"))
         for url in urls:
             formatted_url = url.split("?")[0].strip()
-            if self.plugin.api_endpoints and formatted_url in self.plugin.api_endpoints:
+            if (
+                self.plugin.api_endpoints
+                and formatted_url in self.plugin.api_endpoints
+            ):
                 api_called = formatted_url
                 query_dict = parse_qs(urlparse(url).query)
                 mapped_operation_parameters = {

@@ -2,8 +2,8 @@ from typing import Optional
 
 import requests
 
-from openplugin.plugins.llms import Config
-from openplugin.plugins.port import Port, PortType, PortValueError
+from openplugin.core.llms import Config
+from openplugin.core.port import Port, PortType, PortValueError
 
 from .url_to_html import UrlToHtml
 

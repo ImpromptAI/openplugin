@@ -6,7 +6,7 @@ from langchain.agents import AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 
-from openplugin.plugins.models import LLM
+from openplugin.core.models import LLM
 
 
 def get_agent_type(pipeline_name: str) -> AgentType:

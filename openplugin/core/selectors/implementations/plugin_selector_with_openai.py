@@ -1,11 +1,11 @@
 import time
 from typing import List, Optional
 
-from openplugin.plugins.functions import Functions
-from openplugin.plugins.llms import LLM, Config
-from openplugin.plugins.messages import Message
-from openplugin.plugins.plugin import Plugin
-from openplugin.plugins.plugin_detected import (
+from openplugin.core.functions import Functions
+from openplugin.core.llms import LLM, Config
+from openplugin.core.messages import Message
+from openplugin.core.plugin import Plugin
+from openplugin.core.plugin_detected import (
     PluginDetected,
     SelectedPluginsResponse,
 )
