@@ -13,7 +13,7 @@ from openplugin.plugins.plugin_detected import (
     SelectedApiSignatureResponse,
 )
 
-from .operation_signature_builder import (
+from ..operation_signature_builder import (
     OperationSignatureBuilder,
 )
 

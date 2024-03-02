@@ -7,7 +7,7 @@ from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponent
 
 from openplugin.utils.llm_manager_handler import get_llm_response_from_messages
 
-from .operation_execution import (
+from ..operation_execution import (
     OperationExecution,
     OperationExecutionParams,
     OperationExecutionResponse,
@@ -94,7 +94,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         raise Exception("{}".format(e))
 
 
-class OperationExecutionImpl(OperationExecution):
+class OperationExecutionWithImprompt(OperationExecution):
     def __init__(self, params: OperationExecutionParams):
         self.config = params.config
         super().__init__(params)

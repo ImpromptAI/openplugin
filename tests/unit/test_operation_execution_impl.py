@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 
-from openplugin.plugins.execution.operation_execution_impl import (
-    OperationExecutionImpl,
+from openplugin.plugins.execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
+    OperationExecutionWithImprompt,
 )
 
 load_dotenv()
@@ -18,7 +18,7 @@ def test_operation_execution_impl():
         post_processing_cleanup_prompt="Write a summary of the response.",
         llm=None,
     )
-    response = OperationExecutionImpl(params=params).run()
+    response = OperationExecutionWithImprompt(params=params).run()
     assert response is not None
     assert response.response is not None
     assert response.post_cleanup_text is not None

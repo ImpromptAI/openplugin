@@ -7,15 +7,15 @@ from pydantic import BaseModel
 from openplugin.plugins.messages import Message, MessageType
 
 from . import time_taken
-from .execution.operation_execution_impl import (
-    OperationExecutionImpl,
+from .execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
+    OperationExecutionWithImprompt,
 )
 from .llms import Config
-from .operations.operation_signature_builder_with_imprompt import (
+from .operations.implementations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from .operations.operation_signature_builder_with_openai import (
+from .operations.implementations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
 from .plugin import Plugin, PreferredApproach
@@ -170,7 +170,7 @@ class PluginPipeline(BaseModel):
             header={},
             llm=preferred_approach.llm,
         )
-        ex = OperationExecutionImpl(params)
+        ex = OperationExecutionWithImprompt(params)
         response = ex.run()
         port = Port(data_type=PortType.JSON, value=response.original_response)
         logger.info(f"\n[PLUGIN_EXECUTION_RESPONSE] {port.value}")

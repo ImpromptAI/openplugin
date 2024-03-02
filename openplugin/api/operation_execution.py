@@ -3,10 +3,10 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.api import auth
-from openplugin.plugins.execution.operation_execution_impl import (
+from openplugin.plugins.execution.implementations.operation_execution_with_imprompt import (
     ExecutionException,
-    OperationExecutionImpl,
     OperationExecutionParams,
+    OperationExecutionWithImprompt,
 )
 
 # Create a FastAPI router instance
@@ -21,7 +21,7 @@ def operation_execution(
     params: OperationExecutionParams, api_key: APIKey = Depends(auth.get_api_key)
 ):
     try:
-        ex = OperationExecutionImpl(params)
+        ex = OperationExecutionWithImprompt(params)
         response = ex.run()
         return response
     except ExecutionException as e:

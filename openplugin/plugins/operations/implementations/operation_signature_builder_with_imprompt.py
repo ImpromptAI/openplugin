@@ -13,7 +13,7 @@ from openplugin.plugins.plugin_detected import (
 )
 from openplugin.utils.llm_manager_handler import get_llm_response_from_messages
 
-from .operation_signature_builder import (
+from ..operation_signature_builder import (
     OperationSignatureBuilder,
 )
 

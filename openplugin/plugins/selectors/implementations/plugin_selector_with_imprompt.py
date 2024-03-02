@@ -13,7 +13,7 @@ from openplugin.plugins.plugin_detected import (
     SelectedPluginsResponse,
 )
 
-from .plugin_selector import PluginSelector
+from ..plugin_selector import PluginSelector
 
 plugin_prompt = """
 {name_for_model}: Call this tool to get the OpenAPI spec (and usage guide) for interacting with the {name_for_model} API. 
@@ -122,9 +122,13 @@ class ImpromptPluginSelector(PluginSelector):
                             val = val.split("-")[0].strip()
                         if "," in val:
                             for v in val.split(","):
-                                found_plugins.append(self.get_plugin_by_name(v.strip()))
+                                found_plugins.append(
+                                    self.get_plugin_by_name(v.strip())
+                                )
                         else:
-                            found_plugins.append(self.get_plugin_by_name(val.strip()))
+                            found_plugins.append(
+                                self.get_plugin_by_name(val.strip())
+                            )
 
         detected_plugins = []
         for plugin in found_plugins:

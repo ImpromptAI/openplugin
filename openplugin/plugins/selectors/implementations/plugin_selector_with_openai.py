@@ -11,7 +11,7 @@ from openplugin.plugins.plugin_detected import (
 )
 from openplugin.utils.openai_helpers import chat_completion_with_backoff
 
-from .plugin_selector import PluginSelector
+from ..plugin_selector import PluginSelector
 
 
 class OpenAIPluginSelector(PluginSelector):

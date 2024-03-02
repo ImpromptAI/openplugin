@@ -9,10 +9,10 @@ from pydantic import BaseModel, root_validator
 from openplugin.api import auth
 from openplugin.plugins.llms import LLM, Config
 from openplugin.plugins.messages import Message
-from openplugin.plugins.operations.operation_signature_builder_with_imprompt import (
+from openplugin.plugins.operations.implementations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from openplugin.plugins.operations.operation_signature_builder_with_openai import (
+from openplugin.plugins.operations.implementations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )
 from openplugin.plugins.plugin import PluginBuilder
@@ -63,8 +63,10 @@ def operation_signature_builder(
             )
             return openai_selector.run(input.messages)
         if (
-            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin,
