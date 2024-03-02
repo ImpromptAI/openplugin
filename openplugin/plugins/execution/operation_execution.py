@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from pydantic import BaseModel
-from typing import Optional, Any
+from typing import Any, Optional
 
-from openplugin.plugins.models import Config, LLM
+from pydantic import BaseModel
+
+from openplugin.plugins.models import LLM, Config
 
 
 class OperationExecutionResponse(BaseModel):

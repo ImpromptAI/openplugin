@@ -6,8 +6,6 @@ from openplugin.api import auth
 from openplugin.plugins.execution.operation_execution_impl import (
     ExecutionException,
     OperationExecutionImpl,
-)
-from openplugin.plugins.execution.operation_execution_impl import (
     OperationExecutionParams,
 )
 
