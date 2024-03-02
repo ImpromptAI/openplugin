@@ -1,6 +1,7 @@
 import json
 
-from openplugin.plugins.models import LLM, Config, Message
+from openplugin.plugins.models import LLM, Config
+from openplugin.plugins.messages import Message
 from openplugin.plugins.operations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )

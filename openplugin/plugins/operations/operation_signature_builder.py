@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from openplugin.plugins.models import LLM, Config, Message
+from openplugin.plugins.models import LLM, Config
 from openplugin.plugins.plugin import Plugin
+from openplugin.plugins.messages import Message
 from openplugin.plugins.plugin_detected import SelectedApiSignatureResponse
 
 

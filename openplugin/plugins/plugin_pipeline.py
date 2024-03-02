@@ -8,11 +8,8 @@ from . import time_taken
 from .execution.operation_execution_impl import (
     OperationExecutionImpl,
 )
-from .models import (
-    Config,
-    Message,
-    MessageType,
-)
+from .models import Config
+from openplugin.plugins.messages import Message, MessageType
 from .execution.operation_execution_impl import OperationExecutionParams
 from .operations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
