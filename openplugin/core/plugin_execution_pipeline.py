@@ -25,10 +25,6 @@ async def run_module(output_module, flow_port):
     logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
     output_port = await output_module.run(flow_port)
     output_port.name = output_module.name
-    output_port.metadata = {
-        PortMetadata.PROCESSING_TIME_SECONDS: 0,
-        PortMetadata.STATUS_CODE: 200,
-    }
     logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
     return output_port
 
@@ -54,7 +50,7 @@ class PluginExecutionPipeline(BaseModel):
         input: Port,
         config: Config,
         preferred_approach: PreferredApproach,
-        output_module_ids: Optional[List[str]] = None,
+        output_module_names: Optional[List[str]] = None,
     ) -> PluginExecutionResponse:
         flow_port = input
         flow_port.name = "default_no_change_input"
@@ -84,10 +80,17 @@ class PluginExecutionPipeline(BaseModel):
         if api_execution_step.clarifying_response is None:
             flow_port = api_execution_step.original_response
             response_output_ports: List[Port] = []
-            if output_module_ids and self.plugin.output_modules:
+
+            api_called = api_signature_port.value.get("api_called")
+            method = api_signature_port.value.get("method")
+
+            supported_output_modules = self.plugin.get_supported_output_modules(
+                operation=api_called, method=method
+            )
+            if output_module_names and supported_output_modules:
                 selected_output_modules = []
-                for output_module in self.plugin.output_modules:
-                    if output_module.id in output_module_ids:
+                for output_module in supported_output_modules:
+                    if output_module.name in output_module_names:
                         selected_output_modules.append(output_module)
                 o_ports = await asyncio.gather(
                     *(

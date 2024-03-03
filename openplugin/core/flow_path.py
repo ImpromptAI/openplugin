@@ -1,3 +1,4 @@
+import time
 from typing import Any, Dict, List
 from uuid import uuid4
 
@@ -11,7 +12,7 @@ from openplugin.processors import (
 )
 
 from .helper import time_taken
-from .port import PORT_TYPE_MAPPING, Port, PortType
+from .port import PORT_TYPE_MAPPING, Port, PortMetadata, PortType
 
 
 def convert_str_to_port(v):
@@ -72,8 +73,15 @@ class FlowPath(BaseModel):
 
     async def run(self, input: Port) -> Port:
         port = input
+        start_time = time.time()
         for processor in self.processors:
             port = await processor.run_processor(port)
+        end_time = time.time()
+        port.metadata = {
+            PortMetadata.PROCESSING_TIME_SECONDS: round((end_time - start_time), 4),
+            PortMetadata.STATUS_CODE: 200,
+        }
+
         return port
 
     def get_output_port_type(self) -> PortType:

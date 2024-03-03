@@ -24,6 +24,7 @@ class ProcessorImplementationType(Enum):
     TEXT_TO_AUDIO_WITH_AZURE = "text_to_audio_with_azure"
     AUDIO_TO_TEXT_WITH_WHISPER = "audio_to_text_with_whisper"
     TEMPLATE_ENGINE_WITH_JINJA = "template_engine_with_jinja"
+    TEMPLATE_ENGINE_WITH_JSX = "template_engine_with_jsx"
     TEXT_TO_FILE_WITH_DEFAULT = "text_to_file_with_default"
     FILE_TO_TEXT_WITH_LANGCHAIN = "file_to_text_with_langchain"
     FILE_TO_CLOUD_WITH_S3 = "file_to_cloud_with_s3"
@@ -36,6 +37,7 @@ PROCESSOR_IMPLEMENTATION_MAP = {
     ProcessorImplementationType.TEXT_TO_AUDIO_WITH_AZURE: ProcessorType.TEXT_TO_AUDIO,
     ProcessorImplementationType.AUDIO_TO_TEXT_WITH_WHISPER: ProcessorType.AUDIO_TO_TEXT,
     ProcessorImplementationType.TEMPLATE_ENGINE_WITH_JINJA: ProcessorType.TEMPLATE_ENGINE,  # noqa: E501
+    ProcessorImplementationType.TEMPLATE_ENGINE_WITH_JSX: ProcessorType.TEMPLATE_ENGINE,
     ProcessorImplementationType.TEXT_TO_FILE_WITH_DEFAULT: ProcessorType.TEXT_TO_FILE,  # noqa: E501
     ProcessorImplementationType.FILE_TO_TEXT_WITH_LANGCHAIN: ProcessorType.FILE_TO_TEXT,  # noqa: E501
     ProcessorImplementationType.FILE_TO_CLOUD_WITH_S3: ProcessorType.FILE_TO_CLOUD,

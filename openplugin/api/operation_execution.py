@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.api import auth
-from openplugin.core.execution.implementations.operation_execution_with_imprompt import (
+from openplugin.core import (
     ExecutionException,
     OperationExecutionParams,
     OperationExecutionWithImprompt,

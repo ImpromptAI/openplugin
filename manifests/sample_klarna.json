@@ -44,26 +44,7 @@
                 ],
                 "output_modules": [
                     {
-                        "id": "a",
-                        "name": "Cleanup Response",
-                        "description": "This will cleanup the response and convert it to text",
-                        "initial_input_port": "json",
-                        "finish_output_port": "text",
-                        "processors": [
-                            {
-                                "input_port": "json",
-                                "output_port": "text",
-                                "processor_type": "llm_engine",
-                                "processor_implementation_type": "llm_engine_with_openai",
-                                "metadata": {
-                                    "pre_prompt": "Get only product names, prices and urls"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "id": "b",
-                        "name": "Summary Response",
+                        "name": "summary_response",
                         "description": "This will write a summary of the response",
                         "initial_input_port": "json",
                         "finish_output_port": "text",
@@ -80,8 +61,7 @@
                         ]
                     },
                     {
-                        "id": "c",
-                        "name": "Template Response",
+                        "name": "template_response",
                         "description": "This will convert to template response",
                         "initial_input_port": "json",
                         "finish_output_port": "text",
@@ -89,8 +69,8 @@
                             {
                                 "input_port": "json",
                                 "output_port": "text",
-                                "processor_type": "llm_engine",
-                                "processor_implementation_type": "llm_engine_with_openai",
+                                "processor_type": "template_engine",
+                                "processor_implementation_type": "template_engine_with_jsx",
                                 "metadata": {
                                     "pre_prompt": "Get only product names, prices and urls",
                                     "mime_type": "text/jsx",
@@ -106,36 +86,7 @@
     },
     "output_modules": [
         {
-            "id": "id 2",
-            "name": "file_response",
-            "description": "This will handle text coming to the plugin",
-            "initial_input_port": "json",
-            "finish_output_port": "filepath",
-            "processors": [
-                {
-                    "input_port": "json",
-                    "output_port": "text",
-                    "processor_type": "template_engine",
-                    "processor_implementation_type": "template_engine_with_jinja",
-                    "metadata": {
-                        "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
-                    }
-                },
-                {
-                    "input_port": "text",
-                    "output_port": "filepath",
-                    "processor_type": "text_to_file",
-                    "processor_implementation_type": "text_to_file_with_default",
-                    "metadata": {
-                        "file_type": "txt",
-                        "file_name": "sample_response"
-                    }
-                }
-            ]
-        },
-        {
-            "id": "7e38ca43-1832-4173-b000-d1ef1f6bf475",
-            "name": "cleanup_response",
+            "name": "default_cleanup_response",
             "description": "This module will convert the output to text",
             "initial_input_port": "json",
             "finish_output_port": "text",

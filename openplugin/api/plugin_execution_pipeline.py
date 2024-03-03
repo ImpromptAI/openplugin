@@ -28,7 +28,7 @@ async def plugin_execution_pipeline(
     openplugin_manifest_url: str = Body(...),
     prompt: str = Body(...),
     config: Optional[Config] = Body(None),
-    output_module_ids: Optional[List[str]] = None,
+    output_module_names: Optional[List[str]] = None,
     api_key: APIKey = Depends(auth.get_api_key),
 ) -> JSONResponse:
     try:
@@ -46,7 +46,7 @@ async def plugin_execution_pipeline(
             input=input,
             config=config,
             preferred_approach=preferred_approach,
-            output_module_ids=output_module_ids,
+            output_module_names=output_module_names,
         )
         json_data = response_obj.model_dump(
             exclude={"output_ports__type_object", "output_ports__value"}

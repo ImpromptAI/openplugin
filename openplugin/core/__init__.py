@@ -1,3 +1,8 @@
+from .execution.implementations.operation_execution_with_imprompt import (
+    ExecutionException,
+    OperationExecutionParams,
+    OperationExecutionWithImprompt,
+)
 from .functions import Functions
 from .llms import LLM, Config
 from .messages import Message, MessageType
@@ -24,4 +29,7 @@ __all__ = (
     "PluginDetectedParams",
     "SelectedPluginsResponse",
     "SelectedApiSignatureResponse",
+    "OperationExecutionWithImprompt",
+    "OperationExecutionParams",
+    "ExecutionException",
 )

@@ -64,6 +64,6 @@ async def run_prompt_on_plugin(
         input=input,
         config=config,
         preferred_approach=preferred_approach,
-        output_module_ids=[],
+        output_module_names=[],
     )
     return execution_response.default_output

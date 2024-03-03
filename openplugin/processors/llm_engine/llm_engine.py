@@ -15,8 +15,8 @@ class LLMEngine(Processor):
     description: str = "Converts using LLM"
 
     async def validate_input_port(self, input: Port) -> bool:
-        if input.data_type != PortType.TEXT:
-            raise InvalidInputPortError("Input data type must be text")
+        if input.data_type not in [PortType.TEXT, PortType.JSON]:
+            raise InvalidInputPortError("Input data type must be text or json")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         return True

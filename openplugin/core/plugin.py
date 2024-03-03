@@ -34,7 +34,7 @@ class PluginOperation(BaseModel):
 
     human_usage_examples: List[str] = Field(default=[])
     plugin_signature_helpers: List[str] = Field(default=[])
-    # output_modules: List[FlowPath] = Field(default=[])
+    output_modules: List[FlowPath] = Field(default=[])
 
 
 class Plugin(BaseModel):
@@ -161,6 +161,23 @@ class Plugin(BaseModel):
 
     def get_output_port_types(self):
         return [output.get_output_port_type() for output in self.output_modules]
+
+    def get_supported_output_modules(self, operation: str, method: str):
+        supported_output_modules = []
+        if self.output_modules:
+            supported_output_modules.extend(self.output_modules)
+        if self.plugin_operations:
+            for key1 in self.plugin_operations.keys():
+                if key1.lower() == operation.lower() or operation.lower().endswith(
+                    key1.lower()
+                ):
+                    for key2 in self.plugin_operations[key1].keys():
+                        if key2.lower() == method.lower():
+                            if self.plugin_operations[key1][key2].output_modules:
+                                supported_output_modules.extend(
+                                    self.plugin_operations[key1][key2].output_modules
+                                )
+        return supported_output_modules
 
 
 class PluginBuilder:

@@ -11,5 +11,9 @@ def get_template_engine(
         )
 
         return TemplateEngineWithJinja(**metadata)
+    elif implementation_type == ProcessorImplementationType.TEMPLATE_ENGINE_WITH_JSX:
+        from .implementations.template_engine_with_jsx import TemplateEngineWithJSX
+
+        return TemplateEngineWithJSX(**metadata)
     else:
         raise ValueError("Invalid implementation type: {}".format(implementation_type))
