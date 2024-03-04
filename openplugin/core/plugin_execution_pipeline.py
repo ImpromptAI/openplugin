@@ -1,4 +1,5 @@
 import asyncio
+from pdb import run
 from typing import Dict, List, Optional
 
 from loguru import logger
@@ -25,6 +26,8 @@ async def run_module(output_module, flow_port):
     logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
     output_port = await output_module.run(flow_port)
     output_port.name = output_module.name
+    if output_module.default_module:
+        output_port.add_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE, True)
     logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
     return output_port
 
@@ -39,7 +42,6 @@ class PluginExecutionResponse(BaseModel):
     api_and_signature_detection_step: dict
     api_execution_step: APIExecutionStepResponse
     output_module_map: Dict[str, Port]
-    default_output: Port
 
 
 class PluginExecutionPipeline(BaseModel):
@@ -51,6 +53,7 @@ class PluginExecutionPipeline(BaseModel):
         config: Config,
         preferred_approach: PreferredApproach,
         output_module_names: Optional[List[str]] = None,
+        run_all_output_modules: bool = False,
     ) -> PluginExecutionResponse:
         flow_port = input
         flow_port.name = "default_no_change_input"
@@ -87,7 +90,17 @@ class PluginExecutionPipeline(BaseModel):
             supported_output_modules = self.plugin.get_supported_output_modules(
                 operation=api_called, method=method
             )
-            if output_module_names and supported_output_modules:
+            if run_all_output_modules and supported_output_modules:
+                for output_module in supported_output_modules:
+                    o_ports = await asyncio.gather(
+                        *(
+                            run_module(output_module, flow_port)
+                            for output_module in supported_output_modules
+                        )
+                    )
+                    if o_ports:
+                        response_output_ports.extend(o_ports)
+            elif output_module_names and supported_output_modules:
                 selected_output_modules = []
                 for output_module in supported_output_modules:
                     if output_module.name in output_module_names:
@@ -100,8 +113,6 @@ class PluginExecutionPipeline(BaseModel):
                 )
                 if o_ports:
                     response_output_ports.extend(o_ports)
-        # TODO change this
-        default_output = api_execution_step.original_response
         output_module_map = {}
         if response_output_ports:
             for output_port in response_output_ports:
@@ -111,7 +122,6 @@ class PluginExecutionPipeline(BaseModel):
             output_module_map=output_module_map,
             api_execution_step=api_execution_step,
             api_and_signature_detection_step=api_signature_port.value,
-            default_output=default_output,
         )
 
     @time_taken
@@ -125,14 +135,18 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be text.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
+        messages = [
+            Message(content=input.value, message_type=MessageType.HumanMessage)
+        ]
         pipeline_name = preferred_approach.base_strategy
         llm = preferred_approach.llm
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] pipeline={pipeline_name}, {llm}")
         # API signature selector
         if (
-            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin=self.plugin, config=config, llm=llm, use="openplugin-swagger"
@@ -196,7 +210,9 @@ class PluginExecutionPipeline(BaseModel):
         api_called = input.value.get("api_called")
         method = input.value.get("method")
         query_params = input.value.get("mapped_operation_parameters")
-        logger.info(f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}")
+        logger.info(
+            f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
+        )
         params = OperationExecutionParams(
             config=config,
             api=api_called,

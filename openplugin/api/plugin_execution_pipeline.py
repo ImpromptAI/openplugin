@@ -28,6 +28,7 @@ async def plugin_execution_pipeline(
     openplugin_manifest_url: str = Body(...),
     prompt: str = Body(...),
     config: Optional[Config] = Body(None),
+    run_all_output_modules: bool = Body(False),
     output_module_names: Optional[List[str]] = None,
     api_key: APIKey = Depends(auth.get_api_key),
 ) -> JSONResponse:
@@ -35,9 +36,13 @@ async def plugin_execution_pipeline(
         start = datetime.datetime.now()
         input = Port(data_type=PortType.TEXT, value=prompt)
         if openplugin_manifest_url.startswith("http"):
-            plugin_obj = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
+            plugin_obj = PluginBuilder.build_from_manifest_url(
+                openplugin_manifest_url
+            )
         else:
-            plugin_obj = PluginBuilder.build_from_manifest_file(openplugin_manifest_url)
+            plugin_obj = PluginBuilder.build_from_manifest_file(
+                openplugin_manifest_url
+            )
 
         if config is None:
             config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
@@ -47,6 +52,7 @@ async def plugin_execution_pipeline(
             config=config,
             preferred_approach=preferred_approach,
             output_module_names=output_module_names,
+            run_all_output_modules=run_all_output_modules,
         )
         json_data = response_obj.model_dump(
             exclude={"output_ports__type_object", "output_ports__value"}

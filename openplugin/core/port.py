@@ -77,6 +77,7 @@ class PortMetadata(Enum):
     STATUS_CODE = "status_code"
     TEMPLATE_ENGINE = "template_engine"
     TEMPLATE_MIME_TYPE = "template_mime_type"
+    DEFAULT_OUTPUT_MODULE = "default_output_module"
 
 
 class Port(BaseModel):
@@ -90,6 +91,11 @@ class Port(BaseModel):
         json_encoders = {
             PortType: lambda v: str(v.value),
         }
+
+    def add_metadata(self, key: PortMetadata, value: Any):
+        if self.metadata is None:
+            self.metadata = {}
+        self.metadata[key] = value
 
     @field_serializer("data_type")
     def serialize_data_type(self, data_type: PortType, _info):
