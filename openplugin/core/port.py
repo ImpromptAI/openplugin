@@ -19,6 +19,7 @@ class PortType(Enum):
     BOOLEAN = bool
     INT = int
     LONG = int
+    JSX = str
     FLOAT = float
     TEXT = str
     LIST = list
@@ -42,6 +43,7 @@ PORT_TYPE_MAPPING = {
     "binary": PortType.BINARY,
     "html": PortType.HTML,
     "httpurl": PortType.HTTPURL,
+    "jsx": PortType.JSX,
     "filepath": PortType.FILEPATH,
     "directorypath": PortType.DIRECTORYPATH,
 }
@@ -96,6 +98,11 @@ class Port(BaseModel):
         if self.metadata is None:
             self.metadata = {}
         self.metadata[key] = value
+
+    def get_metadata(self, key: PortMetadata):
+        if self.metadata is None:
+            return None
+        return self.metadata.get(key)
 
     @field_serializer("data_type")
     def serialize_data_type(self, data_type: PortType, _info):

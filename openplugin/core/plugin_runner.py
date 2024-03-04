@@ -9,7 +9,7 @@ from .helper import time_taken
 from .llms import Config
 from .plugin import PluginBuilder, PreferredApproach
 from .plugin_execution_pipeline import PluginExecutionPipeline
-from .port import Port, PortType
+from .port import Port, PortType, PortMetadata
 
 load_dotenv()
 
@@ -22,7 +22,7 @@ async def run_prompt_on_plugin(
     output_port_types: Optional[List[PortType]] = None,
     preferred_approach: Optional[PreferredApproach] = None,
     log_level: Optional[str] = "INFO",
-) -> Port:
+) -> Optional[Port]:
     """
     Execute a plugin with custom prompt
     """
@@ -66,4 +66,7 @@ async def run_prompt_on_plugin(
         preferred_approach=preferred_approach,
         output_module_names=[],
     )
-    return execution_response.default_output
+    for key, value in execution_response.output_module_map.items():
+        if value.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
+            return value
+    return None

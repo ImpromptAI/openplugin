@@ -42,6 +42,7 @@ class PluginExecutionResponse(BaseModel):
     api_and_signature_detection_step: dict
     api_execution_step: APIExecutionStepResponse
     output_module_map: Dict[str, Port]
+    default_output_module: Optional[str]
 
 
 class PluginExecutionPipeline(BaseModel):
@@ -114,14 +115,18 @@ class PluginExecutionPipeline(BaseModel):
                 if o_ports:
                     response_output_ports.extend(o_ports)
         output_module_map = {}
+        default_output_module = None
         if response_output_ports:
             for output_port in response_output_ports:
                 output_module_map[output_port.name] = output_port
+                if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
+                    default_output_module = output_port.name
         return PluginExecutionResponse(
             input_modules=input_modules,
             output_module_map=output_module_map,
             api_execution_step=api_execution_step,
             api_and_signature_detection_step=api_signature_port.value,
+            default_output_module=default_output_module,
         )
 
     @time_taken
