@@ -19,7 +19,6 @@ class PortType(Enum):
     BOOLEAN = bool
     INT = int
     LONG = int
-    JSX = str
     FLOAT = float
     TEXT = str
     LIST = list
@@ -43,7 +42,6 @@ PORT_TYPE_MAPPING = {
     "binary": PortType.BINARY,
     "html": PortType.HTML,
     "httpurl": PortType.HTTPURL,
-    "jsx": PortType.JSX,
     "filepath": PortType.FILEPATH,
     "directorypath": PortType.DIRECTORYPATH,
 }
@@ -85,6 +83,7 @@ class PortMetadata(Enum):
 class Port(BaseModel):
     name: str = str(uuid.uuid4())
     data_type: PortType = PortType.TEXT
+    mime_type: Optional[str] = None
     type_object: Any = Field(default=None, alias="type_object", exclude=True)
     value: Optional[Any] = None
     metadata: Optional[Dict[PortMetadata, Any]] = {}
