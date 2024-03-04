@@ -1,9 +1,8 @@
 import asyncio
-from pdb import run
 from typing import Dict, List, Optional
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 from .execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
@@ -44,6 +43,56 @@ class PluginExecutionResponse(BaseModel):
     output_module_map: Dict[str, Port]
     default_output_module: Optional[str]
 
+    @computed_field  # type: ignore
+    @property
+    def performance_metrics(self) -> List:
+        metrics = [
+            {
+                "name": "input_module_step",
+                "label": "Input Module",
+                "processing_time_seconds": self.input_modules[0].get_metadata(
+                    PortMetadata.PROCESSING_TIME_SECONDS
+                ),
+                "status_code": self.input_modules[0].get_metadata(
+                    PortMetadata.STATUS_CODE
+                ),
+            },
+            {
+                "name": "api_and_signature_detection_step",
+                "label": "Signature Creation (w/ LLM)",
+                "processing_time_seconds": self.api_and_signature_detection_step.get(
+                    "metadata", {}
+                ).get("processing_time_seconds"),
+                "status_code": self.api_and_signature_detection_step.get(
+                    "metadata", {}
+                ).get("status_code"),
+            },
+            {
+                "name": "api_execution_step",
+                "label": "API Execution",
+                "processing_time_seconds": self.api_execution_step.original_response.get_metadata(
+                    PortMetadata.PROCESSING_TIME_SECONDS
+                ),
+                "status_code": self.api_execution_step.original_response.get_metadata(
+                    PortMetadata.STATUS_CODE
+                ),
+            },
+        ]
+
+        for key, item in self.output_module_map.items():
+            metrics.append(
+                {
+                    "name": item.name,
+                    "label": f"Output Module [ {item.name.replace('_',' ')} ]",
+                    "parallel": True,
+                    "processing_time_seconds": item.get_metadata(
+                        PortMetadata.PROCESSING_TIME_SECONDS
+                    ),
+                    "status_code": item.get_metadata(PortMetadata.STATUS_CODE),
+                }
+            )
+        return metrics
+
 
 class PluginExecutionPipeline(BaseModel):
     plugin: Plugin
@@ -81,6 +130,8 @@ class PluginExecutionPipeline(BaseModel):
             config=config,
             preferred_approach=preferred_approach,
         )
+        default_output_module = None
+        output_module_map = {}
         if api_execution_step.clarifying_response is None:
             flow_port = api_execution_step.original_response
             response_output_ports: List[Port] = []
@@ -114,13 +165,21 @@ class PluginExecutionPipeline(BaseModel):
                 )
                 if o_ports:
                     response_output_ports.extend(o_ports)
-        output_module_map = {}
-        default_output_module = None
+        else:
+            default_output_module = "clarifying_response"
+            output_module_map["clarifying_response"] = (
+                api_execution_step.clarifying_response
+            )
+
         if response_output_ports:
             for output_port in response_output_ports:
                 output_module_map[output_port.name] = output_port
                 if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
                     default_output_module = output_port.name
+        # set the first one as default if not set in manifest
+        if default_output_module is None and response_output_ports:
+            default_output_module = response_output_ports[0].name
+
         return PluginExecutionResponse(
             input_modules=input_modules,
             output_module_map=output_module_map,
