@@ -63,6 +63,8 @@ async def run_prompt_on_plugin(
     execution_response = await pipeline.start(
         input=input,
         config=config,
+        header={},
+        auth_query_param=None,
         preferred_approach=preferred_approach,
         output_module_names=[],
     )

@@ -43,14 +43,15 @@ class Plugin(BaseModel):
     """
 
     schema_version: str
-    openplugin_manifest_version: str
+    # TODO: make it required
+    openplugin_manifest_version: Optional[str] = None
     manifest_url: str
     name: str
     contact_email: Optional[str] = None
     description: Optional[str] = None
     openapi_doc_url: Optional[AnyHttpUrl] = None
-    logo_url: Optional[AnyHttpUrl] = None
-    legal_info_url: Optional[AnyHttpUrl] = None
+    logo_url: Optional[str] = None
+    legal_info_url: Optional[str] = None
     permutate_doc_url: Optional[AnyHttpUrl] = None
     permutation_test_urls: Optional[AnyHttpUrl] = None
     auth: Optional[PluginAuth] = None

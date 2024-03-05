@@ -102,6 +102,8 @@ class PluginExecutionPipeline(BaseModel):
         input: Port,
         config: Config,
         preferred_approach: PreferredApproach,
+        header: Optional[dict],
+        auth_query_param: Optional[dict],
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
     ) -> PluginExecutionResponse:
@@ -128,6 +130,8 @@ class PluginExecutionPipeline(BaseModel):
         api_execution_step = self._run_plugin_execution(
             input=api_signature_port,
             config=config,
+            header=header,
+            auth_query_param=auth_query_param,
             preferred_approach=preferred_approach,
         )
         default_output_module = None
@@ -264,6 +268,8 @@ class PluginExecutionPipeline(BaseModel):
         self,
         input: Port,
         config: Config,
+        header: dict,
+        auth_query_param: Optional[dict],
         preferred_approach: PreferredApproach,
     ) -> APIExecutionStepResponse:
         if input.data_type != PortType.JSON:
@@ -277,13 +283,15 @@ class PluginExecutionPipeline(BaseModel):
         logger.info(
             f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
         )
+        if auth_query_param:
+            query_params.update(auth_query_param)
         params = OperationExecutionParams(
             config=config,
             api=api_called,
             method=method,
             query_params=query_params,
             body={},
-            header={},
+            header=header,
             llm=preferred_approach.llm,
         )
         ex = OperationExecutionWithImprompt(params)

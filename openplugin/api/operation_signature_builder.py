@@ -13,7 +13,6 @@ from openplugin.core.operations.implementations.operation_signature_builder_with
     ImpromptOperationSignatureBuilder,
 )
 
-
 from openplugin.core.operations.implementations.operation_signature_builder_with_openai import (
     OpenAIOperationSignatureBuilder,
 )

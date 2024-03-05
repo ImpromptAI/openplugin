@@ -26,9 +26,14 @@ class ExecutionException(Exception):
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(2))
 def _call(url, method="GET", headers=None, params=None, body=None):
     try:
-        if body and isinstance(body, dict):
+        if body is not None and isinstance(body, dict):
+            if method.upper() == "POST" and not body and params:
+                body = params
+                params = None
             body = json.dumps(body)
             headers["Content-Type"] = "application/json"
+        print("***")
+        print(body)
         # hack for email API
         if params and params.get("content") is not None:
             params["content"] = (
@@ -39,6 +44,8 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )
+        print(response.status_code)
+        print(response.text)
         if response.status_code == 200:
             response_json = response.json()
             if not isinstance(response_json, list):
@@ -101,6 +108,11 @@ class OperationExecutionWithImprompt(OperationExecution):
 
     def run(self) -> OperationExecutionResponse:
         try:
+            print(f"API= {self.params.api}")
+            print(f"METHOD= {self.params.method}")
+            print(f"HEADER= {self.params.header}")
+            print(f"QUERY PARAM= {self.params.query_params}")
+            print(f"BODY= {self.params.body}")
             response_json, status_code, api_call_response_seconds = _call(
                 self.params.api,
                 self.params.method,
@@ -113,8 +125,8 @@ class OperationExecutionWithImprompt(OperationExecution):
             raise ExecutionException(
                 str(original_exception),
                 metadata={
-                    "api_call_status_code": status_code,
-                    "api_call_response_seconds": api_call_response_seconds,
+                    "api_call_status_code": 500,
+                    "api_call_response_seconds": 0,
                 },
             )
         except Exception as e:

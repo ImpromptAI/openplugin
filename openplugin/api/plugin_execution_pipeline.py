@@ -13,6 +13,7 @@ from openplugin.core.plugin import PluginBuilder, PreferredApproach
 from openplugin.core.plugin_execution_pipeline import PluginExecutionPipeline
 from openplugin.core.port import Port, PortType
 
+
 # Create a FastAPI router instance
 router = APIRouter(
     dependencies=[],
@@ -27,6 +28,8 @@ async def plugin_execution_pipeline(
     conversation: list = Body(...),
     openplugin_manifest_url: str = Body(...),
     prompt: str = Body(...),
+    header: dict = Body(...),
+    auth_query_param: Optional[dict] = Body(default=None),
     config: Optional[Config] = Body(None),
     run_all_output_modules: bool = Body(False),
     output_module_names: Optional[List[str]] = None,
@@ -51,6 +54,8 @@ async def plugin_execution_pipeline(
             input=input,
             config=config,
             preferred_approach=preferred_approach,
+            header=header,
+            auth_query_param=auth_query_param,
             output_module_names=output_module_names,
             run_all_output_modules=run_all_output_modules,
         )
