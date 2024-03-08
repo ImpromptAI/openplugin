@@ -80,7 +80,7 @@ COMING SOON
 
 ### Usage: run an openplugin
 
-#### Run an openplugin using PyPI
+#### 1. Run an openplugin using PyPI
 
 ```
 pip install openplugin
@@ -90,7 +90,7 @@ openplugin start-servero
 openplugin run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-#### Run an openplugin using server API
+#### 2. Run an openplugin using server API
 
 ```
 curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
@@ -119,7 +119,7 @@ curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipelin
             }'
 ```
 
-#### Run an openplugin using code
+#### 3. Run an openplugin using code
 
 ```
 pip install openplugin
@@ -130,7 +130,7 @@ prompt=""
 response =await run_prompt_on_plugin(openplugin, prompt)
 ```
 
-#### Run an openplugin using openplugin-sdk
+#### 4. Run an openplugin using openplugin-sdk
 
 **NOTE:** Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
 
