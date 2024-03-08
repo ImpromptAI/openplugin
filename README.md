@@ -45,7 +45,7 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
 
 ### Usage: starting an openplugin server
 
-##### Starting Openplugin server from PyPI
+#### 1. Starting Openplugin server from PyPI
 
 ```
 pip install openplugin
@@ -54,13 +54,13 @@ export OPENAI_API_KEY=<your key>
 openplugin start-server
 ```
 
-##### Starting Openplugin server from docker
+#### 2. Starting Openplugin server from docker
 
 ```
 COMING SOON
 ```
 
-##### Starting Openplugin server from code
+#### 3. Starting Openplugin server from code
 
 ```
 git clone <openplugin>
