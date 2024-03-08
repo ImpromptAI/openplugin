@@ -57,7 +57,7 @@ openplugin start-server
 ##### Starting Openplugin server from docker
 
 ```
-#TODO
+COMING SOON
 ```
 
 ##### Starting Openplugin server from code
@@ -74,13 +74,13 @@ python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json -
 ##### Build an openplugin manifest in your text editor
 
 ```
-#TODO
+COMING SOON
 ```
 
 
 ### Usage: run an openplugin
 
-##### Run an openplugin using PyPI
+#### Run an openplugin using PyPI
 
 ```
 pip install openplugin
@@ -90,22 +90,69 @@ openplugin start-servero
 openplugin run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-##### Run an openplugin using server API
+#### Run an openplugin using server API
 
 ```
-#TODO
+curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
+           --header 'Content-Type: application/json' \
+           --header 'x-api-key: 'YOUR-API-KEY' \
+           --data '{
+            "prompt": "USER_PROMPT",
+            "conversation": [],
+            "openplugin_manifest_url": "MANIFEST_URL",
+            "header":{},
+            "approach": {
+              "base_strategy": "oai functions",
+              "llm": {
+                "frequency_penalty": 0,
+                "max_tokens": 2048,
+                "model_name": "gpt-3.5-turbo-0613",
+                "presence_penalty": 0,
+                "provider": "OpenAI",
+                "temperature": 0,
+                "top_p": 1
+              },
+              "name": "OAI functions-OpenAI",
+              "pre_prompt": null
+            },
+            "output_module_names":["default_cleanup_response"]
+            }'
 ```
 
-##### Run an openplugin using code
+#### Run an openplugin using code
 
 ```
-#TODO
+pip install openplugin
+
+from openplugin.core.plugin_runner import run_prompt_on_plugin
+openplugin=""
+prompt=""
+response =await run_prompt_on_plugin(openplugin, prompt)
 ```
 
-##### Run an openplugin using openplugin-sdk
+#### Run an openplugin using openplugin-sdk
+
+**NOTE:** Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
 
 ```
-#TODO
+pip install openplugin-sdk
+
+remote_server_endpoint = "...."
+openplugin_api_key = "...."
+svc = OpenpluginService(
+        remote_server_endpoint=remote_server_endpoint, api_key=openplugin_api_key
+)
+
+openplugin_manifest_url = "...."
+prompt = "..."
+output_module_name="..."
+
+response = svc.run(
+        openplugin_manifest_url=openplugin_manifest_url,
+        prompt=prompt,
+        output_module_names=[output_module_name],
+)
+print(f"Response={response.value}")
 ```
 
 
