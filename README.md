@@ -1,10 +1,17 @@
-# OpenPlugin
+<h1 align="center">
+        Openplugin
+    </h1>
+    <p align="center">
+        <p align="center">:open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
+        <br>
+    </p>
+<h4 align="center"><a href="https://openplugin.com/" target="_blank">Openplugin Docs</a></h4>
+<h4 align="center">
+    <a href="https://pypi.org/project/openplugin/" target="_blank">
+        <img src="https://img.shields.io/pypi/v/openplugin.svg" alt="PyPI Version">
+    </a>
+</h4>
 
-**About**: :open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
-
-Please see the complete documentation here: https://openplugin.com/
-
-#### Summary:
 
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
 
