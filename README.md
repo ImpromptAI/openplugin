@@ -28,6 +28,8 @@ This is an open source effort to create an ecosystem around LLM enabled APIs. We
 - Quality control opinionated (we encourage regression tests for plugins)
 - Cloud neutral (offer containers, offer serverless, ...)
 
+**NOTE**: Please see the complete documentation here: https://openplugin.com/
+
 **Why not use OpenAPI/Swagger?**
 
 OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
