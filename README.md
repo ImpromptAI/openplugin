@@ -5,8 +5,10 @@
         <p align="center">:open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
         <br>
     </p>
-<h4 align="center"><a href="https://openplugin.com/" target="_blank">Openplugin Docs</a></h4>
 <h4 align="center">
+    <a href="https://openplugin.com/" target="_blank">
+        <img src="https://img.shields.io/badge/view-documentation-blue" alt="View Documentation">
+    </a>
     <a href="https://pypi.org/project/openplugin/" target="_blank">
         <img src="https://img.shields.io/pypi/v/openplugin.svg" alt="PyPI Version">
     </a>
