@@ -298,7 +298,7 @@ This contains the configurations for an LLM (Large Language Model) provider.
      - .. line-block::
         The provider for the LLM.
         **Available options include:** OpenAI, OpenAIChat, GooglePalm, Cohere.
-     - *Required
+     - **Required**
    * - model_name
      - string
      - .. line-block::
@@ -308,7 +308,7 @@ This contains the configurations for an LLM (Large Language Model) provider.
         For OpenAIChat, model_name="gpt-3.5-turbo, gpt-3.5-turbo-0613, gpt-4-0613, gpt-4"
         For GooglePalm, model_name="chat-bison@001, text-bison-001"
         For Cohere, model_name="command, command-light, command-xlarge-nightly"
-     - *Required
+     - **Required**
    * - temperature
      - number
      - The temperature parameter for generating output.

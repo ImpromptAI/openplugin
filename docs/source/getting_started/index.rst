@@ -9,47 +9,74 @@ Table of Contents
    :local:
    :depth: 2
 
-Installing Dependencies
-=======================
 
-OpenPlugin uses Poetry to manage dependencies. 
+Start the OpenPlugin server
+===============================
+You can run your own OpenPlugin servers, or use public instances that are already hosted in the cloud. 
 
-Poetry: https://github.com/python-poetry/install.python-poetry.org
+The OpenPlugin server is capable of supporting multiple LLM models for processing. To enable support for all desired models on your server, it is necessary to provide the API Key for each model. This is accomplished through the use of environment variables.
 
-Once Poetry is available on your system, run:
-
-``poetry install`` in the root directory of your OpenPlugin Git workspace.
-
-Starting an OpenPlugin Server
-===================
-You can run your own OpenPlugin Servers, or use public instances that are already hosted in the cloud. 
-OpenPlugin comes with a simple REST API server. An OpenAI API key is required to use it with OpenAI-based plugin selectors. It can be supplied to the OpenPlugin API server via ``OPENAI_API_KEY`` environment variable or via ``.env`` file in the root directory of the OpenPlugin Git workspace. The latter method is preferable for our purposes, as it facilitates reproducibility of the runtime environment and allows for preservation of secrecy of the API key better than specifying it in the shell prompt.
-
-The content of your ``.env`` file should be just the following one line:
+The content of your ``.env`` file should be as follows:
 
 .. code-block:: text
 
-   OPENAI_API_KEY=<your-OpenAI-API-key>
+    OPENAI_API_KEY=<YOUR KEY>
+    COHERE_API_KEY=<YOUR KEY
+    AZURE_API_KEY=<YOUR KEY>
+    GOOGLE_API_KEY=<YOUR KEY>
+    AWS_ACCESS_KEY=<YOUR KEY>
+    AWS_SECRET_KEY=<YOUR KEY
+
+Make sure to replace ``<YOUR KEY>`` with your API key.
+
+**Note:** You only need to set the keys for the models you intend to use. For example, if you only intend to use OpenAI's ChatGPT, you only need to set the ``OPENAI_API_KEY`` variable.
+
+**NOTE:** You can also pass LLM API keys as a POST parameter when you call run_plugin API on the OpenPlugin server. The server will use the API key passed in the request to make the API call to the LLM model.
 
 
-Make sure to replace ``<your-OpenAI-API-key>`` with the API key from OpenAI. The server can then be started with the following command:
+There are different ways to start the OpenPlugin API server.
+
+**1: Start the OpenPlugin server using python library from PyPI**
+
+.. code-block:: bash
+  
+  pip install openplugin
+  openplugin --help
+  export OPENAI_API_KEY=<your key>
+  openplugin start-server
+
+
+**2: Start the OpenPlugin server from code using poetry**
 
 .. code-block:: bash
 
-   poetry run python start_api_server.py
+  git clone https://github.com/ImpromptAI/openplugin
+  cd openplugin
+  # install poetry in the machine
+  poetry install
+  # add .env file with the required API keys
+  poetry run python start_api_server.py
 
+NOTE: The ``start_api_server.py`` script reads the ``.env`` file to setup the keys.
 
-The ``start_api_server.py`` script reads the ``.env`` file to initialize OpenAI-based plugin selectors. If you prefer not to use ``.env`` or already have the ``OPENAI_API_KEY`` variable defined in your environment, you can also run the API server as follows:
+**3: Start the OpenPlugin server using docker**
 
 .. code-block:: bash
 
-   poetry run openplugin start-server
+  # Passing environment variables in the startup script
+  docker run --name openplugin_container -p 8006:8006 -e "OPENAI_API_KEY=<your_key>" -e "COHERE_API_KEY=<your_key>" -e "GOOGLE_APPLICATION_CREDENTIALS=<your_key>" -d shrikant14/openplugin:latest
+  
+
+  # Passing environment variables as a file
+  nano [env-filename]
+  Add to file
+    [variable1-name]=[value1]
+    [variable2-name]=[value2]
+    [variable3-name]=[value3]
+  docker run --name openplugin_container -p 8006:8006 --env-file my_env.env -d shrikant14/openplugin:latest
 
 
-Note that the above commands are identical for Unix-style shells and PowerShell on both Linux and Windows.
-
-
-Making A Plugin
+Build A Plugin
 ===================
 
 We will create a demo plugin for Klarna, a comparison shopping service. An official Klarna LLM plugin is available for OpenAI's ChatGPT, but our Klarna plugin will be usable with any LLM via OpenPlugin.
@@ -61,229 +88,191 @@ Here is the complete OpenPlugin manifest for our Klarna plugin:
 .. code-block:: json
 
     {
-      "auth": {
-        "type": "none"
-      },
-      "name": "Klarna Shopping",
-      "logo_url": "https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg",
-      "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
-      "contact_email": "openai-products@klarna.com",
-      "legal_info_url": "https://www.klarna.com/us/legal/",
-      "schema_version": "v1",
-      "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
-      "plugin_operations": {
-        "/public/openai/v0/products": {
-          "get": {
-            "human_usage_examples": [
-              "Show me some T Shirts.",
-              "Show me some pants.",
-              "Show me winter jackets for men."
-            ],
-            "plugin_cleanup_helpers": [
-              "Use markdown",
-              "Summarize and list the products"
-            ],
-            "plugin_signature_helpers": []
-          }
-        }
-      }
+        "schema_version": "0.0.1",
+        "openplugin_manifest_version": "0.0.1",
+        "name": "Klarna Shopping",
+        "contact_email": "shrikant@imprompt.ai",
+        "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
+        "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
+        "legal_info_url": null,
+        "logo_url": null,
+        "permutate_doc_url": null,
+        "permutation_test_urls": null,
+        "auth": {
+            "type": "none"
+        },
+        "input_modules": [
+            {
+                "id": "1",
+                "name": "convert_file_to_text",
+                "description": "This will handle file coming to the plugin",
+                "initial_input_port": "filepath",
+                "finish_output_port": "text",
+                "processors": [
+                    {
+                        "input_port": "filepath",
+                        "output_port": "text",
+                        "processor_type": "file_to_text",
+                        "processor_implementation_type": "file_to_text_with_langchain",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ],
+        "plugin_operations": {
+            "/public/openai/v0/products": {
+                "get": {
+                    "human_usage_examples": [
+                        "Show me some T Shirts.",
+                        "Show me some pants .",
+                        "Show me winter jackets for men."
+                    ],
+                    "plugin_signature_helpers": [
+                        "if you can't find the user's clothes size, ask the user about the size.",
+                        "If any error occurs, write an apologetic message to the user"
+                    ],
+                    "output_modules": [
+                        {
+                            "name": "template_response",
+                            "description": "This will convert to template response",
+                            "initial_input_port": "json",
+                            "finish_output_port": "text",
+                            "default_module": true,
+                            "processors": [
+                                {
+                                    "input_port": "json",
+                                    "output_port": "text",
+                                    "processor_type": "template_engine",
+                                    "processor_implementation_type": "template_engine_with_jsx",
+                                    "metadata": {
+                                        "pre_prompt": "Get only product names, prices and urls",
+                                        "mime_type": "text/jsx",
+                                        "template": "<div className=\"container\">\n  <div className=\"row\">\n    {response.products.map((product, index) => (\n      <div key={index} className=\"col-md-4 mb-4\">\n        <div className=\"card h-100\">\n          <div className=\"card-header\">\n            {product.name}\n          </div>\n          <div className=\"card-body\">\n            <h5 className=\"card-title\">{product.price}</h5>\n            <a href={product.url} className=\"btn btn-primary\" target=\"_blank\" rel=\"noopener noreferrer\">Buy Now</a>\n          </div>\n        </div>\n      </div>\n    ))}\n  </div>\n</div>",
+                                        "template_prompt": "Wrap the items in a card, using the product name in the card header and the details and links in the card body. Allow for 3 products per row"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "output_modules": [
+            {
+                "name": "default_cleanup_response",
+                "description": "This module will convert the output to text",
+                "initial_input_port": "json",
+                "finish_output_port": "text",
+                "processors": [
+                    {
+                        "input_port": "json",
+                        "output_port": "text",
+                        "processor_type": "template_engine",
+                        "processor_implementation_type": "template_engine_with_jinja",
+                        "metadata": {
+                            "template": "{% for product in products %}\nName: {{ product['name'] }}\nURL: {{ product['url'] }}\nPrice: {{ product['price'] }}\n\n{% endfor %}"
+                        }
+                    }
+                ]
+            }
+        ],
+        "preferred_approaches": [
+            {
+                "base_strategy": "oai functions",
+                "llm": {
+                    "frequency_penalty": 0,
+                    "max_tokens": 2048,
+                    "model_name": "gpt-3.5-turbo-0613",
+                    "presence_penalty": 0,
+                    "provider": "OpenAI",
+                    "temperature": 0,
+                    "top_p": 1
+                },
+                "name": "OAI functions-OpenAI",
+                "pre_prompt": null
+            }
+        ]
     }
 
 The details of the manifest format are defined in :ref:`openplugin-manifest`. For our purposes, note the ``plugin_operations`` property in the above JSON: it specifies the API operation used in the following steps. Save the manifest and make it available to your OpenPlugin API server for retrieval via HTTP/S.
 
 
-Requesting Plugin Selection
-===========================
+Run a plugin
+===============================
 
-A key feature of OpenPlugin is plugin selection. The API server provides an interface to perform this function. The input to the call specifies:
 
-1. User's natural language message that may require the use of a plugin to optimally respond to.
-2. Set of plugins to consider.
-3. Tool Selector to use.
-4. LLM engine and model that would be used by the Tool Selector.
-
-Here is a sample plugin selection call to the API server using ``curl``:
+**1. Run an openplugin using PyPI**
 
 .. code-block:: bash
 
-   curl -X POST \
-        -H "Content-Type: application/json" \
-        -d '{
-            "messages": [{
-                "content": "Show me 4 t-shirts",
-                "message_type": "HumanMessage"
-            }],
-            "tool_selector_config": {
+  pip install openplugin
+  openplugin --help
+  export OPENAI_API_KEY=<your key>
+  openplugin start-servero
+  openplugin run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
+
+
+**2. Run an openplugin using server API**
+
+.. code-block:: text
+  
+    curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
+           --header 'Content-Type: application/json' \
+           --header 'x-api-key: 'YOUR-API-KEY' \
+           --data '{
+            "prompt": "USER_PROMPT",
+            "conversation": [],
+            "openplugin_manifest_url": "MANIFEST_URL",
+            "header":{},
+            "approach": {
+              "base_strategy": "oai functions",
+              "llm": {
+                "frequency_penalty": 0,
+                "max_tokens": 2048,
+                "model_name": "gpt-3.5-turbo-0613",
+                "presence_penalty": 0,
                 "provider": "OpenAI",
-                "pipeline_name": "default"
+                "temperature": 0,
+                "top_p": 1
+              },
+              "name": "OAI functions-OpenAI",
+              "pre_prompt": null
             },
-            "plugins": [{
-                "manifest_url": "https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json"
-            }],
-            "config": {},
-            "llm": {
-                "provider": "OpenAIChat",
-                "model_name": "gpt-3.5-turbo-0613"
-            }
-        }' \
-        http://localhost:8006/api/plugin-selector
-
-The value of the ``manifest_url`` property of the JSON request body above should refer to the OpenPlugin manifest created in the previous step.
-
-A successful response will return HTTP response code 200 with a response body that looks as follows:
-
-.. code-block:: json
-
-    {
-      "run_completed": true,
-      "final_text_response": null,
-      "detected_plugin_operations": [
-        {
-          "plugin": {
-            "manifest_url": "https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json",
-            "schema_version": "v1",
-            "name": "Klarna Shopping",
-            "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
-            "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
-            "auth": {
-              "type": "none",
-              "authorization_type": null,
-              "verification_tokens": null,
-              "scope": null,
-              "client_url": null,
-              "authorization_url": null,
-              "authorization_content_type": null,
-              "token_validation_url": null
-            },
-            "logo_url": "https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg",
-            "contact_email": "openai-products@klarna.com",
-            "legal_info_url": "https://www.klarna.com/us/legal/",
-            "api_endpoints": [
-              "https://www.klarna.com/us/shopping/public/openai/v0/products"
-            ],
-            "plugin_operations": {
-              "/public/openai/v0/products": {
-                "get": {
-                  "human_usage_examples": [
-                    "Show me some T Shirts.",
-                    "Show me some pants.",
-                    "Show me winter jackets for men."
-                  ],
-                  "prompt_signature_helpers": [],
-                  "plugin_cleanup_helpers": [
-                    "Use markdown",
-                    "Summarize and list the products"
-                  ]
-                }
-              }
-            }
-          },
-          "api_called": "https://www.klarna.com/us/shopping/public/openai/v0/products",
-          "method": "get"
-        }
-      ],
-      "response_time": 3.11,
-      "tokens_used": 409,
-      "llm_api_cost": 0.0
-    } 
+            "output_module_names":["default_cleanup_response"]
+            }'
 
 
-Building an API Call
-=========================
+**3. Run an openplugin using code**
 
-The next OpenPlugin API server operation that is typically invoked after plugin selection is the request to build an API call. This function produces the specific plugin API call semantics, generating the parameter values for plugin invocation. The request is the same as for the plugin selection, the only difference being the URL path of the API server:
+.. code-block:: python
 
-.. code-block:: bash
+  pip install openplugin
+  from openplugin.core.plugin_runner import run_prompt_on_plugin
+  openplugin=""
+  prompt=""
+  response =await run_prompt_on_plugin(openplugin, prompt)
 
-   curl -X POST \
-        -H "Content-Type: application/json" \
-        -d '{
-          "messages": [{
-            "content":"Show me 4 t-shirts",
-            "message_type":"HumanMessage"
-          }],
-          "tool_selector_config": {
-            "provider":"OpenAI",
-            "pipeline_name":"default"
-          },
-          "plugin": {
-            "manifest_url":"https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json"
-          },
-          "config": {},
-          "llm": {
-            "provider":"OpenAIChat",
-            "model_name":"gpt-3.5-turbo-0613"
-          }
-        }' \
-        localhost:8006/api/operation-signature-builder
+  
+**4. Run an openplugin using openplugin-sdk**
 
-The response contains the plugin invocation details for the specified natural language query:
+NOTE: Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
 
-.. code-block:: json
+.. code-block:: python
 
-    {
-      "run_completed": true,
-      "final_text_response": null,
-      "detected_plugin_operations": [
-        {
-          "plugin": {
-            "manifest_url": "https://assistant-management-data.s3.amazonaws.com/Klarna_Shopping.json",
-            "schema_version": "v1",
-            "name": "Klarna Shopping",
-            "description": "Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.",
-            "openapi_doc_url": "https://www.klarna.com/us/shopping/public/openai/v0/api-docs/",
-            "auth": {
-              "type": "none",
-              "authorization_type": null,
-              "verification_tokens": null,
-              "scope": null,
-              "client_url": null,
-              "authorization_url": null,
-              "authorization_content_type": null,
-              "token_validation_url": null
-            },
-            "logo_url": "https://www.klarna.com/assets/sites/5/2020/04/27143923/klarna-K-150x150.jpg",
-            "contact_email": "openai-products@klarna.com",
-            "legal_info_url": "https://www.klarna.com/us/legal/",
-            "api_endpoints": [
-              "https://www.klarna.com/us/shopping/public/openai/v0/products"
-            ],
-            "plugin_operations": {
-              "/public/openai/v0/products": {
-                "get": {
-                  "human_usage_examples": [
-                    "Show me some T Shirts.",
-                    "Show me some pants.",
-                    "Show me winter jackets for men."
-                  ],
-                  "prompt_signature_helpers": [],
-                  "plugin_cleanup_helpers": [
-                    "Use markdown",
-                    "Summarize and list the products"
-                  ]
-                }
-              }
-            }
-          },
-          "api_called": "https://www.klarna.com/us/shopping/public/openai/v0/products",
-          "method": "get",
-          "mapped_operation_parameters": {
-            "countryCode": "US",
-            "q": "tshirt",
-            "size": "4"
-          }
-        }
-      ],
-      "response_time": 3.09,
-      "tokens_used": 367,
-      "llm_api_cost": 0.0
-    }
+  pip install openplugin-sdk
+  remote_server_endpoint = "...."
+  openplugin_api_key = "...."
+  svc = OpenpluginService(
+          remote_server_endpoint=remote_server_endpoint, api_key=openplugin_api_key
+  )
 
+  openplugin_manifest_url = "...."
+  prompt = "..."
+  output_module_name="..."
 
-The output shows the selected plugin, the specific operation to call and how to call it, including any applicable parameter values to be passed by the calling system.
-
-
-OpenPlugin API Details
-======================
-
-You can further explore the request and response JSON structures of the two API server operations by opening http://localhost:8006/api/docs on your local API server. A corresponding OpenAPI spec can be retrieved from http://localhost:8006/api/openapi.json.
+  response = svc.run(
+          openplugin_manifest_url=openplugin_manifest_url,
+          prompt=prompt,
+          output_module_names=[output_module_name],
+  )
+  print(f"Response={response.value}")
