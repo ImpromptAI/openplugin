@@ -1,10 +1,19 @@
-# OpenPlugin
+<h1 align="center">
+        Openplugin
+    </h1>
+    <p align="center">
+        <p align="center">:open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
+        <br>
+    </p>
+<h4 align="center">
+    <a href="https://openplugin.com/" target="_blank">
+        <img src="https://img.shields.io/badge/view-documentation-blue" alt="View Documentation">
+    </a>
+    <a href="https://pypi.org/project/openplugin/" target="_blank">
+        <img src="https://img.shields.io/pypi/v/openplugin.svg" alt="PyPI Version">
+    </a>
+</h4>
 
-**About**: :open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
-
-Please see the complete documentation here: https://openplugin.com/
-
-#### Summary:
 
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
 
@@ -18,6 +27,8 @@ This is an open source effort to create an ecosystem around LLM enabled APIs. We
 - Flow / agent neutral (it's a layer above us)
 - Quality control opinionated (we encourage regression tests for plugins)
 - Cloud neutral (offer containers, offer serverless, ...)
+
+**NOTE**: Please see the complete documentation here: https://openplugin.com/
 
 **Why not use OpenAPI/Swagger?**
 
@@ -45,7 +56,7 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
 
 ### Usage: starting an openplugin server
 
-##### Starting Openplugin server from PyPI
+#### 1. Starting Openplugin server from PyPI
 
 ```
 pip install openplugin
@@ -54,13 +65,13 @@ export OPENAI_API_KEY=<your key>
 openplugin start-server
 ```
 
-##### Starting Openplugin server from docker
+#### 2. Starting Openplugin server from docker
 
 ```
-#TODO
+COMING SOON
 ```
 
-##### Starting Openplugin server from code
+#### 3. Starting Openplugin server from code
 
 ```
 git clone <openplugin>
@@ -74,13 +85,13 @@ python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json -
 ##### Build an openplugin manifest in your text editor
 
 ```
-#TODO
+COMING SOON
 ```
 
 
 ### Usage: run an openplugin
 
-##### Run an openplugin using PyPI
+#### 1. Run an openplugin using PyPI
 
 ```
 pip install openplugin
@@ -90,22 +101,69 @@ openplugin start-servero
 openplugin run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-##### Run an openplugin using server API
+#### 2. Run an openplugin using server API
 
 ```
-#TODO
+curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
+           --header 'Content-Type: application/json' \
+           --header 'x-api-key: 'YOUR-API-KEY' \
+           --data '{
+            "prompt": "USER_PROMPT",
+            "conversation": [],
+            "openplugin_manifest_url": "MANIFEST_URL",
+            "header":{},
+            "approach": {
+              "base_strategy": "oai functions",
+              "llm": {
+                "frequency_penalty": 0,
+                "max_tokens": 2048,
+                "model_name": "gpt-3.5-turbo-0613",
+                "presence_penalty": 0,
+                "provider": "OpenAI",
+                "temperature": 0,
+                "top_p": 1
+              },
+              "name": "OAI functions-OpenAI",
+              "pre_prompt": null
+            },
+            "output_module_names":["default_cleanup_response"]
+            }'
 ```
 
-##### Run an openplugin using code
+#### 3. Run an openplugin using code
 
 ```
-#TODO
+pip install openplugin
+
+from openplugin.core.plugin_runner import run_prompt_on_plugin
+openplugin=""
+prompt=""
+response =await run_prompt_on_plugin(openplugin, prompt)
 ```
 
-##### Run an openplugin using openplugin-sdk
+#### 4. Run an openplugin using openplugin-sdk
+
+**NOTE:** Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
 
 ```
-#TODO
+pip install openplugin-sdk
+
+remote_server_endpoint = "...."
+openplugin_api_key = "...."
+svc = OpenpluginService(
+        remote_server_endpoint=remote_server_endpoint, api_key=openplugin_api_key
+)
+
+openplugin_manifest_url = "...."
+prompt = "..."
+output_module_name="..."
+
+response = svc.run(
+        openplugin_manifest_url=openplugin_manifest_url,
+        prompt=prompt,
+        output_module_names=[output_module_name],
+)
+print(f"Response={response.value}")
 ```
 
 
