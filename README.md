@@ -68,7 +68,18 @@ openplugin start-server
 #### 2. Starting Openplugin server from docker
 
 ```
-COMING SOON
+# Passing environment variables in the startup script
+docker run --name openplugin_container -p 8006:8006 -e "OPENAI_API_KEY=<your_key>" -e "COHERE_API_KEY=<your_key>" -e "GOOGLE_APPLICATION_CREDENTIALS=<your_key>" -d shrikant14/openplugin:latest
+  
+
+# Passing environment variables as a file
+nano [env-filename]
+Add to file
+    [variable1-name]=[value1]
+    [variable2-name]=[value2]
+    [variable3-name]=[value3]
+docker run --name openplugin_container -p 8006:8006 --env-file my_env.env -d shrikant14/openplugin:latest
+
 ```
 
 #### 3. Starting Openplugin server from code
