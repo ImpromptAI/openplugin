@@ -26,7 +26,7 @@ jobs:
         run: |
           poetry run sphinx-build docs/source _build
       - name: Create CNAME File
-        run: echo "openplugin.org" > _build/CNAME
+        run: echo "openplugin.com" > _build/CNAME
       - name: Publish Docs
         uses: peaceiris/actions-gh-pages@v3
         with:
