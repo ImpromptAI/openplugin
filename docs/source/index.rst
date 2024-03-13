@@ -7,7 +7,7 @@ Multimodal API Bridge - make APIs into chat and multimodal ready interfaces. ser
 Summary
 =========================
 
-OpenPlugin
+
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
 
 **Design Decisions:**
@@ -94,10 +94,10 @@ The project sponsor, Imprompt, offers a geo-distributed, managed service of publ
     :titlesonly:
 
     getting_started/index
+    openplugin_sdk/index
     plugin_developers/index
     plugin_platform_providers/index
     GitHub Repo <https://github.com/ImpromptAI/openplugin>
-
 
 .. important::
 

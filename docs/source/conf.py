@@ -31,7 +31,7 @@ release = version
 
 html_logo = "_images/OpenPluginLogo_Horizontal_Transparent Background.png"
 
-extensions = ["sphinx_tabs.tabs", "sphinx_copybutton"]
+extensions = ["sphinx_tabs.tabs", "sphinx_copybutton", "nbsphinx"]
 
 templates_path = ["_templates"]
 
