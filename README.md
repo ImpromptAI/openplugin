@@ -14,6 +14,7 @@
     </a>
 </h4>
 
+![Openplugin banner image](docs/source/_images/openplugin_hero_header.png)
 
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
 
