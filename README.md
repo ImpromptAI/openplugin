@@ -17,7 +17,9 @@
 ![Openplugin banner image](docs/source/_images/openplugin_hero_header.png)
 
 
-This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
+This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited for human consumption like text, markdown, HTML, JSX, voice, video, etc.
+
+---
 
 **Design Decisions:**
 - LLM neutral (LLMs leapfrog each other in capability; swap easily, support many)
@@ -32,11 +34,7 @@ This is an open source effort to create an ecosystem around LLM enabled APIs. We
 
 **NOTE**: Please see the complete documentation here: https://openplugin.com/
 
-**Why not use OpenAPI/Swagger?**
-
-OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
-
-### About OpenPlugin Manifest:
+## About OpenPlugin Manifest:
 
 The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on improving a few key areas including:
 - Accuracy is a core element
@@ -44,7 +42,11 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
 - Integration w/marketplace a priority
 - Ensure security; agent oriented reputation
 
-### Architecture
+**Why not use OpenAPI/Swagger?**
+
+OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
+
+## Architecture
 
 <div align="center">
     <img src="docs/source/_images/architecture.png" alt="Openplugin banner image" height="300">
