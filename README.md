@@ -16,6 +16,7 @@
 
 ![Openplugin banner image](docs/source/_images/openplugin_hero_header.png)
 
+
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
 
 **Design Decisions:**
@@ -43,7 +44,12 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
 - Integration w/marketplace a priority
 - Ensure security; agent oriented reputation
 
-  
+### Architecture
+
+<div align="center">
+    <img src="docs/source/_images/architecture.png" alt="Openplugin banner image" height="300">
+</div>
+
 ### Basic Scenario
  
  Target Plugin: Google Finance API
@@ -54,6 +60,7 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
  1. standard JSON response object
  2. a formatted response (HTML, Markdown, JSX, ...)
  3. a multimodal response (text-to-voice, image, ...)
+
 
 ### Usage: starting an openplugin server
 
