@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ammaraskar/sphinx-action@master
-        with:
-            docs-folder: "docs/"
       - name: Install poetry
         run: pipx install poetry==$POETRY_VERSION
       - name: Set up Python 3.9
@@ -24,6 +21,9 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: poetry install --with=docs
+      - uses: ammaraskar/sphinx-action@master
+        with:
+            docs-folder: "docs/"
       - name: Install pandoc
         shell: bash
         run: apt-get update && apt-get install -y pandoc
