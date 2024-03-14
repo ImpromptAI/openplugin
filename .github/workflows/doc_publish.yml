@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: poetry install --with=docs
+      - name: Install pandoc
+        shell: bash
+        run: apt-get update && apt-get install -y pandoc
       - name: Sphinx build
         shell: bash
         run: |
