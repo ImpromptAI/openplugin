@@ -1,5 +1,5 @@
 <h1 align="center">
-        Openplugin
+        OpenPlugin
     </h1>
     <p align="center">
         <p align="center">:open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
@@ -14,8 +14,12 @@
     </a>
 </h4>
 
+![Openplugin banner image](docs/source/_images/openplugin_hero_header.png)
 
-This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
+
+This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited for human consumption like text, markdown, HTML, JSX, voice, video, etc.
+
+---
 
 **Design Decisions:**
 - LLM neutral (LLMs leapfrog each other in capability; swap easily, support many)
@@ -30,11 +34,7 @@ This is an open source effort to create an ecosystem around LLM enabled APIs. We
 
 **NOTE**: Please see the complete documentation here: https://openplugin.com/
 
-**Why not use OpenAPI/Swagger?**
-
-OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
-
-### About OpenPlugin Manifest:
+## About OpenPlugin Manifest:
 
 The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on improving a few key areas including:
 - Accuracy is a core element
@@ -42,7 +42,16 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
 - Integration w/marketplace a priority
 - Ensure security; agent oriented reputation
 
-  
+**Why not use OpenAPI/Swagger?**
+
+OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
+
+## Architecture
+
+<div align="center">
+    <img src="docs/source/_images/architecture.png" alt="Openplugin banner image" height="300">
+</div>
+
 ### Basic Scenario
  
  Target Plugin: Google Finance API
@@ -53,6 +62,7 @@ The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on impro
  1. standard JSON response object
  2. a formatted response (HTML, Markdown, JSX, ...)
  3. a multimodal response (text-to-voice, image, ...)
+
 
 ### Usage: starting an openplugin server
 
@@ -82,7 +92,7 @@ docker run --name openplugin_container -p 8006:8006 --env-file my_env.env -d shr
 
 ```
 
-#### 3. Starting Openplugin server from code
+#### 3. Starting OpenPlugin server from code
 
 ```
 git clone <openplugin>
@@ -91,18 +101,18 @@ poetry install
 python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-### Usage: build an openplugin
+### Usage: build an OpenPlugin
 
-##### Build an openplugin manifest in your text editor
+##### Build an OpenPlugin manifest in your text editor
 
 ```
 COMING SOON
 ```
 
 
-### Usage: run an openplugin
+### Usage: run an OpenPlugin
 
-#### 1. Run an openplugin using PyPI
+#### 1. Run an OpenPlugin using PyPI
 
 ```
 pip install openplugin
@@ -112,7 +122,7 @@ openplugin start-servero
 openplugin run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-#### 2. Run an openplugin using server API
+#### 2. Run an OpenPlugin using server API
 
 ```
 curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
@@ -141,7 +151,7 @@ curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipelin
             }'
 ```
 
-#### 3. Run an openplugin using code
+#### 3. Run an OpenPlugin using code
 
 ```
 pip install openplugin
@@ -152,7 +162,7 @@ prompt=""
 response =await run_prompt_on_plugin(openplugin, prompt)
 ```
 
-#### 4. Run an openplugin using openplugin-sdk
+#### 4. Run an OpenPlugin using openplugin-sdk
 
 **NOTE:** Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
 
