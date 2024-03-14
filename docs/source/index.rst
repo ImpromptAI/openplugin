@@ -4,6 +4,10 @@ Documentation
 
 Multimodal API Bridge - make APIs into chat and multimodal ready interfaces. serverless optional.
 
+.. image:: /_images/openplugin_hero_header.png
+   :alt: Logo
+
+
 Summary
 =========================
 

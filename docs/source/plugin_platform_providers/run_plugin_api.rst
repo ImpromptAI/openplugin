@@ -11,7 +11,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-execution-pipeline
 
   .. tab:: curl
 
-    .. code-block:: sh
+    .. code-block:: text
 
         curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
            --header 'Content-Type: application/json' \
