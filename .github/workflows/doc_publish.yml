@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: ammaraskar/sphinx-action@master
+        with:
+            docs-folder: "docs/"
       - name: Install poetry
         run: pipx install poetry==$POETRY_VERSION
       - name: Set up Python 3.9
