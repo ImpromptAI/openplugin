@@ -21,12 +21,10 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: poetry install --with=docs
-      - uses: ammaraskar/sphinx-action@master
+      - name: Set up Pandoc
+        uses: siacodelabs/setup-pandoc@v1
         with:
-            docs-folder: "docs/"
-      - name: Install pandoc
-        shell: bash
-        run: apt-get update && apt-get install -y pandoc
+          xelatex: true
       - name: Sphinx build
         shell: bash
         run: |
