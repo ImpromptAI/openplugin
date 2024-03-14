@@ -23,6 +23,7 @@ loguru = "^0.7.2"
 pydub = "^0.25.1"
 azure-cognitiveservices-speech = "1.35.0"
 pydantic-settings = "^2.2.1"
+toml = "^0.10.2"
 
 
 [tool.poetry.group.docs.dependencies]
@@ -33,6 +34,8 @@ sphinx-book-theme = "^1.0.1"
 toml = "^0.10.2"
 sphinx-copybutton = "^0.5.2"
 sphinx-tabs = "^3.4.1"
+jupyter = "^1.0.0"
+pandoc = "^2.3"
 
 
 [tool.poetry.group.dev.dependencies]
