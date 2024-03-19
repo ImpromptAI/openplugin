@@ -6,6 +6,7 @@ Plugin Developers
     :titlesonly:
 
     openplugin_manifest
+    openplugin_manifest_repository
     using_the_openapi_document
 
 Create a Plugin
