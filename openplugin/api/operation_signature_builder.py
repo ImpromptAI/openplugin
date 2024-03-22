@@ -58,8 +58,8 @@ def operation_signature_builder(
         if pipeline_name is None:
             openai_selector = OpenAIOperationSignatureBuilder(
                 plugin,
-                input.config,
                 input.llm,
+                input.config,
                 input.pre_prompts,
                 input.selected_operation,
             )
@@ -72,8 +72,8 @@ def operation_signature_builder(
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin,
-                input.config,
                 input.llm,
+                input.config,
                 input.pre_prompts,
                 input.selected_operation,
                 "openplugin-swagger",
@@ -82,8 +82,8 @@ def operation_signature_builder(
         elif pipeline_name.lower() == "LLM Passthrough (Stuffed Swagger)".lower():
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin,
-                input.config,
                 input.llm,
+                input.config,
                 input.pre_prompts,
                 input.selected_operation,
                 "stuffed-swagger",
@@ -92,8 +92,8 @@ def operation_signature_builder(
         elif pipeline_name.lower() == "LLM Passthrough (Bare Swagger)".lower():
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin,
-                input.config,
                 input.llm,
+                input.config,
                 input.pre_prompts,
                 input.selected_operation,
                 "bare-swagger",
@@ -105,8 +105,8 @@ def operation_signature_builder(
         ):
             openai_selector = OpenAIOperationSignatureBuilder(
                 plugin,
-                input.config,
                 input.llm,
+                input.config,
                 input.pre_prompts,
                 input.selected_operation,
             )

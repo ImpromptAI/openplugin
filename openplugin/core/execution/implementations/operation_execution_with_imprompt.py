@@ -32,8 +32,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                 params = None
             body = json.dumps(body)
             headers["Content-Type"] = "application/json"
-        print("***")
-        print(body)
+
         # hack for email API
         if params and params.get("content") is not None:
             params["content"] = (
@@ -44,8 +43,6 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )
-        print(response.status_code)
-        print(response.text)
         if response.status_code == 200:
             response_json = response.json()
             if not isinstance(response_json, list):

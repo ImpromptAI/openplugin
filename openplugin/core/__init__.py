@@ -3,7 +3,7 @@ from .execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
     OperationExecutionWithImprompt,
 )
-from .llms import LLM, Config
+from .llms import LLM, Config, FunctionResponse
 from .port import Port, PortType, PortValueError
 from .functions import Functions
 
@@ -34,4 +34,5 @@ __all__ = (
     "OperationExecutionWithImprompt",
     "OperationExecutionParams",
     "ExecutionException",
+    "FunctionResponse",
 )

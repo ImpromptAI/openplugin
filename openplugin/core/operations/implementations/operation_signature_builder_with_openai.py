@@ -1,7 +1,6 @@
 import json
 import time
 from typing import List, Optional
-
 import litellm
 
 from openplugin.core import (
@@ -22,11 +21,12 @@ from ..operation_signature_builder import (
 
 # Custom API Signature Selector for OpenAI
 class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
+
     def __init__(
         self,
         plugin: Plugin,
+        llm: LLM,
         config: Optional[Config],
-        llm: Optional[LLM],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
     ):
@@ -46,7 +46,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             # only support openai for functions now
             llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
             # raise ValueError(f"LLM provider {llm.provider} not supported")
-        super().__init__(plugin, config, llm, pre_prompts, selected_operation)
+        super().__init__(plugin, llm, config, pre_prompts, selected_operation)
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
         else:
@@ -180,7 +180,6 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             arguments = json.loads(message_json["function_call"]["arguments"])
-
             p_detected = PluginDetectedParams(
                 plugin=detected_plugin,
                 api_called=detected_function.get_api_url(),

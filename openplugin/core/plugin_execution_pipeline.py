@@ -14,8 +14,8 @@ from .messages import Message, MessageType
 from .operations.implementations.operation_signature_builder_with_imprompt import (
     ImpromptOperationSignatureBuilder,
 )
-from .operations.implementations.operation_signature_builder_with_openai import (
-    OpenAIOperationSignatureBuilder,
+from .operations.implementations.operation_signature_builder_with_langchain import (
+    LangchainOperationSignatureBuilder,
 )
 from .plugin import Plugin, PreferredApproach
 from .port import Port, PortMetadata, PortType, PortValueError
@@ -107,6 +107,8 @@ class PluginExecutionPipeline(BaseModel):
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
     ) -> PluginExecutionResponse:
+        config.replace_missing_with_system_keys()
+        # setup default keys
         flow_port = input
         flow_port.name = "default_no_change_input"
         flow_port.metadata = {
@@ -208,6 +210,8 @@ class PluginExecutionPipeline(BaseModel):
         ]
         pipeline_name = preferred_approach.base_strategy
         llm = preferred_approach.llm
+        if not llm:
+            raise Exception("LLM not provided")
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] pipeline={pipeline_name}, {llm}")
         # API signature selector
         if (
@@ -234,13 +238,15 @@ class PluginExecutionPipeline(BaseModel):
             pipeline_name.lower()
             == ImpromptOperationSignatureBuilder.get_pipeline_name().lower()
         ):
-            selector = ImpromptOperationSignatureBuilder(self.plugin, config, llm)
+            selector = ImpromptOperationSignatureBuilder(self.plugin, llm, config)
             response = selector.run(messages)
         elif (
             pipeline_name.lower()
-            == OpenAIOperationSignatureBuilder.get_pipeline_name().lower()
+            == LangchainOperationSignatureBuilder.get_pipeline_name().lower()
         ):
-            oai_selector = OpenAIOperationSignatureBuilder(self.plugin, config, llm)
+            oai_selector = LangchainOperationSignatureBuilder(
+                self.plugin, llm, config
+            )
             response = oai_selector.run(messages)
         else:
             raise Exception("Unknown tool selector provider")

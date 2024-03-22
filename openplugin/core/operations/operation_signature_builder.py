@@ -13,8 +13,8 @@ class OperationSignatureBuilder(ABC):
     def __init__(
         self,
         plugin: Plugin,
+        llm: LLM,
         config: Optional[Config],
-        llm: Optional[LLM],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
     ):

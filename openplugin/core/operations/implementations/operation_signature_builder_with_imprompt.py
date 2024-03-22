@@ -50,18 +50,19 @@ def _extract_urls(text):
 
 
 class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
+
     def __init__(
         self,
         plugin: Plugin,
+        llm: LLM,
         config: Optional[Config],
-        llm: Optional[LLM],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
         use: Optional[str] = None,
     ):
         if llm is None:
             llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
-        super().__init__(plugin, config, llm, pre_prompts, selected_operation)
+        super().__init__(plugin, llm, config, pre_prompts, selected_operation)
         self.total_tokens_used = 0
         self.use = use
 
@@ -109,7 +110,10 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         urls = _extract_urls(response.get("response"))
         for url in urls:
             formatted_url = url.split("?")[0].strip()
-            if self.plugin.api_endpoints and formatted_url in self.plugin.api_endpoints:
+            if (
+                self.plugin.api_endpoints
+                and formatted_url in self.plugin.api_endpoints
+            ):
                 api_called = formatted_url
                 query_dict = parse_qs(urlparse(url).query)
                 mapped_operation_parameters = {
