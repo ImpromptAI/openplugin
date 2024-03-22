@@ -80,9 +80,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             if msg.get_openai_message() is not None
         ]
         function_json = functions.get_json()
-        print("****8")
-        print(request_prompt)
-        print(function_json)
+
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
         try:

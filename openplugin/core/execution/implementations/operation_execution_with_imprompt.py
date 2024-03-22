@@ -2,6 +2,7 @@ import json
 import time
 from urllib.parse import urlencode
 
+from loguru import logger
 import requests
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
@@ -105,11 +106,12 @@ class OperationExecutionWithImprompt(OperationExecution):
 
     def run(self) -> OperationExecutionResponse:
         try:
-            print(f"API= {self.params.api}")
-            print(f"METHOD= {self.params.method}")
-            print(f"HEADER= {self.params.header}")
-            print(f"QUERY PARAM= {self.params.query_params}")
-            print(f"BODY= {self.params.body}")
+            logger.info(f"API= {self.params.api}")
+            logger.info(f"METHOD= {self.params.method}")
+            logger.info(f"HEADER= {self.params.header}")
+            logger.info(f"QUERY PARAM= {self.params.query_params}")
+            logger.info(f"BODY= {self.params.body}")
+
             response_json, status_code, api_call_response_seconds = _call(
                 self.params.api,
                 self.params.method,

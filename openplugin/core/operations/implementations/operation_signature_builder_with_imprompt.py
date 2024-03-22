@@ -1,6 +1,7 @@
 import json
 import re
 import time
+from loguru import logger
 from typing import List, Optional
 from urllib.parse import parse_qs, urlparse
 
@@ -172,10 +173,8 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
                 msgs.append(pre_prompt.get_openai_message())
         msgs.append({"role": "user", "content": prompt})
         if DEBUG:
-            print("=-=-=-=-=-= LLM -=--=-=-=-=-=--=")
-            print(self.llm)
-            print("\n=-=-=-=-=-=- PROMPT =--=-=-=-=-=--=")
-            print(prompt)
+            logger.info(f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.llm}")
+            logger.info(f"\n=-=-=-=-=-=- PROMPT =--=-=-=-=-=--=\n{prompt}")
         response = get_llm_response_from_messages(
             msgs=msgs,
             model=self.llm.model_name,
@@ -189,9 +188,9 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
             aws_region_name=self.config.aws_region_name,
         )
         if DEBUG:
-            print("=-=-=-=-=-=-=--=-=-=-=-=--=")
-            print(f"use= {self.use}")
-            print(f"response= {response}")
+            logger.info(
+                f"=-=-=-=-=-=-=--=-=-=-=-=--=\nuse= {self.use}\nresponse= {response}"
+            )
         return response
 
     @classmethod

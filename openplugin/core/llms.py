@@ -87,8 +87,6 @@ class LLM(BaseModel):
         llm_model = self.get_langchain_llm_model()
         llm_with_tools = llm_model.bind_tools(function_json)
         response = llm_with_tools.invoke(message)
-        print("***")
-        print(response)
         llm_latency_seconds = time.time() - start_time
         # llm_api_cost = litellm.completion_cost(completion_response=response)
         # TODO
