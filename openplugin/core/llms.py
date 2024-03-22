@@ -68,7 +68,7 @@ class LLM(BaseModel):
                 model=self.model_name,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
-                mistral_api_key="oZsjiYGm9Um3vvbkWBtHUfyyhay4NVOU",
+                mistral_api_key=self.api_key,
             )
         elif self.provider.lower() == "fireworks":
             from langchain_fireworks import ChatFireworks
@@ -77,7 +77,7 @@ class LLM(BaseModel):
                 model=self.model_name,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens,
-                fireworks_api_key="LVemfN0Sj67ZzEikulxhQjSqrscoxdRYoY9u1QvtFPvaYV5O",
+                fireworks_api_key=self.api_key,
             )
         else:
             raise ValueError(f"LLM provider {self.provider} not supported")
