@@ -55,7 +55,7 @@ class LLM(BaseModel):
         protected_namespaces = ()
 
     def get_langchain_llm_model(self):
-        if self.provider.lower() == "openai":
+        if self.provider.lower() in ["openai", "openaichat"]:
             return ChatOpenAI(
                 model=self.model_name,
                 temperature=self.temperature,

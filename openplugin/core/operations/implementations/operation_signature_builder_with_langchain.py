@@ -40,7 +40,12 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             )
         )
         self.llm = llm
-        if self.llm.provider.lower() not in ["openai", "fireworks", "mistral"]:
+        if self.llm.provider.lower() not in [
+            "openaichat",
+            "openai",
+            "fireworks",
+            "mistral",
+        ]:
             raise ValueError(f"LLM provider {llm.provider} not supported")
         super().__init__(plugin, llm, config, pre_prompts, selected_operation)
         if config and config.openai_api_key:
