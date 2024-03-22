@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "openplugin"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["shrikant <shrikant.pm14@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-langchain = "0.1.7"
+langchain = "^0.1.12"
 requests = "2.31.0"
 uvicorn = "^0.22.0"
 fastapi = "0.109.2"
@@ -24,6 +24,9 @@ pydub = "^0.25.1"
 azure-cognitiveservices-speech = "1.35.0"
 pydantic-settings = "^2.2.1"
 toml = "^0.10.2"
+langchain-openai = "^0.0.8"
+langchain-mistralai = "^0.0.5"
+langchain-fireworks = "^0.1.1"
 
 
 [tool.poetry.group.docs.dependencies]
