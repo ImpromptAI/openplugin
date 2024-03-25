@@ -1,5 +1,5 @@
 =========================
-Plugin Platform Providers
+Host Plugins
 =========================
 
 .. toctree::

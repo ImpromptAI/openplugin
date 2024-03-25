@@ -1,5 +1,5 @@
 =================
-Plugin Developers
+Build Plugins
 =================
 
 .. toctree::
@@ -8,6 +8,7 @@ Plugin Developers
     openplugin_manifest
     openplugin_manifest_repository
     using_the_openapi_document
+    operation_signature_builder
 
 Create a Plugin
 ===============
