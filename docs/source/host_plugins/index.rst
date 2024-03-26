@@ -5,7 +5,7 @@ Host Plugins
 .. toctree::
     :titlesonly:
 
-    installation
+    getting_started
     plugin_selector_api
     run_plugin_api
 

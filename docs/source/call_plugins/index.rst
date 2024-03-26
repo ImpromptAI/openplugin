@@ -5,6 +5,7 @@ Call Plugins
 .. toctree::
     :titlesonly:
 
+    getting_started
     ../_notebooks/simple_demo
     ../_notebooks/user_auth_demo
     ../_notebooks/advanced_demo

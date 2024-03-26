@@ -98,9 +98,10 @@ The project sponsor, Imprompt, offers a geo-distributed, managed service of publ
     :titlesonly:
 
     getting_started/index
-    plugin_developers/index
-    openplugin_sdk/index
-    plugin_platform_providers/index
+    build_plugins/index
+    call_plugins/index
+    host_plugins/index
+    find_plugins/index
     GitHub Repo <https://github.com/ImpromptAI/openplugin>
 
 .. important::
