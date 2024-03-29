@@ -1,4 +1,3 @@
-import json
 import re
 import time
 from typing import List, Optional
@@ -14,6 +13,7 @@ from openplugin.core import (
     PluginDetected,
     SelectedPluginsResponse,
 )
+import litellm
 
 from ..plugin_selector import PluginSelector
 
@@ -75,16 +75,20 @@ class ImpromptPluginSelector(PluginSelector):
         self.total_tokens_used = 0
         if config and config.openai_api_key:
             openai.api_key = config.openai_api_key
+            self.openai_api_key = config.openai_api_key
         else:
             raise ValueError("OpenAI API Key is not configured")
 
     def run(self, messages: List[Message]) -> SelectedPluginsResponse:
         start_test_case_time = time.time()
-        plugin_operations = self.get_detected_plugin_with_operations(messages)
+        found_plugins = self.get_detected_plugin_with_operations(messages)
+        detected_plugin = None
+        if found_plugins and len(found_plugins) > 0:
+            detected_plugin = found_plugins[0]
         response = SelectedPluginsResponse(
             run_completed=True,
             final_text_response=None,
-            detected_plugin_operations=plugin_operations,
+            detected_plugin=detected_plugin,
             response_time=round(time.time() - start_test_case_time, 2),
             tokens_used=self.total_tokens_used,
             llm_api_cost=0,
@@ -93,7 +97,7 @@ class ImpromptPluginSelector(PluginSelector):
 
     def get_detected_plugin_with_operations(
         self, messages: List[Message]
-    ) -> List[PluginDetected]:
+    ) -> List[str]:
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
@@ -124,10 +128,15 @@ class ImpromptPluginSelector(PluginSelector):
                             val = val.split("-")[0].strip()
                         if "," in val:
                             for v in val.split(","):
-                                found_plugins.append(self.get_plugin_by_name(v.strip()))
+                                f_manifest_url = self.get_plugin_manifest_by_name(v)
+                                if f_manifest_url:
+                                    found_plugins.append(f_manifest_url)
                         else:
-                            found_plugins.append(self.get_plugin_by_name(val.strip()))
-
+                            f_manifest_url = self.get_plugin_manifest_by_name(val)
+                            if f_manifest_url:
+                                found_plugins.append(f_manifest_url)
+        """
+        # NO need to map to operations
         detected_plugins = []
         for plugin in found_plugins:
             if plugin is None:
@@ -163,10 +172,14 @@ class ImpromptPluginSelector(PluginSelector):
                     method=method,
                 )
             )
-        return detected_plugins
+        """
+        return found_plugins
 
     def run_llm_prompt(self, prompt):
-        if self.llm.provider.lower() == "openai":
+        if (
+            self.llm.provider.lower() == "openai"
+            or self.llm.provider.lower() == "openaichat"
+        ):
             msgs = [{"role": "user", "content": prompt}]
             return self.openai_chat(msgs)
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
@@ -188,14 +201,14 @@ class ImpromptPluginSelector(PluginSelector):
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
 
     def openai_chat(self, messages):
-        response = openai.ChatCompletion.create(
+        litellm.api_key = self.openai_api_key
+        response = litellm.completion(
             model=self.llm.model_name,
-            messages=messages,
             temperature=self.llm.temperature,
             max_tokens=self.llm.max_tokens,
             top_p=self.llm.top_p,
-            frequency_penalty=self.llm.frequency_penalty,
-            presence_penalty=self.llm.presence_penalty,
+            n=self.llm.n,
+            messages=messages,
         )
         self.add_to_tokens(response.get("usage").get("total_tokens"))
         return {

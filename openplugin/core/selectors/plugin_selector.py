@@ -33,6 +33,15 @@ class PluginSelector(ABC):
                 return plugin
         return None
 
+    def get_plugin_manifest_by_name(self, name: str):
+        if name is None:
+            return None
+        name = name.strip()
+        for plugin in self.plugins:
+            if plugin.name == name:
+                return plugin.manifest_url
+        return None
+
     @abstractmethod
     def run(self, messages: List[Message]) -> SelectedPluginsResponse:
         """

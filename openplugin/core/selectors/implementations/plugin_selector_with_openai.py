@@ -1,4 +1,5 @@
 import time
+import litellm
 from typing import List, Optional
 
 from openplugin.core import (
@@ -10,7 +11,6 @@ from openplugin.core import (
     PluginDetected,
     SelectedPluginsResponse,
 )
-from openplugin.utils import chat_completion_with_backoff
 
 from ..plugin_selector import PluginSelector
 
@@ -44,7 +44,7 @@ class OpenAIPluginSelector(PluginSelector):
             return SelectedPluginsResponse(
                 run_completed=True,
                 final_text_response="No functions found",
-                detected_plugin_operations=[],
+                detected_plugin=None,
                 response_time=round(time.time() - start_test_case_time, 2),
                 tokens_used=0,
                 llm_api_cost=0,
@@ -53,10 +53,11 @@ class OpenAIPluginSelector(PluginSelector):
         if helper_pre_prompt and len(helper_pre_prompt) > 0:
             f_messages.insert(0, {"role": "assistant", "content": helper_pre_prompt})
         function_json = functions.get_json()
+
         count = 0
         final_text_response = None
         total_tokens = 0
-        detected_plugin_operations = []
+
         # while is_a_function_call and count < 5:
         count += 1
         temperature = 0.0
@@ -71,20 +72,21 @@ class OpenAIPluginSelector(PluginSelector):
         top_p = 1.0
         if self.llm and self.llm.top_p:
             top_p = self.llm.top_p
-        response = chat_completion_with_backoff(
-            openai_api_key=self.openai_api_key,
-            model=self.llm.model_name if self.llm else None,
-            messages=f_messages,
-            functions=function_json,
-            function_call="auto",
+        litellm.api_key = self.openai_api_key
+        response = litellm.completion(
+            model="gpt-4",
             temperature=temperature,
             max_tokens=max_tokens,
             top_p=top_p,
             n=n,
+            messages=f_messages,
+            functions=function_json,
+            function_call="auto",
         )
         message = response["choices"][0]["message"]
+        detected_plugins = []
         if message.get("function_call"):
-            function_name = message["function_call"]["name"]
+            function_name = message.get("function_call").name
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             p_detected = PluginDetected(
@@ -92,7 +94,7 @@ class OpenAIPluginSelector(PluginSelector):
                 api_called=detected_function.get_api_url(),
                 method=detected_function.get_api_method(),
             )
-            detected_plugin_operations.append(p_detected)
+            detected_plugins.append(detected_plugin.manifest_url)
             f_messages.append(message)
             # function_response = str(detected_function.call_api(arguments))
             function_response = f"This is a response from function {function_name}"
@@ -109,10 +111,13 @@ class OpenAIPluginSelector(PluginSelector):
             )
         total_tokens += response.get("usage").get("total_tokens")
 
+        detected_plugin = None
+        if detected_plugins and len(detected_plugins) > 0:
+            detected_plugin = detected_plugins[0]
         response_obj = SelectedPluginsResponse(
             run_completed=True,
             final_text_response=final_text_response,
-            detected_plugin_operations=detected_plugin_operations,
+            detected_plugin=detected_plugin,
             response_time=round(time.time() - start_test_case_time, 2),
             tokens_used=total_tokens,
             llm_api_cost=0,

@@ -26,7 +26,8 @@ class SelectedPluginsResponse(BaseModel):
 
     run_completed: bool
     final_text_response: Optional[str]
-    detected_plugin_operations: Optional[List[PluginDetected]]
+    detected_plugin: Optional[str]
+    # detected_plugin_operations: Optional[List[PluginDetected]]
     response_time: Optional[float]
     tokens_used: Optional[int]
     llm_api_cost: Optional[float]

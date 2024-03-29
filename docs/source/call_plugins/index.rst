@@ -6,9 +6,11 @@ Call Plugins
     :titlesonly:
 
     getting_started
+    about_openplugin_sdk
     ../_notebooks/simple_demo
     ../_notebooks/user_auth_demo
     ../_notebooks/advanced_demo
+    ../_notebooks/select_a_plugin_demo
 
 
 
