@@ -283,11 +283,9 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be JSON.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-
-        # remove path params from api url
-        api_called = re.sub(r'/\{[^}]*\}$', '', input.value.get("api_called"))
-        method = input.value.get("method")
+        
         api_called = input.value.get("api_called") 
+        method = input.value.get("method")
         query_params = input.value.get("mapped_operation_parameters")
 
         # identify path parameters
