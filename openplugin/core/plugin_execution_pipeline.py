@@ -20,6 +20,7 @@ from .operations.implementations.operation_signature_builder_with_langchain impo
 from .plugin import Plugin, PreferredApproach
 from .port import Port, PortMetadata, PortType, PortValueError
 
+import re
 
 async def run_module(output_module, flow_port):
     logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
@@ -283,9 +284,26 @@ class PluginExecutionPipeline(BaseModel):
         if input.value is None:
             raise PortValueError("Input value cannot be None")
 
-        api_called = input.value.get("api_called")
+        # remove path params from api url
+        api_called = re.sub(r'/\{[^}]*\}$', '', input.value.get("api_called"))
         method = input.value.get("method")
+        api_called = input.value.get("api_called") 
         query_params = input.value.get("mapped_operation_parameters")
+
+        # identify path parameters
+        pattern = re.compile(r'\{([^}]+)\}')
+        path_params = pattern.findall(api_called)
+
+        # use path parameter values instead of names in endpoint
+            # "example.com/path/{id}" >> "example.com/path/1"
+        for param_name in path_params:
+            if param_name in query_params:
+                parameter_key = f'{{{param_name}}}'
+                parameter_value = str(query_params[param_name])
+                api_called = api_called.replace(parameter_key, parameter_value)
+
+                # remove matched path parameters from query_params
+                del query_params[param_name]
         logger.info(
             f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
         )
