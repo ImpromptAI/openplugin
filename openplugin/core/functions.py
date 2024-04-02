@@ -5,7 +5,7 @@ import requests
 from pydantic import BaseModel
 
 from .plugin import Plugin
-
+import re
 
 class API(BaseModel):
     url: str
@@ -75,8 +75,13 @@ class Function(BaseModel):
         return map
 
     def get_openai_function_json(self):
+        # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
+        pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
+        matches = pattern.findall(self.name)
+        validated_name = ''.join(matches)
+
         json = {
-            "name": self.name,
+            "name": validated_name,
             "description": self.description,
             "parameters": {
                 "type": self.param_type,
@@ -196,7 +201,12 @@ class Functions(BaseModel):
                 details = paths[path][method]
                 function_values: Dict[str, Any] = {}
                 function_values["api"] = API(url=f"{server_url}{path}", method=method)
-                function_values["name"] = f"{method}{path.replace('/', '_')}"
+
+                # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
+                pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
+                matches = pattern.findall(f"{method}{path.replace('/', '_')}")
+                validated_name = ''.join(matches)
+                function_values["name"] = validated_name
                 if details.get("summary") is None:
                     function_values["description"] = function_values["name"]
                 else:

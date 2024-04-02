@@ -1,6 +1,7 @@
 import json
 import time
 from typing import List, Optional
+import re
 import litellm
 
 from openplugin.core import (
@@ -176,7 +177,11 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             and isinstance(message_json, dict)
             and message_json.get("function_call")
         ):
-            function_name = message_json["function_call"]["name"]
+            # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
+            pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
+            matches = pattern.findall(message_json["function_call"]["name"])
+            validated_name = ''.join(matches)
+            function_name = validated_name
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             arguments = json.loads(message_json["function_call"]["arguments"])
