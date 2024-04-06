@@ -1,10 +1,10 @@
 .. _build-plugins-getting-started:
 
 ========================================
-Getting Started
+Creating Your First Plugin
 ========================================
 
-A plugin is a yaml/json file that encapsulates various properties about your plugin. The OpenPlugin manifest contains a reference to the OPENAPI specification. This format is widely used for designing and building APIs in a standardized manner.
+A plugin is a yaml/json file that encapsulates various properties about your plugin. The OpenPlugin manifest contains a reference to your API's OpenAPI file. This format is widely used to describe the interface to an API. 
 
 To learn about all plugin manifest properties, refer to this guide: :ref:`openplugin-manifest`
 
@@ -14,7 +14,7 @@ Sample Klarna Plugin
 
 We will create a demo plugin for Klarna, a comparison shopping service. An official Klarna LLM plugin is available for OpenAI's ChatGPT, but our Klarna plugin will be usable with any LLM via OpenPlugin.
 
-As with ChatGPT plugins, OpenPlugin consumes a manifest describing the operations available in the API of the service. The manifest contains a reference to the API specification in OpenAPI (Swagger) format along with natural language annotations for each operation, making each operation as clear to the LLM as possible.
+The OpenPlugin Server consumes a manifest describing the operations available in the API of the service. The manifest contains a reference to the API specification in OpenAPI (Swagger) format along with natural language annotations for each operation, making each operation as clear to the LLM as possible.
 
 Here is the complete OpenPlugin manifest for our Klarna plugin:
 
@@ -129,37 +129,23 @@ Here is the complete OpenPlugin manifest for our Klarna plugin:
 
 The details of the manifest format are defined in :ref:`openplugin-manifest`. For our purposes, note the ``plugin_operations`` property in the above JSON: it specifies the API operation used in the following steps. Save the manifest and make it available to your OpenPlugin API server for retrieval via HTTP/S.
 
+==============================
 
-
-Use cases:
---------------
-
-
-I have an openapi specification url and I want to create a plugin for it.
+**Scenario**: I have an OpenAPI document and I want to create a plugin for it.
 -------------------------------------------------------------------------------
 
-You can follow the below steps:
+1. Fork the openplugin-manifests repository.
 
-**Step 1:** Fork the openplugin-manifests repository.
+2. If you are the official owner of this API, create a new folder in the vendor-owned/official folder with the name of your plugin. If you are not the owner of this API then create a new folder in the vendor-owned/unofficial folder.
 
-**Step 2:** If you are the owner of this API then create a new folder in the vendor-owned/official folder with the name of your plugin. If you are not the owner of this API then create a new folder in the vendor-owned/unofficial folder.
+3. Create a new folder with the name 'openplugin_manifest' in the folder created in step 2.
 
-**Step 3:** Create a new folder with the name 'openplugin_manifest' in the folder created in step 2.
+4. Create a new file `<plugin_name>_manifest.json` in the folder created in step 3. Make sure your manifest file has the `openapi_doc_url` key with the value as the link to your openapi specification.
 
-**Step 3:** Create a new file `<plugin_name>_manifest.json` in the folder created in step 3. Make sure your manifest file has the `openapi_doc_url` key with the value as the link to your openapi specification.
+5. Test your plugin with OpenPlugin server.
 
-**Step 4:** Test your plugin with openplugin server.
-
-**Step 5:** If you want to add this plugin to openplugin-manifests repo then create a pull request.
+6. If you want to add this plugin to openplugin-manifests repo then create a pull request.
 
 
-I have an API and I want to create a plugin for it.
-------------------------------------------------------------
-
-Do all of the above steps and then follow the below steps:
-
-**Step:** Create a new file `<plugin_name>_openapi.json` in your plugin folder.
-
-NOTE: Make sure your manifest file has the `openapi_doc_url` key with the value as the link to your openapi specification.
 
 
