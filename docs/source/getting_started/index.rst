@@ -10,7 +10,7 @@ Introduction
    :depth: 2
 
 
-**What is OpenPlugin?** 
+**What is OpenPlugin?**
 
 ===================
 
@@ -29,7 +29,7 @@ By addressing these key concepts, OpenPlugin aims to create a robust and versati
 
 ===================
 
-**The Core Elements of the OpenPlugin Platform:**
+**The OpenPlugin Platform**
 
 1. **OpenPlugin Manifest**: A standardized, machine-readable format to describe the metadata and capabilities of plugins, enabling seamless discovery, installation, and integration across different AI platforms and development environments.
 
@@ -45,31 +45,28 @@ OpenPlugin aims to create a cohesive and extensible ecosystem that empowers deve
 ===================
 
 
+**Building LLM Plugins**
 
-**1. Building LLM Plugins:**
+Creating your own plugins is a straightforward process. The best way to get started is by cloning an existing plugin and modifying it to suit your needs.
 
-Anyone can create thier own plugins. Most people start by cloning an existing one, and editing it.  
+For a quick start guide on building plugins, refer to: [build-plugins-getting-started](link-to-build-plugins-guide)
 
-Here's a quick start guide: :ref:`build-plugins-getting-started`
+**Calling a Plugin**
 
+Once you have a plugin manifest ready, you can send it to the OpenPlugin server along with your prompt. Plugins can be invoked using an HTTP request or by leveraging the `openplugin-sdk`.
 
-**2. Call a Plugin:**
+To learn more about calling plugins, check out: [call-plugins-getting-started](link-to-call-plugins-guide)
 
-After a plugin manifest is built, you send it to the OpenPlugin server with the your prompt. A plugin can be invoked using an HTTP request or by utilizing the openplugin-sdk.
+**Discovering Existing Plugins**
 
-To call a plugin, refer to this guide: :ref:`call-plugins-getting-started`
+To make your newly created plugin discoverable, you can publish it on platforms like GitHub or the Imprompt marketplace.
 
+To start exploring the available plugins, refer to: [find-plugins-getting-started](link-to-find-plugins-guide)
 
-**3. Find Existing Plugin:**
+**Hosting Your Own Plugin Server** (Optional)
 
-This stage involves making your newly created plugin discoverable on platforms like Github or the Imprompt marketplace.
+If you prefer, you can run your own OpenPlugin server and make it publicly accessible on the internet or keep it private behind your firewall.
 
-To start discovering plugins, refer to this guide: :ref:`find-plugins-getting-started`
+For guidance on hosting your own plugin server, check out: [host-plugins-getting-started](link-to-host-plugins-guide)
 
-**4. Host Your Own Plugin Sever:** (optional)  
-
-Run your own OpenPlugin server - make it public on the Internet, or private behind your firewall. 
-
-If you want to host your own server, refer to this guide: :ref:`host-plugins-getting-started`
-
-If you'd prefer to use a public server, check out: https://app.imprompt.ai and open the Plugin Builder from the main menu. 
+Alternatively, if you'd like to use a public server, you can visit [https://app.imprompt.ai](https://app.imprompt.ai) and access the Plugin Builder from the main menu.
