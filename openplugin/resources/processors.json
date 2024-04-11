@@ -1,0 +1,285 @@
+[
+    {
+        "processor_type": "text_to_audio",
+        "processor_name": "Text to Audio",
+        "description": "Converts text to audio",
+        "input_port": "text",
+        "output_port": "filepath",
+        "implementations": [
+            {
+                "processor_implementation_type": "text_to_audio_with_azure",
+                "name": "Azure",
+                "metadata": [
+                    {
+                        "key": "voice_name",
+                        "required": false,
+                        "default_value": "en-US-AriaNeural",
+                        "type": "string",
+                        "long_form": false
+                    },
+                    {
+                        "key": "azure_region",
+                        "required": false,
+                        "default_value": "eastus",
+                        "type": "string",
+                        "long_form": false
+                    },
+                    {
+                        "key": "azure_api_key",
+                        "required": true,
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    },
+                    {
+                        "key": "output_filename",
+                        "required": false,
+                        "default_value": "output.mp3",
+                        "type": "string",
+                        "long_form": false
+                    },
+                    {
+                        "key": "output_folder",
+                        "required": false,
+                        "default_value": "assets",
+                        "type": "string",
+                        "long_form": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "processor_type": "audio_to_text",
+        "processor_name": "Audio to Text",
+        "description": "Converts audio to text",
+        "input_port": "audio",
+        "output_port": "text",
+        "implementations": [
+            {
+                "processor_implementation_type": "audio_to_text_with_whisper",
+                "name": "Whisper",
+                "metadata": [
+                    {
+                        "key": "openai_api_key",
+                        "required": true,
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    },
+                    {
+                        "key": "model_name",
+                        "required": false,
+                        "default_value": "whisper-1",
+                        "type": "string",
+                        "long_form": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "processor_type": "template_engine",
+        "processor_name": "Template Engine",
+        "description": "Renders a template with the given context",
+        "input_port": "json",
+        "output_port": "text",
+        "implementations": [
+            {
+                "processor_implementation_type": "template_engine_with_jinja",
+                "name": "Jinja",
+                "metadata": [
+                    {
+                        "key": "template",
+                        "required": true,
+                        "type": "string",
+                        "long_form": true
+                    }
+                ]
+            },
+            {
+                "processor_implementation_type": "template_engine_with_jsx",
+                "name": "JSX",
+                "metadata": [
+                    {
+                        "key": "template",
+                        "required": true,
+                        "type": "string",
+                        "long_form": true
+                    },
+                    {
+                        "key": "mime_type",
+                        "required": false,
+                        "default_value": "text",
+                        "type": "string",
+                        "long_form": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "processor_type": "text_to_file",
+        "processor_name": "Text to File",
+        "description": "Saves text to a file",
+        "input_port": "text",
+        "output_port": "filepath",
+        "implementations": [
+            {
+                "processor_implementation_type": "text_to_file_with_default",
+                "name": "Default",
+                "metadata": [
+                    {
+                        "key": "file_type",
+                        "required": false,
+                        "default_value": "txt",
+                        "type": "string",
+                        "long_form": true
+                    },
+                    {
+                        "key": "file_name",
+                        "required": false,
+                        "default_value": "response",
+                        "type": "string",
+                        "long_form": true
+                    },
+                    {
+                        "key": "folder_name",
+                        "required": false,
+                        "default_value": "assets",
+                        "type": "string",
+                        "long_form": true
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "processor_type": "file_to_text",
+        "processor_name": "File to Text",
+        "description": "Converts a file to text",
+        "input_port": "filepath",
+        "output_port": "text",
+        "implementations": [
+            {
+                "processor_implementation_type": "file_to_text_with_langchain",
+                "name": "Langchain",
+                "metadata": []
+            }
+        ]
+    },
+    {
+        "processor_type": "file_to_cloud",
+        "processor_name": "File to Cloud",
+        "description": "Uploads a file to the cloud",
+        "input_port": "filepath",
+        "output_port": "filepath",
+        "implementations": [
+            {
+                "processor_implementation_type": "file_to_cloud_with_s3",
+                "name": "S3",
+                "metadata": [
+                    {
+                        "key": "aws_region",
+                        "required": true,
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    },
+                    {
+                        "key": "aws_access_key",
+                        "required": true,
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    },
+                    {
+                        "key": "aws_secret_access_key",
+                        "required": true,
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    },
+                    {
+                        "key": "bucket_name",
+                        "required": false,
+                        "default_value": "openplugin-output",
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    },
+                    {
+                        "key": "save_filename",
+                        "required": false,
+                        "default_value": "response.txt",
+                        "type": "string",
+                        "long_form": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "processor_type": "url_to_html",
+        "processor_name": "URL to HTML",
+        "description": "Get HTML content from a URL",
+        "input_port": "httpurl",
+        "output_port": "html",
+        "implementations": [
+            {
+                "processor_implementation_type": "url_to_html_with_request",
+                "name": "Request",
+                "metadata": []
+            }
+        ]
+    },
+    {
+        "processor_type": "html_to_text",
+        "processor_name": "HTML to Text",
+        "description": "Get Text content from HTML",
+        "input_port": "html",
+        "output_port": "text",
+        "implementations": [
+            {
+                "processor_implementation_type": "html_to_text_with_bs",
+                "name": "BeautifulSoup",
+                "metadata": []
+            }
+        ]
+    },
+    {
+        "processor_type": "llm_engine",
+         "processor_name": "LLM Engine",
+        "description": "Generates text using a language model",
+        "input_port": "text",
+        "output_port": "text",
+        "implementations": [
+            {
+                "processor_implementation_type": "llm_engine_with_openai",
+                "name": "OpenAI",
+                "metadata": [
+                    {
+                        "key": "model_name",
+                        "required": false,
+                        "default_value": "gpt-3.5-turbo",
+                        "type": "string",
+                        "long_form": false
+                    },
+                    {
+                        "key": "pre_prompt",
+                        "required": false,
+                        "default_value": null,
+                        "type": "string",
+                        "long_form": false
+                    },{
+                        "key": "openai_api_key",
+                        "required": true,
+                        "type": "string",
+                        "is_user_provided": true,
+                        "long_form": false
+                    }
+                ]
+            }
+        ]
+    }
+]
