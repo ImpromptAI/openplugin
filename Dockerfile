@@ -13,6 +13,6 @@ RUN pip install -r requirements.txt
 # Bundle app source code
 COPY . .
 
-EXPOSE 8007
+EXPOSE 8003
 
-CMD ["uvicorn", "openplugin.api.application:app", "--host", "0.0.0.0", "--port", "8007"]
+CMD ["uvicorn", "openplugin.api.application:app", "--host", "0.0.0.0", "--port", "8003"]

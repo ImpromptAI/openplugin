@@ -45,10 +45,10 @@ build-lambda-docker:
 	docker build -t openplugin-lambda -f Dockerfile.lambda .
 
 run-lambda-docker:
-	docker run -p 8007:8007 openplugin-lambda
+	docker run -p 8003:8003 openplugin-lambda
 
 run-lambda-docker-bg:
-	docker run -p 8007:8007 -d openplugin-lambda
+	docker run -p 8003:8003 -d openplugin-lambda
 
 stop-lambda-docker:
 	docker stop $(docker ps -a -q --filter ancestor=openplugin-lambda --format="{{.ID}}")
@@ -57,10 +57,10 @@ build-docker:
 	docker build -t openplugin -f Dockerfile .
 
 run-docker:
-	docker run -p 8007:8007 openplugin
+	docker run -p 8003:8003 openplugin
 
 run-docker-bg:
-	docker run -p 8007:8007 -d openplugin
+	docker run -p 8003:8003 -d openplugin
 
 stop-docker:
 	docker stop $(docker ps -a -q --filter ancestor=openplugin --format="{{.ID}}")
