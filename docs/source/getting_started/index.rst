@@ -2,9 +2,6 @@
 Introduction
 =================
 
-
------------------
-
 .. contents::
    :local:
    :depth: 2
@@ -12,7 +9,7 @@ Introduction
 
 **What is OpenPlugin?**
 
-===================
+=============================
 
 Today, developers can interact with APIs using natural language, often referred to as "function calling" or "tool use." As this concept gains widespread adoption, OpenPlugin builds upon function calling to enable an ecosystem of plugin providers.
 
@@ -48,24 +45,24 @@ By addressing these key concepts, OpenPlugin aims to create a robust and versati
 
 Creating your own plugins is a straightforward process. The best way to get started is by cloning an existing plugin and modifying it to suit your needs.
 
-For a quick start guide on building plugins, refer to: [build-plugins-getting-started](link-to-build-plugins-guide)
+For a quick start guide on building plugins, refer to: :ref:`build-plugins-getting-started`
 
 **Calling a Plugin**
 
 Once you have a plugin manifest ready, you can send it to the OpenPlugin server along with your prompt. Plugins can be invoked using an HTTP request or by leveraging the `openplugin-sdk`.
 
-To learn more about calling plugins, check out: [call-plugins-getting-started](link-to-call-plugins-guide)
+To learn more about calling plugins, check out: :ref:`call-plugins-getting-started`
 
 **Discovering Existing Plugins**
 
 To make your newly created plugin discoverable, you can publish it on platforms like GitHub or the Imprompt marketplace.
 
-To start exploring the available plugins, refer to: [find-plugins-getting-started](link-to-find-plugins-guide)
+To start exploring the available plugins, refer to: :ref:`find-plugins-getting-started`
 
 **Hosting Your Own Plugin Server** (Optional)
 
 If you prefer, you can run your own OpenPlugin server and make it publicly accessible on the internet or keep it private behind your firewall.
 
-For guidance on hosting your own plugin server, check out: [host-plugins-getting-started](link-to-host-plugins-guide)
+For guidance on hosting your own plugin server, check out: :ref:`host-plugins-getting-started`
 
-Alternatively, if you'd like to use a public server, you can visit [https://app.imprompt.ai](https://app.imprompt.ai) and access the Plugin Builder from the main menu.
+Alternatively, if you'd like to use a public server, you can visit https://app.imprompt.ai and access the Plugin Builder from the main menu.

@@ -10,6 +10,8 @@ Build Plugins
     openplugin_manifest_repository
     using_the_openapi_document
     operation_signature_builder
+    processors/index
+    modules/index
 
 Create a Plugin
 ===============
