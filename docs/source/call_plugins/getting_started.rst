@@ -5,14 +5,21 @@ Getting Started
 ========================================
 
 
-**Call an openplugin using openplugin-sdk**
+**Call an OpenPlugin via the SDK**
 ------------------------------------------------
 
-NOTE: This is the preferred way to call a plugin. Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
+This is the preferred way to call a plugin.
 
-**Step 1:** You should have the link to your openplugin manifest. If not, you can use sample Klarna plugin manifest=https://raw.githubusercontent.com/ImpromptAI/openplugin-manifests/main/vendor-owned/unofficial/klarna/manifest.json
+Learn more about the SDK at: https://github.com/ImpromptAI/openplugin-sdk
 
-**Step 2:** Start the openplugin server or get the openplugin server url from us.
+**Step 1:** You need a link to your OpenPlugin manifest. 
+For testing purposes, you can use the sample Klarna plugin manifest
+
+https://raw.githubusercontent.com/ImpromptAI/openplugin-manifests/main/vendor-owned/unofficial/klarna/manifest.json
+
+
+
+**Step 2:** Start an OpenPlugin server.
 
 .. code-block:: bash
 
@@ -31,7 +38,7 @@ NOTE: This is the preferred way to call a plugin. Learn more about openplugin-sd
 
 .. code-block:: python
 
-    # setup openplugin service with remote server url
+    # Call the OpenPlugin service with a remote server url
     from openplugin_sdk import OpenpluginService
     import os
 
@@ -53,11 +60,9 @@ NOTE: This is the preferred way to call a plugin. Learn more about openplugin-sd
 
 
 
-Alternate Ways
-===================
 
 
-**Call an openplugin using server API**
+**curl example **
 ------------------------------------------------
 
 
@@ -89,7 +94,7 @@ Alternate Ways
             }'
 
 
-**Call an openplugin using code**
+**Call an OpenPlugin using code**
 ------------------------------------------------
 
 .. code-block:: python
@@ -101,7 +106,7 @@ Alternate Ways
   response =await run_prompt_on_plugin(openplugin, prompt)
 
   
-**Call an openplugin using PyPI**
+**Call an OpenPlugin using PyPI**
 ------------------------------------------------
 
 .. code-block:: bash
