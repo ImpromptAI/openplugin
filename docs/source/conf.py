@@ -34,7 +34,7 @@ html_logo = "_images/OpenPluginLogo_Horizontal_Transparent Background.png"
 extensions = ["sphinx_tabs.tabs", "sphinx_copybutton", "nbsphinx"]
 
 templates_path = ["_templates"]
-
+html_favicon = "_images/favicon.jpg"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
