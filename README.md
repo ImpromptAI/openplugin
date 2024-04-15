@@ -21,52 +21,9 @@ This is an open source effort to create an ecosystem around LLM enabled APIs. We
 
 ---
 
-**Design Decisions:**
-- LLM neutral (LLMs leapfrog each other in capability; swap easily, support many)
-- Framework neutral (langchain, semantic kernel, ...)
-- Deployment model neutral (serverless, containers, k8, ... )
-- Language neutral (our manifest is declarative JSON)
-- Client neutral (e.g., we're not hard coded to ChatGPT or Gemini, ...)
-- Multimodal opinionated (it's built into our architecture from day 1, but you choose providers)
-- Flow / agent neutral (it's a layer above us)
-- Quality control opinionated (we encourage regression tests for plugins)
-- Cloud neutral (offer containers, offer serverless, ...)
+### Starting a Server
 
-**NOTE**: Please see the complete documentation here: https://openplugin.com/
-
-## About OpenPlugin Manifest:
-
-The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on improving a few key areas including:
-- Accuracy is a core element
-- Emphasis on quality: linked to regression tests
-- Integration w/marketplace a priority
-- Ensure security; agent oriented reputation
-
-**Why not use OpenAPI/Swagger?**
-
-OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
-
-## Architecture
-
-<div align="center">
-    <img src="docs/source/_images/architecture.png" alt="Openplugin banner image" height="300">
-</div>
-
-### Basic Scenario
- 
- Target Plugin: Google Finance API
- 
- Input Request: "get the stock price for Amazon."
- 
- Optional Responses:
- 1. standard JSON response object
- 2. a formatted response (HTML, Markdown, JSX, ...)
- 3. a multimodal response (text-to-voice, image, ...)
-
-
-### Usage: starting an openplugin server
-
-#### 1. Starting Openplugin server from PyPI
+#### 1. Starting an OpenPlugin Server from PyPI
 
 ```
 pip install openplugin
@@ -75,7 +32,7 @@ export OPENAI_API_KEY=<your key>
 openplugin start-server
 ```
 
-#### 2. Starting Openplugin server from docker
+#### 2. Starting OpenPlugin Server from Docker
 
 ```
 # Passing environment variables in the startup script
@@ -92,7 +49,7 @@ docker run --name openplugin_container -p 8006:8006 --env-file my_env.env -d shr
 
 ```
 
-#### 3. Starting OpenPlugin server from code
+#### 3. Starting an OpenPlugin Server from code
 
 ```
 git clone <openplugin>
@@ -101,16 +58,7 @@ poetry install
 python openplugin/main.py run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-### Usage: build an OpenPlugin
-
-##### Build an OpenPlugin manifest in your text editor
-
-```
-COMING SOON
-```
-
-
-### Usage: run an OpenPlugin
+### Run an OpenPlugin
 
 #### 1. Run an OpenPlugin using PyPI
 
@@ -122,7 +70,7 @@ openplugin start-servero
 openplugin run-plugin --openplugin manifests/sample_klarna.json --prompt sample_prompt.txt --log-level="FLOW"
 ```
 
-#### 2. Run an OpenPlugin using server API
+#### 2. Run via an API call 
 
 ```
 curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline' \
@@ -151,7 +99,7 @@ curl --location 'https://api.imprompt.ai/openplugin/api/plugin-execution-pipelin
             }'
 ```
 
-#### 3. Run an OpenPlugin using code
+#### 3. Run via Code
 
 ```
 pip install openplugin
@@ -162,7 +110,7 @@ prompt=""
 response =await run_prompt_on_plugin(openplugin, prompt)
 ```
 
-#### 4. Run an OpenPlugin using openplugin-sdk
+#### 4. Run via SDK
 
 **NOTE:** Learn more about openplugin-sdk at: https://github.com/ImpromptAI/openplugin-sdk
 
