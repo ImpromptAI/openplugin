@@ -12,6 +12,9 @@
     <a href="https://pypi.org/project/openplugin/" target="_blank">
         <img src="https://img.shields.io/pypi/v/openplugin.svg" alt="PyPI Version">
     </a>
+    <a href="https://pypi.org/project/openplugin/" target="_blank">
+        <img src="https://img.shields.io/badge/Python-3.9-blue" alt="python">
+    </a>
 </h4>
 
 ![Openplugin banner image](docs/source/_images/openplugin_hero_header.png)
