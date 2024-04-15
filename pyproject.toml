@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openplugin"
-version = "0.1.6"
+version = "0.1.7"
 description = ""
 authors = ["shrikant <shrikant.pm14@gmail.com>"]
 readme = "README.md"

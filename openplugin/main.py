@@ -21,11 +21,11 @@ def callback():
 
 @app.command()
 def start_server(
-    openai_api_key: Optional[
+    env_file: Optional[
         Annotated[
             str,
             typer.Option(
-                help="OpenAI API Key", rich_help_panel="Customization and Utils"
+                help="ENV File Location", rich_help_panel="Customization and Utils"
             ),
         ]
     ]
@@ -33,16 +33,11 @@ def start_server(
     """
     Start the openplugin server
     """
-    if openai_api_key is None:
-        if os.environ.get("OPENAI_API_KEY") is None:
-            typer.echo("OPENAI_API_KEY is not set.")
-            raise typer.Exit(code=1)
-    else:
-        load_dotenv()
-        os.environ["OPENAI_API_KEY"] = openai_api_key
-
+    if env_file is None:
+        typer.echo("Please pass environment file path.")
+        raise typer.Exit(code=1)
+    load_dotenv(env_file)
     from openplugin.api import create_app
-
     app = create_app()
     uvicorn.run(
         app,

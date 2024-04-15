@@ -34,7 +34,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-execution-pipeline
                 "top_p": 1
               },
               "name": "OAI functions-OpenAI",
-              "pre_prompt": null
+              "pre_prompt": ""
             },
             "output_module_names":["default_cleanup_response"]
             }'
@@ -64,7 +64,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-execution-pipeline
                         "top_p": 1
                       },
                       "name": "OAI functions-OpenAI",
-                      "pre_prompt": null
+                      "pre_prompt": ""
                     },
                     "output_module_names":["default_cleanup_response","summary_response", "template_response"]
                   })
@@ -106,7 +106,7 @@ The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-execution-pipeline
                     "top_p": 1
                   },
                   "name": "OAI functions-OpenAI",
-                  "pre_prompt": null
+                  "pre_prompt": ""
                 },
                 "output_module_names":["default_cleanup_response","summary_response", "template_response"]
               }

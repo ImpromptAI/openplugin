@@ -19,13 +19,8 @@ https://raw.githubusercontent.com/ImpromptAI/openplugin-manifests/main/vendor-ow
 
 
 
-**Step 2:** Start an OpenPlugin server.
+**Step 2:** Start an OpenPlugin server. More information :ref:`host-plugins-getting-started`
 
-.. code-block:: bash
-
-    pip install openplugin
-
-    openplugin start-server
 
 **Step 3:** Install the openplugin-sdk
 
