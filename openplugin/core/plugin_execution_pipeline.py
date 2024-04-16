@@ -187,6 +187,13 @@ class PluginExecutionPipeline(BaseModel):
         if default_output_module is None and response_output_ports:
             default_output_module = response_output_ports[0].name
 
+        
+        if default_output_module is None:
+            output_module_map["original_response"] = (
+                api_execution_step.original_response
+            )
+            default_output_module = "original_response"
+
         return PluginExecutionResponse(
             input_modules=input_modules,
             output_module_map=output_module_map,
