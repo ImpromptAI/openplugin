@@ -26,7 +26,8 @@ router = APIRouter(
 async def plugin_execution_pipeline(
     preferred_approach: PreferredApproach = Body(..., alias="approach"),
     conversation: list = Body(...),
-    openplugin_manifest_url: str = Body(...),
+    openplugin_manifest_url: Optional[str] = Body(None),
+    openplugin_manifest_obj: Optional[dict] = Body(None),
     prompt: str = Body(...),
     header: dict = Body(...),
     auth_query_param: Optional[dict] = Body(default=None),
@@ -38,13 +39,21 @@ async def plugin_execution_pipeline(
     try:
         start = datetime.datetime.now()
         input = Port(data_type=PortType.TEXT, value=prompt)
-        if openplugin_manifest_url.startswith("http"):
-            plugin_obj = PluginBuilder.build_from_manifest_url(
-                openplugin_manifest_url
-            )
+        if openplugin_manifest_obj is not None:
+            plugin_obj = PluginBuilder.build_from_manifest_obj(openplugin_manifest_obj)
+        elif openplugin_manifest_url is not None:
+            if openplugin_manifest_url.startswith("http"):
+                plugin_obj = PluginBuilder.build_from_manifest_url(
+                    openplugin_manifest_url
+                )
+            else:
+                plugin_obj = PluginBuilder.build_from_manifest_file(
+                    openplugin_manifest_url
+                )
         else:
-            plugin_obj = PluginBuilder.build_from_manifest_file(
-                openplugin_manifest_url
+            return JSONResponse(
+                status_code=400,
+                content={"message": "Either manifest URL or manifest object is required"},
             )
 
         if config is None:

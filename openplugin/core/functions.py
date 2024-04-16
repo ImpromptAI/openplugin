@@ -114,16 +114,19 @@ class Functions(BaseModel):
 
     def add_from_manifest(
         self,
-        manifest_url: str,
+        manifest_url: Optional[str],
         plugin: Optional[Plugin],
         selected_operation: Optional[str] = None,
     ):
-        if manifest_url.startswith("http"):
-            manifest_obj = requests.get(manifest_url).json()
+        if manifest_url:
+            if manifest_url.startswith("http"):
+                manifest_obj = requests.get(manifest_url).json()
+            else:
+                with open(manifest_url, "r") as file:
+                    data = file.read()
+                    manifest_obj = json.loads(data)
         else:
-            with open(manifest_url, "r") as file:
-                data = file.read()
-                manifest_obj = json.loads(data)
+            manifest_obj=plugin.manifest_object
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
 

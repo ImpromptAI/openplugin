@@ -45,7 +45,8 @@ class Plugin(BaseModel):
     schema_version: str
     # TODO: make it required
     openplugin_manifest_version: Optional[str] = None
-    manifest_url: str
+    manifest_url: Optional[str]=None
+    manifest_object: Optional[dict]=None
     name: str
     contact_email: Optional[str] = None
     description: Optional[str] = None
@@ -182,6 +183,19 @@ class Plugin(BaseModel):
 
 
 class PluginBuilder:
+
+    @staticmethod
+    def build_from_manifest_obj(manifest_obj: dict):
+        if manifest_obj and manifest_obj.get("auth"):
+            if (
+                manifest_obj.get("auth", {}).get("type")
+                and manifest_obj.get("auth", {}).get("type") == "none"
+            ):
+                manifest_obj["auth"] = None
+        plugin= Plugin(**manifest_obj)
+        plugin.manifest_object = manifest_obj
+        return plugin
+
     @staticmethod
     def build_from_manifest_url(manifest_url: str):
         manifest_obj = requests.get(manifest_url).json()
