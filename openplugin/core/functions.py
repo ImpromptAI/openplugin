@@ -125,8 +125,11 @@ class Functions(BaseModel):
                 with open(manifest_url, "r") as file:
                     data = file.read()
                     manifest_obj = json.loads(data)
-        else:
+        elif plugin and plugin.manifest_object:
             manifest_obj=plugin.manifest_object
+        else:
+            raise ValueError("Manifest URL or Plugin object with manifest object is required")
+
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
 

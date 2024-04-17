@@ -1,5 +1,5 @@
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from pydantic import BaseModel, Field, root_validator
@@ -58,7 +58,7 @@ class ProcessorNode(BaseModel):
 class FlowPath(BaseModel):
     id: str = Field(default_factory=lambda: uuid4().hex)
     name: str
-    description: str
+    description: Optional[str]=None
     initial_input_port: Port
     finish_output_port: Port
     processors: List[ProcessorNode]
