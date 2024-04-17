@@ -14,53 +14,25 @@ Summary
 
 This is an open source effort to create an ecosystem around LLM enabled APIs. We make it easy to "chat with an API", that is, to send natural language as the input to the API and have it process it. Then, we offer several options to easily transform the APIs response into something better suited to human consumption like text, markdown, HTML, JSX, voice, video, etc.
 
-**Design Decisions:**
-
- - LLM neutral (LLMs leapfrog each other in capability; swap easily, support many)
- - Framework neutral (langchain, semantic kernel, ...)
- - Deployment model neutral (serverless, containers, k8, ... )
- - Language neutral (our manifest is declarative JSON)
- - Client neutral (e.g., we're not hard coded to ChatGPT or Gemini, ...)
- - Multimodal opinionated (it's built into our architecture from day 1, but you choose providers)
- - Flow / agent neutral (it's a layer above us)
- - Quality control opinionated (we encourage regression tests for plugins)
- - Cloud neutral (offer containers, offer serverless, ...)
 
 
-Architecture
-================
 
-.. image:: /_images/architecture.png
-   :alt: Logo
+The OpenPlugin Platform
+======================================
 
 
-**Why not use OpenAPI/Swagger?**
+1. **OpenPlugin Manifest**: A standardized, machine-readable format to describe the metadata and capabilities of plugins, enabling seamless discovery, installation, and integration across different AI platforms and development environments.
 
-OpenAPI (previously, Swagger) was released over a decade ago as a replacement to WSDL, where they switched the interface description from XML to JSON. Both WSDL and OpenAPI focused on the machine-to-machine use case. They answered the question, how can we describe an API in a formal manner to bind a client with a service. OpenAPI describes many of the concepts needed, but falls short in the new GPT oriented requirements.
+2. **OpenPlugin Server**: An open-source server that securely executes plugins on behalf of developers, providing a reliable and scalable infrastructure for running plugin-powered applications.
 
+3. **OpenPlugin SDK**: A set of convenience libraries (e.g., Python, JavaScript) that abstract the underlying REST interface, making it easier for developers to integrate and utilize plugins within their preferred programming languages and development workflows.
 
-**About OpenPlugin Manifest:**
-
-The OpenPlugin Manifest is a superset of the OpenAPI effort. It focuses on improving a few key areas including:
-
- * Accuracy is a core element
- * Emphasis on quality: linked to regression tests
- * Integration w/marketplace a priority
- * Ensure security; agent oriented reputation
-
-**NOTE:** This project provides a standard way to define LLM plugins and present them to various LLM engines. It is vendor neutral and meant to facilitate plugin portability across vendors and projects. The project introduces the OpenPlugin manifest file format, which allows developers to specify properties and settings for their plugins such as name, version, dependencies, and supported platforms. This format enables seamless integration with plugin platform providers.
-
-OpenPlugin addresses the problem of mapping natural language instructions to API calls. It involves using a tool selector to determine the intent of the command and mapping it to an API.
-Our reference implementation also evaluates the accuracy of the tool selector:
-
-- selecting the correct plugin,
-- selecting the correct API operation,
-- filling in API parameters correctly, and
-- authenticating and calling the API correctly.
-- monitoring the cost and round-trip latency of solving the problem
+4. **OpenPlugin Catalog Repositories**: A network of publicly accessible repositories (e.g., GitHub) that store the descriptors for a wide range of available plugins, allowing developers to discover, evaluate, and incorporate the functionality they need into their applications.
 
 
-**Basic Scenario**
+
+Basic Scenario
+======================================
 
 Target Plugin: Google Finance API
 
@@ -72,36 +44,45 @@ Optional Responses:
 #. a formatted response (HTML, Markdown, JSX, ...)
 #. a multimodal response (text-to-voice, image, ...)
 
-Terminology
-=========================
-Since OpenPlugin exists within a rapidly evolving domain, the terms relating to its design space are similarly evolving. Within the context of OpenPlugin, the following are the relevant terms and their meanings:
+
+Getting Started
+===================
 
 
-**1. Plugin:**
-A runnable software module that accepts text or multimodal input, runs some API or code, and returns text or multimodal output.
+**Building LLM Plugins**
 
-**2. Plugin Manifest:**
-A file in OpenPlugin-defined format containing metadata associated with a plugin that defines capabilities provided by the plugin and how to access them.
+Creating your own plugins is a straightforward process. The best way to get started is by cloning an existing plugin and modifying it to suit your needs.
 
-**3. Published Plugin:**
-A plugin that has been documented, tested and published to a personal profile or a marketplace catalog. Catalogs can be public or private.
+For a quick start guide on building plugins, refer to: :ref:`build-plugins-getting-started`
 
-**4. Hosted OpenPlugin Provider:**
-OpenPlugin is an open source project and everyone is encouraged to host their own implementation. The OpenPlugin software can deployed in a serverless environment, as a container, or as a framework. The hoster can choose to make their instance public or private.
- 
-**5. OpenPlugin Network:**
-The project sponsor, Imprompt, offers a geo-distributed, managed service of public and private hosts.
+**Calling a Plugin**
 
+Once you have a plugin manifest ready, you can send it to the OpenPlugin server along with your prompt. Plugins can be invoked using an HTTP request or by leveraging the `openplugin-sdk`.
 
+To learn more about calling plugins, check out: :ref:`call-plugins-getting-started`
+
+**Discovering Existing Plugins**
+
+To make your newly created plugin discoverable, you can publish it on platforms like GitHub or the Imprompt marketplace.
+
+To start exploring the available plugins, refer to: :ref:`find-plugins-getting-started`
+
+**Hosting Your Own Plugin Server** (Optional)
+
+If you prefer, you can run your own OpenPlugin server and make it publicly accessible on the internet or keep it private behind your firewall.
+
+For guidance on hosting your own plugin server, check out: :ref:`host-plugins-getting-started`
+
+Alternatively, if you'd like to use a public server, you can visit https://app.imprompt.ai and access the Plugin Builder from the main menu.
 
 .. toctree::
     :titlesonly:
 
-    getting_started/index
     build_plugins/index
     call_plugins/index
     run_openplugin_server/index
     find_plugins/index
+    references/index
     GitHub Repo <https://github.com/ImpromptAI/openplugin>
 
 .. important::
