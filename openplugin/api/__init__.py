@@ -1,18 +1,19 @@
 from typing import Optional
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI,  Request, status
 from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
-
+from fastapi.exceptions import RequestValidationError
 from openplugin.api import (
     info,
     operation_execution,
     operation_signature_builder,
     plugin_execution_pipeline,
     plugin_selector,
-    processors,
+    processors
 )
-
+from fastapi.responses import JSONResponse
+from loguru import logger
 
 # Define a function to create the FastAPI application
 def create_app(root_path: Optional[str] = None) -> FastAPI:
@@ -63,4 +64,12 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
 
     app.include_router(router, prefix=API_PREFIX)
 
+    @app.exception_handler(RequestValidationError)
+    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+        print(request.form())
+        exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+        logger.error(f"{request}: {exc_str}")
+        print(f"{request}: {exc_str}")
+        content = {'status_code': 10422, 'message': exc_str, 'data': None}
+        return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
     return app

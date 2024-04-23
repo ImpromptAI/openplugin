@@ -27,6 +27,7 @@ toml = "^0.10.2"
 langchain-openai = "^0.0.8"
 langchain-mistralai = "^0.0.5"
 langchain-fireworks = "^0.1.1"
+python-multipart = "^0.0.9"
 
 
 [tool.poetry.group.docs.dependencies]

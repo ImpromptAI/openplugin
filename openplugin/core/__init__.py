@@ -4,7 +4,7 @@ from .execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionWithImprompt,
 )
 from .llms import LLM, Config, FunctionResponse
-from .port import Port, PortType, PortValueError
+from .port import Port, PortType, PortValueError, MimeType
 from .functions import Functions
 
 from .messages import Message, MessageType
@@ -21,6 +21,7 @@ __all__ = (
     "LLM",
     "Config",
     "Port",
+    "MimeType",
     "PortType",
     "PortValueError",
     "Functions",

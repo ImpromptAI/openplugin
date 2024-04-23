@@ -2,7 +2,7 @@
 import json
 import uuid
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 from pydantic import (
     BaseModel,
@@ -23,12 +23,44 @@ class PortType(Enum):
     TEXT = str
     LIST = list
     JSON = dict
-    BINARY = bytes
     HTML = str
     HTTPURL = HttpUrl
+    REMOTE_FILE_URL = HttpUrl
     FILEPATH = FilePath
+    FILE = Any 
     DIRECTORYPATH = DirectoryPath
 
+
+class MimeType(Enum):
+    TEXT_ANY="text/*"
+    TEXT_CSV="text/csv"
+    TEXT_HTML="text/html"
+    TEXT_PLAIN="text/plain"
+    TEXT_JAVASCRIPT="text/javascript"
+    TEXT_JSX="text/jsx"
+    
+    IMAGE_ANY="image/*"
+    IMAGE_JPEG = "image/jpeg"
+    IMAGE_PNG = "image/png"
+   
+    AUDIO_ANY="audio/*"
+    AUDIO_WAV = "audio/wav"
+    AUDIO_MP3 = "audio/mp3"
+    AUDIO_FLAC = "audio/flac"
+    AUDIO_AAC = "audio/aac"
+    AUDIO_MPEG = "audio/mpeg"
+
+    JSON="application/json"
+    XML="application/xml"
+    PDF="application/pdf"
+    ZIP="application/zip"
+    GZIP="application/gzip"
+
+    VIDEO_ANY="video/*"
+    VIDEO_MP4 = "video/mp4"
+    VIDEO_WEBM = "video/webm"
+    VIDEO_OGG = "video/ogg"
+    VIDEO_QUICKTIME="video/quicktime"
 
 # Mapping of string values to PortType enum members
 PORT_TYPE_MAPPING = {
@@ -39,29 +71,13 @@ PORT_TYPE_MAPPING = {
     "text": PortType.TEXT,
     "list": PortType.LIST,
     "json": PortType.JSON,
-    "binary": PortType.BINARY,
     "html": PortType.HTML,
     "httpurl": PortType.HTTPURL,
     "filepath": PortType.FILEPATH,
     "directorypath": PortType.DIRECTORYPATH,
+    "remote_file_url": PortType.REMOTE_FILE_URL,
+    "file": PortType.FILE,
 }
-
-
-def type_conversion(value, data_type: PortType):
-    if data_type == PortType.BOOLEAN:
-        return bool(value)
-    elif data_type == PortType.INT or data_type == PortType.LONG:
-        return int(value)
-    elif data_type == PortType.FLOAT:
-        return float(value)
-    elif data_type == PortType.TEXT:
-        return str(value)
-    elif data_type == PortType.LIST:
-        return list(value) if isinstance(value, list) else str(value).split(",")
-    elif data_type == PortType.JSON:
-        return dict(value) if isinstance(value, dict) else json.loads(str(value))
-    else:
-        return None
 
 
 class PortValueError(Exception):
@@ -82,9 +98,8 @@ class PortMetadata(Enum):
 
 class Port(BaseModel):
     name: str = str(uuid.uuid4())
-    data_type: PortType = PortType.TEXT
-    mime_type: Optional[str] = None
-    type_object: Any = Field(default=None, alias="type_object", exclude=True)
+    data_type: PortType
+    mime_types: Optional[List[MimeType]] = None # For files
     value: Optional[Any] = None
     metadata: Optional[Dict[PortMetadata, Any]] = {}
 
@@ -119,14 +134,15 @@ class Port(BaseModel):
         return list(PortType)
 
     def get_value(self):
-        return {"name": self.name, "value": self.value, "type": self.data_type}
+        return {"name": self.name, "value": self.value, "type": self.data_type, "mime_types": self.mime_types}
 
     def __str__(self):
-        return f"name= {self.name}, value= {self.value}, type= {self.data_type}"
+        return f"name= {self.name}, value= {self.value}, type= {self.data_type}, mime_types= {self.mime_types}"
 
     def to_dict(self):
         return {
             "name": self.name,
             "data_type": str(self.data_type),
             "value": self.value,
+            "mime_types": self.mime_types,
         }

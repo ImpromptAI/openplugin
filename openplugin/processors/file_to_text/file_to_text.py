@@ -15,7 +15,7 @@ class FileToText(Processor):
     description: str = "Converts file to text"
 
     async def validate_input_port(self, input: Port) -> bool:
-        if input.data_type != PortType.FILEPATH:
+        if input.data_type not in [PortType.FILEPATH, PortType.FILE, PortType.REMOTE_FILE_URL]:
             raise InvalidInputPortError("Input data type must be Filepath")
         if input.value is None:
             raise PortValueError("Input value cannot be None")

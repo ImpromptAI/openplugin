@@ -60,8 +60,8 @@ async def run_prompt_on_plugin(
     if output_port_types is None:
         output_port_types = plugin_obj.get_output_port_types()
     pipeline = PluginExecutionPipeline(plugin=plugin_obj)
-    execution_response = await pipeline.start(
-        input=input,
+    execution_response = await pipeline.run(
+        input_port=input,
         config=config,
         header={},
         auth_query_param=None,

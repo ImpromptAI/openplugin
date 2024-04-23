@@ -83,5 +83,10 @@ def get_processor_from_enum(
         return get_llm_engine(
             implementation_type=implementation_type, metadata=metadata
         )
+    elif processor_type == ProcessorType.BYTE_TO_TEXT:
+        from .byte_to_text.byte_to_text_factory import get_byte_to_text
+        return get_byte_to_text(
+            implementation_type=implementation_type, metadata=metadata
+        )
     else:
         raise ValueError("Invalid processor type: {}".format(processor_type))

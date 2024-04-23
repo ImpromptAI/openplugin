@@ -1,3 +1,4 @@
+import mimetypes
 import time
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -12,7 +13,7 @@ from openplugin.processors import (
 )
 
 from .helper import time_taken
-from .port import PORT_TYPE_MAPPING, Port, PortMetadata, PortType
+from .port import PORT_TYPE_MAPPING, Port, PortMetadata, PortType, MimeType
 
 
 def convert_str_to_port(v):
@@ -37,6 +38,13 @@ class ProcessorNode(BaseModel):
         assert "input_port" in values
         values["input_port"] = convert_str_to_port(values["input_port"])
 
+        if values.get("mime_types"):
+            mime_types=values.get("mime_types")
+            mime_type_objs=[]
+            for mime_type in mime_types:
+                mime_type_objs.append(MimeType(mime_type))
+            values["input_port"].mime_types = mime_type_objs
+            
         assert "output_port" in values
         values["output_port"] = convert_str_to_port(values["output_port"])
 
@@ -71,6 +79,12 @@ class FlowPath(BaseModel):
         values["initial_input_port"] = convert_str_to_port(
             values["initial_input_port"]
         )
+        if values.get("mime_types"):
+            mime_types=values.get("mime_types")
+            mime_type_objs=[]
+            for mime_type in mime_types:
+                mime_type_objs.append(MimeType(mime_type))
+            values["initial_input_port"].mime_types = mime_type_objs
         assert "finish_output_port" in values
         values["finish_output_port"] = convert_str_to_port(
             values["finish_output_port"]

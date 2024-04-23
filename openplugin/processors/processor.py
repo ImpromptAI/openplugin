@@ -18,6 +18,7 @@ class ProcessorType(Enum):
     URL_TO_HTML = "url_to_html"
     HTML_TO_TEXT = "html_to_text"
     LLM_ENGINE = "llm_engine"
+    BYTE_TO_TEXT="byte_to_text"
 
 
 class ProcessorImplementationType(Enum):
@@ -26,6 +27,7 @@ class ProcessorImplementationType(Enum):
     TEMPLATE_ENGINE_WITH_JINJA = "template_engine_with_jinja"
     TEMPLATE_ENGINE_WITH_JSX = "template_engine_with_jsx"
     TEXT_TO_FILE_WITH_DEFAULT = "text_to_file_with_default"
+    BYTE_TO_TEXT_WITH_DEFAULT = "byte_to_text_with_default"
     FILE_TO_TEXT_WITH_LANGCHAIN = "file_to_text_with_langchain"
     FILE_TO_CLOUD_WITH_S3 = "file_to_cloud_with_s3"
     URL_TO_HTML_WITH_REQUEST = "url_to_html_with_request"
@@ -44,6 +46,7 @@ PROCESSOR_IMPLEMENTATION_MAP = {
     ProcessorImplementationType.URL_TO_HTML_WITH_REQUEST: ProcessorType.URL_TO_HTML,
     ProcessorImplementationType.HTML_TO_TEXT_WITH_BS: ProcessorType.HTML_TO_TEXT,
     ProcessorImplementationType.LLM_ENGINE_WITH_OPENAI: ProcessorType.LLM_ENGINE,
+    ProcessorImplementationType.BYTE_TO_TEXT_WITH_DEFAULT: ProcessorType.BYTE_TO_TEXT,
 }
 
 

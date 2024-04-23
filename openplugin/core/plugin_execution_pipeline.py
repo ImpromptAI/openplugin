@@ -1,6 +1,5 @@
 import asyncio
 from typing import Dict, List, Optional
-
 from loguru import logger
 from pydantic import BaseModel, computed_field
 
@@ -98,37 +97,69 @@ class PluginExecutionResponse(BaseModel):
 class PluginExecutionPipeline(BaseModel):
     plugin: Plugin
 
-    async def start(
-        self,
-        input: Port,
+    async def run_with_text( self,
+        input: str,
         config: Config,
-        preferred_approach: PreferredApproach,
         header: Optional[dict],
         auth_query_param: Optional[dict],
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
+        preferred_approach: Optional[PreferredApproach]=None
+        ):
+        input_port=Port(data_type=PortType.TEXT, value=input)
+        return await self.run(
+            input_port,
+            config,
+            header,
+            auth_query_param,
+            output_module_names,
+            run_all_output_modules,
+            preferred_approach,
+        )
+    
+    async def run(
+        self,
+        input_port: Port,
+        config: Config,
+        header: Optional[dict],
+        auth_query_param: Optional[dict],
+        output_module_names: Optional[List[str]] = None,
+        run_all_output_modules: bool = False,
+        preferred_approach: Optional[PreferredApproach]=None,
     ) -> PluginExecutionResponse:
+        if preferred_approach is None:
+            preferred_approach = self.plugin.get_default_plugin_approach()
         config.replace_missing_with_system_keys()
-        # setup default keys
-        flow_port = input
-        flow_port.name = "default_no_change_input"
+        flow_port = input_port
         flow_port.metadata = {
             PortMetadata.PROCESSING_TIME_SECONDS: 0,
             PortMetadata.STATUS_CODE: 200,
         }
+        # process input module
         input_modules: List[Port] = []
+        matched_input_module = False
         if self.plugin.input_modules:
             for input_module in self.plugin.input_modules:
                 if input_module.initial_input_port.data_type == flow_port.data_type:
-                    logger.info(f"\n[RUNNING_INPUT_MODULE] {input_module}")
-                    flow_port = await input_module.run(flow_port)
-                    break
+                    if input_module.initial_input_port.data_type in [PortType.FILE]:
+                        if input_port.mime_types and input_module.initial_input_port.mime_types:
+                            if set(input_port.mime_types) & set(input_module.initial_input_port.mime_types):
+                                flow_port = await input_module.run(flow_port)
+                                matched_input_module = True
+                                break
+                    else:
+                        flow_port = await input_module.run(flow_port)
+                        matched_input_module = True
+                        break
+
+        if not matched_input_module and flow_port.data_type != PortType.TEXT:
+            raise Exception("Not able to find a matching input module for the input data type.")
         input_modules.append(flow_port)
 
+        # run a plugin
         api_signature_port = self._run_plugin_signature_selector(
             input=flow_port, config=config, preferred_approach=preferred_approach
         )
-
         logger.info(f"\n[PLUGIN_SIGNATURE_RESPONSE] {api_signature_port.value}")
         api_execution_step = self._run_plugin_execution(
             input=api_signature_port,
@@ -137,6 +168,8 @@ class PluginExecutionPipeline(BaseModel):
             auth_query_param=auth_query_param,
             preferred_approach=preferred_approach,
         )
+
+        # run output modules
         default_output_module = None
         output_module_map = {}
         if api_execution_step.clarifying_response is None:
@@ -201,6 +234,8 @@ class PluginExecutionPipeline(BaseModel):
             api_and_signature_detection_step=api_signature_port.value,
             default_output_module=default_output_module,
         )
+    
+
 
     @time_taken
     def _run_plugin_signature_selector(

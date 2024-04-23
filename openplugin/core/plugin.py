@@ -180,6 +180,12 @@ class Plugin(BaseModel):
                                     self.plugin_operations[key1][key2].output_modules
                                 )
         return supported_output_modules
+    
+    def get_default_plugin_approach(self):
+        #TODO: add a default flag on the preferred approach
+        if self.preferred_approaches and len(self.preferred_approaches) > 0:
+            return self.preferred_approaches[0]
+        return None
 
 
 class PluginBuilder:
