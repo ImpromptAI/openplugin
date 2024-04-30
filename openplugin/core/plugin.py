@@ -6,14 +6,6 @@ import yaml
 from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
 
 from .flow_path import FlowPath
-from .llms import LLM
-
-
-class PreferredApproach(BaseModel):
-    base_strategy: str
-    name: Optional[str] = None
-    pre_prompt: Optional[str]
-    llm: Optional[LLM]
 
 
 class PluginAuth(BaseModel):
@@ -45,8 +37,8 @@ class Plugin(BaseModel):
     schema_version: str
     # TODO: make it required
     openplugin_manifest_version: Optional[str] = None
-    manifest_url: Optional[str]=None
-    manifest_object: Optional[dict]=None
+    manifest_url: Optional[str] = None
+    manifest_object: Optional[dict] = None
     name: str
     contact_email: Optional[str] = None
     description: Optional[str] = None
@@ -58,7 +50,6 @@ class Plugin(BaseModel):
     auth: Optional[PluginAuth] = None
     input_modules: Optional[List[FlowPath]] = []
     output_modules: Optional[List[FlowPath]] = []
-    preferred_approaches: Optional[List[PreferredApproach]] = []
 
     api_endpoints: Optional[Set[str]] = None
     # first str is the path, second str is the method
@@ -183,7 +174,6 @@ class Plugin(BaseModel):
 
 
 class PluginBuilder:
-
     @staticmethod
     def build_from_manifest_obj(manifest_obj: dict):
         if manifest_obj and manifest_obj.get("auth"):
@@ -192,7 +182,7 @@ class PluginBuilder:
                 and manifest_obj.get("auth", {}).get("type") == "none"
             ):
                 manifest_obj["auth"] = None
-        plugin= Plugin(**manifest_obj)
+        plugin = Plugin(**manifest_obj)
         plugin.manifest_object = manifest_obj
         return plugin
 

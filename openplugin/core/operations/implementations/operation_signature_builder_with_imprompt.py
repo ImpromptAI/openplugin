@@ -1,20 +1,18 @@
 import json
 import re
 import time
-from loguru import logger
 from typing import List, Optional
 from urllib.parse import parse_qs, urlparse
 
-from openplugin.core import (
-    LLM,
-    Config,
-    Message,
-    Plugin,
-    PluginDetectedParams,
-    SelectedApiSignatureResponse,
-)
+from loguru import logger
+
 from openplugin.utils import get_llm_response_from_messages
 
+from ...config import Config
+from ...function_providers import FunctionProvider
+from ...messages import Message
+from ...plugin import Plugin
+from ...plugin_detected import PluginDetectedParams, SelectedApiSignatureResponse
 from ..operation_signature_builder import (
     OperationSignatureBuilder,
 )
@@ -51,19 +49,18 @@ def _extract_urls(text):
 
 
 class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
-
     def __init__(
         self,
         plugin: Plugin,
-        llm: LLM,
+        function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
         use: Optional[str] = None,
     ):
-        if llm is None:
-            llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
-        super().__init__(plugin, llm, config, pre_prompts, selected_operation)
+        super().__init__(
+            plugin, function_provider, config, pre_prompts, selected_operation
+        )
         self.total_tokens_used = 0
         self.use = use
 
@@ -111,10 +108,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         urls = _extract_urls(response.get("response"))
         for url in urls:
             formatted_url = url.split("?")[0].strip()
-            if (
-                self.plugin.api_endpoints
-                and formatted_url in self.plugin.api_endpoints
-            ):
+            if self.plugin.api_endpoints and formatted_url in self.plugin.api_endpoints:
                 api_called = formatted_url
                 query_dict = parse_qs(urlparse(url).query)
                 mapped_operation_parameters = {
@@ -147,43 +141,25 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         return None
 
     def run_llm_prompt(self, prompt: str):
-        if self.llm is None:
+        if self.function_provider is None:
             raise ValueError("LLM is not configured")
         if self.config is None:
             raise ValueError("Config is not configured")
-        llm_api_key = None
-        if (
-            self.llm.provider.lower() == "openai"
-            or self.llm.provider.lower() == "openaichat"
-        ):
-            llm_api_key = self.config.openai_api_key
-        elif self.llm.provider.lower() == "cohere":
-            llm_api_key = self.config.cohere_api_key
-        elif self.llm.provider.lower() == "google":
-            llm_api_key = self.config.google_palm_key
-        elif self.llm.provider.lower() == "aws":
-            llm_api_key = self.config.aws_secret_access_key
-
-        if llm_api_key is None:
-            raise ValueError("LLM API Key is not configured")
-
         msgs = []
         if self.pre_prompts:
             for pre_prompt in self.pre_prompts:
                 msgs.append(pre_prompt.get_openai_message())
         msgs.append({"role": "user", "content": prompt})
         if DEBUG:
-            logger.info(f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.llm}")
+            logger.info(f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.function_provider}")
             logger.info(f"\n=-=-=-=-=-=- PROMPT =--=-=-=-=-=--=\n{prompt}")
         response = get_llm_response_from_messages(
             msgs=msgs,
-            model=self.llm.model_name,
-            llm_api_key=llm_api_key,
-            temperature=self.llm.temperature,
-            max_tokens=self.llm.max_tokens,
-            top_p=self.llm.top_p,
-            frequency_penalty=self.llm.frequency_penalty,
-            presence_penalty=self.llm.presence_penalty,
+            model=self.function_provider.get_model_name(),
+            llm_api_key=None,
+            temperature=self.function_provider.get_temperature(),
+            max_tokens=self.function_provider.get_max_tokens(),
+            top_p=self.function_provider.get_top_p(),
             aws_access_key_id=self.config.aws_access_key_id,
             aws_region_name=self.config.aws_region_name,
         )

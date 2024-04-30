@@ -38,6 +38,7 @@ def start_server(
         raise typer.Exit(code=1)
     load_dotenv(env_file)
     from openplugin.api import create_app
+
     app = create_app()
     uvicorn.run(
         app,

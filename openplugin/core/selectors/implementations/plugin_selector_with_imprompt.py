@@ -2,19 +2,14 @@ import re
 import time
 from typing import List, Optional
 
+import litellm
 import openai
 
-from openplugin.core import (
-    LLM,
-    Config,
-    Message,
-    MessageType,
-    Plugin,
-    PluginDetected,
-    SelectedPluginsResponse,
-)
-import litellm
-
+from ...config import Config
+from ...function_providers import FunctionProvider
+from ...messages import Message, MessageType
+from ...plugin import Plugin
+from ...plugin_detected import SelectedPluginsResponse
 from ..plugin_selector import PluginSelector
 
 plugin_prompt = """
@@ -69,9 +64,9 @@ class ImpromptPluginSelector(PluginSelector):
         self,
         plugins: List[Plugin],
         config: Optional[Config],
-        llm: Optional[LLM],
+        function_provider: Optional[FunctionProvider],
     ):
-        super().__init__(plugins, config, llm)
+        super().__init__(plugins, config, function_provider)
         self.total_tokens_used = 0
         if config and config.openai_api_key:
             openai.api_key = config.openai_api_key
@@ -95,9 +90,7 @@ class ImpromptPluginSelector(PluginSelector):
         )
         return response
 
-    def get_detected_plugin_with_operations(
-        self, messages: List[Message]
-    ) -> List[str]:
+    def get_detected_plugin_with_operations(self, messages: List[Message]) -> List[str]:
         prompt = ""
         for message in messages:
             prompt += f"{message.message_type}: {message.content}\n"
@@ -185,9 +178,10 @@ class ImpromptPluginSelector(PluginSelector):
         raise ValueError(f"LLM provider {self.llm.provider} not supported")
 
     def run_llm(self, messages: List[Message]):
-        if self.llm is None:
-            raise ValueError("LLM is not configured")
-        if self.llm.provider.lower() == "openai":
+        if (
+            self.function_provider
+            and self.function_provider.get_provider_name() == "openai"
+        ):
             msgs = []
             for message in messages:
                 if message.message_type == MessageType.HumanMessage:
@@ -198,7 +192,7 @@ class ImpromptPluginSelector(PluginSelector):
                     role = "system"
                 msgs.append({"role": role, "content": message.content})
             return self.openai_chat(messages)
-        raise ValueError(f"LLM provider {self.llm.provider} not supported")
+        raise ValueError(f"LLM provider {self.function_provider} not supported")
 
     def openai_chat(self, messages):
         litellm.api_key = self.openai_api_key

@@ -1,20 +1,16 @@
 import json
+import re
 import time
 from typing import List, Optional
-import re
+
 import litellm
 
-from openplugin.core import (
-    LLM,
-    Config,
-    Functions,
-    Message,
-    MessageType,
-    Plugin,
-    PluginDetectedParams,
-    SelectedApiSignatureResponse,
-)
-
+from ...config import Config
+from ...function_providers import FunctionProvider
+from ...functions import Functions
+from ...messages import Message, MessageType
+from ...plugin import Plugin
+from ...plugin_detected import PluginDetectedParams, SelectedApiSignatureResponse
 from ..operation_signature_builder import (
     OperationSignatureBuilder,
 )
@@ -22,11 +18,10 @@ from ..operation_signature_builder import (
 
 # Custom API Signature Selector for OpenAI
 class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
-
     def __init__(
         self,
         plugin: Plugin,
-        llm: LLM,
+        function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
@@ -41,13 +36,9 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             )
         )
 
-        if llm is None:
-            llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
-        if llm.provider.lower() != "openai":
-            # only support openai for functions now
-            llm = LLM(provider="openai", model_name="gpt-3.5-turbo-0613")
-            # raise ValueError(f"LLM provider {llm.provider} not supported")
-        super().__init__(plugin, llm, config, pre_prompts, selected_operation)
+        super().__init__(
+            plugin, function_provider, config, pre_prompts, selected_operation
+        )
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
         else:
@@ -97,27 +88,16 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         # while is_a_function_call and count < 5:
         count += 1
         try:
-            temperature = 0.0
-            if self.llm and self.llm.temperature:
-                temperature = self.llm.temperature
-
-            max_tokens = 4096
-            if self.llm and self.llm.max_tokens:
-                max_tokens = self.llm.max_tokens
-            n = 1
-            if self.llm and self.llm.n:
-                n = self.llm.n
-            top_p = 1.0
-            if self.llm and self.llm.top_p:
-                top_p = self.llm.top_p
+            temperature = self.function_provider.get_temperature()
+            max_tokens = self.function_provider.get_max_tokens()
+            top_p = self.function_provider.get_top_p()
 
             start_time = time.time()
             response = litellm.completion(
-                model=self.llm.model_name if self.llm else None,
+                model=self.function_provider.get_model_name(),
                 temperature=temperature,
                 max_tokens=max_tokens,
                 top_p=top_p,
-                n=n,
                 messages=f_messages,
                 functions=function_json,
                 function_call="auto",
@@ -128,7 +108,6 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     top_p=top_p,
-                    n=n,
                     messages=f_messages,
                     functions=function_json,
                     function_call="auto",
@@ -145,7 +124,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 {
                     "used_for": "signature_builder",
                     "response": response["choices"],
-                    "model": self.llm.model_name if self.llm else None,
+                    "model": self.function_provider.get_model_name(),
                     "cost": llm_api_cost,
                     "usage": response.get("usage"),
                     "messages": f_messages,
@@ -180,7 +159,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
             pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
             matches = pattern.findall(message_json["function_call"]["name"])
-            validated_name = ''.join(matches)
+            validated_name = "".join(matches)
             function_name = validated_name
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)

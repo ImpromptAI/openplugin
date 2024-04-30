@@ -1,12 +1,11 @@
+from .config import Config
 from .execution.implementations.operation_execution_with_imprompt import (
     ExecutionException,
     OperationExecutionParams,
     OperationExecutionWithImprompt,
 )
-from .llms import LLM, Config, FunctionResponse
-from .port import Port, PortType, PortValueError
+from .function_providers import FunctionProvider, FunctionProviders, FunctionResponse
 from .functions import Functions
-
 from .messages import Message, MessageType
 from .plugin import Plugin
 from .plugin_detected import (
@@ -15,11 +14,11 @@ from .plugin_detected import (
     SelectedApiSignatureResponse,
     SelectedPluginsResponse,
 )
-
+from .port import Port, PortType, PortValueError
 
 __all__ = (
-    "LLM",
     "Config",
+    "FunctionProvider",
     "Port",
     "PortType",
     "PortValueError",
@@ -27,6 +26,7 @@ __all__ = (
     "Message",
     "MessageType",
     "Plugin",
+    "FunctionProviders",
     "PluginDetected",
     "PluginDetectedParams",
     "SelectedPluginsResponse",

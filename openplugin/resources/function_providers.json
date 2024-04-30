@@ -1,0 +1,129 @@
+[
+    {
+        "name": "OpenAI [gpt-4]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "OpenAI",
+            "model_name": "gpt-4",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "OPENAI_API_KEY"
+        ]
+    },
+    {
+        "name": "OpenAI [gpt-3.5-turbo-0613]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "OpenAI",
+            "model_name": "gpt-3.5-turbo-0613",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "OPENAI_API_KEY"
+        ]
+    },
+    {
+        "name": "Anthropic [claude-3-sonnet-20240229]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Anthropic",
+            "model_name": "claude-3-sonnet-20240229",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "ANTHROPIC_API_KEY"
+        ]
+    },
+    {
+        "name": "Google [gemini-pro]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Google",
+            "model_name": "gemini-pro",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "GEMINI_API_KEY"
+        ]
+    },
+    {
+        "name": "Cohere [command-r]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Cohere",
+            "model_name": "command-r",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "COHERE_API_KEY"
+        ]
+    },
+    {
+        "name": "Fireworks [accounts/fireworks/models/firefunction-v1]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Fireworks",
+            "model_name": "accounts/fireworks/models/firefunction-v1",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "FIREWORKS_API_KEY"
+        ]
+    },
+    {
+        "name": "Mistral [mistral-large-latest]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Mistral",
+            "model_name": "mistral-large-latest",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "MISTRAL_API_KEY"
+        ]
+    },
+    {
+        "name": "TogetherAI [mistralai/Mixtral-8x7B-Instruct-v0.1]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "TogetherAI",
+            "model_name": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "TOGETHER_API_KEY",
+            "TOGETHER_BASE_URL"
+        ]
+    },
+    {
+        "name": "Groq [Llama3-8b-8192]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Groq",
+            "model_name": "Llama3-8b-8192",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "GROQ_API_KEY"
+        ]
+    }
+]

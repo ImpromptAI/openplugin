@@ -12,9 +12,7 @@ class TemplateEngineWithJSX(TemplateEngine):
     output_port_type: PortType = Field(PortType.TEXT)
     mime_type: Optional[str] = "text"
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         return Port(

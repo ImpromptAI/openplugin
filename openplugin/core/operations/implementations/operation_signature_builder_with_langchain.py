@@ -1,19 +1,12 @@
 import time
 from typing import List, Optional
 
-
-from openplugin.core import (
-    LLM,
-    Config,
-    Functions,
-    Message,
-    FunctionResponse,
-    MessageType,
-    Plugin,
-    PluginDetectedParams,
-    SelectedApiSignatureResponse,
-)
-
+from ...config import Config
+from ...function_providers import FunctionProvider, FunctionResponse
+from ...functions import Functions
+from ...messages import Message, MessageType
+from ...plugin import Plugin
+from ...plugin_detected import PluginDetectedParams, SelectedApiSignatureResponse
 from ..operation_signature_builder import (
     OperationSignatureBuilder,
 )
@@ -21,11 +14,10 @@ from ..operation_signature_builder import (
 
 # Custom API Signature Selector for OpenAI
 class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
-
     def __init__(
         self,
         plugin: Plugin,
-        llm: LLM,
+        function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
@@ -39,15 +31,10 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 content="Maintain the plurality of mapped parameters and the test sentence throughout the generated text.",  # noqa: E501
             )
         )
-        self.llm = llm
-        if self.llm.provider.lower() not in [
-            "openaichat",
-            "openai",
-            "fireworks",
-            "mistral",
-        ]:
-            raise ValueError(f"LLM provider {llm.provider} not supported")
-        super().__init__(plugin, llm, config, pre_prompts, selected_operation)
+        self.function_provider = function_provider
+        super().__init__(
+            plugin, function_provider, config, pre_prompts, selected_operation
+        )
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
         else:
@@ -68,7 +55,6 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 llm_api_cost=0,
                 llm_calls=llm_calls,
             )
-
         helper_pre_prompt = functions.get_prompt_signatures_prompt()
         request_prompt = helper_pre_prompt
         index = 0
@@ -89,23 +75,23 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
         try:
-            func_response: FunctionResponse = self.llm.run_functions(
+            func_response: FunctionResponse = self.function_provider.run(
                 request_prompt, function_json
             )
             llm_calls.append(
                 {
                     "used_for": "signature_builder",
                     "response": func_response.response_content,
-                    "model": self.llm.model_name,
+                    "model": self.function_provider.get_model_name(),
                     "cost": func_response.cost,
                     "usage": func_response.usage,
                     "messages": f_messages,
                     "request_prompt": request_prompt,
                     "llm_latency_seconds": func_response.llm_latency_seconds,
                     "response_prompt": func_response.response_content,
-                    "temperature": self.llm.temperature,
-                    "max_tokens": self.llm.max_tokens,
-                    "top_p": self.llm.top_p,
+                    "temperature": self.function_provider.get_temperature(),
+                    "max_tokens": self.function_provider.get_max_tokens(),
+                    "top_p": self.function_provider.get_top_p(),
                     "status_code": "200",
                 }
             )

@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-from openplugin.core.llms import LLM, Config
+from openplugin.core.config import Config
 from openplugin.core.messages import Message, MessageType
 from openplugin.core.plugin import Plugin
 from openplugin.core.selectors.implementations.plugin_selector_with_imprompt import (

@@ -2,8 +2,8 @@ import json
 import time
 from urllib.parse import urlencode
 
-from loguru import logger
 import requests
+from loguru import logger
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
 from openplugin.utils import get_llm_response_from_messages
@@ -153,10 +153,10 @@ class OperationExecutionWithImprompt(OperationExecution):
                 start_time = time.time()
                 model_name = DEFAULT_MODEL_NAME
                 if (
-                    self.params.llm is not None
-                    and self.params.llm.model_name is not None
+                    self.params.function_provider is not None
+                    and self.params.function_provider.get_model_name() is not None
                 ):
-                    model_name = self.params.llm.model_name
+                    model_name = self.params.function_provider.get_model_name()
 
                 response = get_llm_response_from_messages(
                     msgs=[
