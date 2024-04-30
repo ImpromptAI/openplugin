@@ -64,11 +64,9 @@ def run_function_provider(run_function_input: RunFunctionInput):
             functions.add_from_plugin(plugin)
             function_json = functions.get_json()
         func_response = function_provider.run(run_function_input.prompt, function_json)
-        response=func_response.dict()
-        response["detected_operation"]=""
-        response["detected_method"]="get"
-        return JSONResponse(
-            status_code=200, content={"fc_resonse":response}
-        )
+        response = func_response.dict()
+        response["detected_operation"] = ""
+        response["detected_method"] = "get"
+        return JSONResponse(status_code=200, content={"fc_resonse": response})
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed: {e}"})

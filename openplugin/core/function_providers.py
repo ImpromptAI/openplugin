@@ -135,13 +135,7 @@ class LLMBasedFunctionProvider(FunctionProvider):
         start_time = time.time()
         llm_model = self.llm.convert_to_langchain_llm_model()
         llm_with_tools = llm_model.bind_tools(function_json)
-        print("==-=-=-=-=-= FUNCTION JSON =-=-=-=-=-=-=")
-        print(function_json)
-
         response = llm_with_tools.invoke(request_prompt)
-        print("==-=-=-=-=-= FUNCTION RESPONSE =-=-=-=-=-=-=")
-        print(response)
-
         llm_latency_seconds = time.time() - start_time
         # llm_api_cost = litellm.completion_cost(completion_response=response)
         # TODO
@@ -153,9 +147,6 @@ class LLMBasedFunctionProvider(FunctionProvider):
         tool_calls = response.additional_kwargs.get("tool_calls")
         if not tool_calls:
             tool_calls = response.tool_calls
-        print("==-=-=-=-=-= TOOL CALLS =-=-=-=-=-=-=")
-        print(tool_calls)
-
         is_function_call = False
         function_name = None
         arguments = None
