@@ -1,28 +1,26 @@
+import re
 import time
-import litellm
 from typing import List, Optional
 
-from openplugin.core import (
-    LLM,
-    Config,
-    Functions,
-    Message,
-    Plugin,
-    PluginDetected,
-    SelectedPluginsResponse,
-)
+import litellm
 
+from ...config import Config
+from ...function_providers import FunctionProvider
+from ...functions import Functions
+from ...messages import Message
+from ...plugin import Plugin
+from ...plugin_detected import PluginDetected, SelectedPluginsResponse
 from ..plugin_selector import PluginSelector
-import re
+
 
 class OpenAIPluginSelector(PluginSelector):
     def __init__(
         self,
         plugins: List[Plugin],
         config: Optional[Config],
-        llm: Optional[LLM],
+        function_provider: Optional[FunctionProvider],
     ):
-        super().__init__(plugins, config, llm)
+        super().__init__(plugins, config, function_provider)
         # Initialize the OpenAI API key from the configuration or environment variable
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
@@ -61,17 +59,15 @@ class OpenAIPluginSelector(PluginSelector):
         # while is_a_function_call and count < 5:
         count += 1
         temperature = 0.0
-        if self.llm and self.llm.temperature:
-            temperature = self.llm.temperature
+        if self.function_provider:
+            temperature = self.function_provider.get_temperature()
         max_tokens = 1024
-        if self.llm and self.llm.max_tokens:
-            max_tokens = self.llm.max_tokens
+        if self.function_provider:
+            max_tokens = self.function_provider.get_max_tokens()
         n = 1
-        if self.llm and self.llm.n:
-            n = self.llm.n
         top_p = 1.0
-        if self.llm and self.llm.top_p:
-            top_p = self.llm.top_p
+        if self.function_provider:
+            top_p = self.function_provider.get_top_p()
         litellm.api_key = self.openai_api_key
         response = litellm.completion(
             model="gpt-4",
@@ -89,11 +85,11 @@ class OpenAIPluginSelector(PluginSelector):
             # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
             pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
             matches = pattern.findall(message.get("function_call").name)
-            validated_name = ''.join(matches)
+            validated_name = "".join(matches)
             function_name = validated_name
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
-            p_detected = PluginDetected(
+            PluginDetected(
                 plugin=detected_plugin,
                 api_called=detected_function.get_api_url(),
                 method=detected_function.get_api_method(),

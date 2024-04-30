@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from ..llms import LLM, Config
+from ..config import Config
+from ..function_providers import FunctionProvider
 from ..messages import Message
 from ..plugin import Plugin
 from ..plugin_detected import SelectedPluginsResponse
@@ -14,7 +15,7 @@ class PluginSelector(ABC):
         self,
         plugins: List[Plugin],
         config: Optional[Config],
-        llm: Optional[LLM],
+        function_provider: Optional[FunctionProvider],
     ):
         """
         Initialize the plugin selector.
@@ -25,7 +26,7 @@ class PluginSelector(ABC):
         """
         self.plugins = plugins
         self.config = config
-        self.llm = llm
+        self.function_provider = function_provider
 
     def get_plugin_by_name(self, name: str):
         for plugin in self.plugins:

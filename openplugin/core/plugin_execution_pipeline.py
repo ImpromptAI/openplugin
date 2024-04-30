@@ -1,26 +1,24 @@
 import asyncio
+import re
 from typing import Dict, List, Optional
 
 from loguru import logger
 from pydantic import BaseModel, computed_field
 
+from .config import Config
 from .execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
     OperationExecutionWithImprompt,
 )
+from .function_providers import FunctionProvider
 from .helper import time_taken
-from .llms import Config
 from .messages import Message, MessageType
-from .operations.implementations.operation_signature_builder_with_imprompt import (
-    ImpromptOperationSignatureBuilder,
-)
 from .operations.implementations.operation_signature_builder_with_langchain import (
     LangchainOperationSignatureBuilder,
 )
-from .plugin import Plugin, PreferredApproach
+from .plugin import Plugin
 from .port import Port, PortMetadata, PortType, PortValueError
 
-import re
 
 async def run_module(output_module, flow_port):
     logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
@@ -102,7 +100,7 @@ class PluginExecutionPipeline(BaseModel):
         self,
         input: Port,
         config: Config,
-        preferred_approach: PreferredApproach,
+        function_provider: FunctionProvider,
         header: Optional[dict],
         auth_query_param: Optional[dict],
         output_module_names: Optional[List[str]] = None,
@@ -126,7 +124,7 @@ class PluginExecutionPipeline(BaseModel):
         input_modules.append(flow_port)
 
         api_signature_port = self._run_plugin_signature_selector(
-            input=flow_port, config=config, preferred_approach=preferred_approach
+            input=flow_port, config=config, function_provider=function_provider
         )
 
         logger.info(f"\n[PLUGIN_SIGNATURE_RESPONSE] {api_signature_port.value}")
@@ -135,7 +133,7 @@ class PluginExecutionPipeline(BaseModel):
             config=config,
             header=header,
             auth_query_param=auth_query_param,
-            preferred_approach=preferred_approach,
+            function_provider=function_provider,
         )
         default_output_module = None
         output_module_map = {}
@@ -174,9 +172,9 @@ class PluginExecutionPipeline(BaseModel):
                     response_output_ports.extend(o_ports)
         else:
             default_output_module = "clarifying_response"
-            output_module_map["clarifying_response"] = (
-                api_execution_step.clarifying_response
-            )
+            output_module_map[
+                "clarifying_response"
+            ] = api_execution_step.clarifying_response
 
         if response_output_ports:
             for output_port in response_output_ports:
@@ -187,11 +185,10 @@ class PluginExecutionPipeline(BaseModel):
         if default_output_module is None and response_output_ports:
             default_output_module = response_output_ports[0].name
 
-        
         if output_module_names and "original_response" in output_module_names:
-            output_module_map["original_response"] = (
-                api_execution_step.original_response
-            )
+            output_module_map[
+                "original_response"
+            ] = api_execution_step.original_response
             default_output_module = "original_response"
 
         return PluginExecutionResponse(
@@ -207,57 +204,20 @@ class PluginExecutionPipeline(BaseModel):
         self,
         input: Port,
         config: Config,
-        preferred_approach: PreferredApproach,
+        function_provider: FunctionProvider,
     ) -> Port:
         if input.data_type != PortType.TEXT:
             raise Exception("Input data type to plugin must be text.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        messages = [
-            Message(content=input.value, message_type=MessageType.HumanMessage)
-        ]
-        pipeline_name = preferred_approach.base_strategy
-        llm = preferred_approach.llm
-        if not llm:
-            raise Exception("LLM not provided")
-        logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] pipeline={pipeline_name}, {llm}")
+        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
+        logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] provider]={function_provider}")
         # API signature selector
-        if (
-            pipeline_name.lower()
-            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower()
-            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
-        ):
-            imprompt_selector = ImpromptOperationSignatureBuilder(
-                plugin=self.plugin, config=config, llm=llm, use="openplugin-swagger"
-            )
-            response = imprompt_selector.run(messages)
-        elif pipeline_name.lower() == "LLM Passthrough (Stuffed Swagger)".lower():
-            imprompt_selector = ImpromptOperationSignatureBuilder(
-                plugin=self.plugin, config=config, llm=llm, use="stuffed-swagger"
-            )
-            response = imprompt_selector.run(messages)
-        elif pipeline_name.lower() == "LLM Passthrough (Bare Swagger)".lower():
-            imprompt_selector = ImpromptOperationSignatureBuilder(
-                plugin=self.plugin, config=config, llm=llm, use="bare-swagger"
-            )
-            response = imprompt_selector.run(messages)
-        elif (
-            pipeline_name.lower()
-            == ImpromptOperationSignatureBuilder.get_pipeline_name().lower()
-        ):
-            selector = ImpromptOperationSignatureBuilder(self.plugin, llm, config)
-            response = selector.run(messages)
-        elif (
-            pipeline_name.lower()
-            == LangchainOperationSignatureBuilder.get_pipeline_name().lower()
-        ):
-            oai_selector = LangchainOperationSignatureBuilder(
-                self.plugin, llm, config
-            )
-            response = oai_selector.run(messages)
-        else:
-            raise Exception("Unknown tool selector provider")
+        oai_selector = LangchainOperationSignatureBuilder(
+            plugin=self.plugin, function_provider=function_provider, config=config
+        )
+        response = oai_selector.run(messages)
+
         ops = response.detected_plugin_operations
         if ops and len(ops) > 0:
             status_code = 500
@@ -284,34 +244,32 @@ class PluginExecutionPipeline(BaseModel):
         config: Config,
         header: dict,
         auth_query_param: Optional[dict],
-        preferred_approach: PreferredApproach,
+        function_provider: FunctionProvider,
     ) -> APIExecutionStepResponse:
         if input.data_type != PortType.JSON:
             raise Exception("Input data type to plugin must be JSON.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        
-        api_called = input.value.get("api_called") 
+
+        api_called = input.value.get("api_called")
         method = input.value.get("method")
         query_params = input.value.get("mapped_operation_parameters")
 
         # identify path parameters
-        pattern = re.compile(r'\{([^}]+)\}')
+        pattern = re.compile(r"\{([^}]+)\}")
         path_params = pattern.findall(api_called)
 
         # use path parameter values instead of names in endpoint
-            # "example.com/path/{id}" >> "example.com/path/1"
+        # "example.com/path/{id}" >> "example.com/path/1"
         for param_name in path_params:
             if param_name in query_params:
-                parameter_key = f'{{{param_name}}}'
+                parameter_key = f"{{{param_name}}}"
                 parameter_value = str(query_params[param_name])
                 api_called = api_called.replace(parameter_key, parameter_value)
 
                 # remove matched path parameters from query_params
                 del query_params[param_name]
-        logger.info(
-            f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
-        )
+        logger.info(f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}")
         if auth_query_param:
             query_params.update(auth_query_param)
         params = OperationExecutionParams(
@@ -321,7 +279,7 @@ class PluginExecutionPipeline(BaseModel):
             query_params=query_params,
             body={},
             header=header,
-            llm=preferred_approach.llm,
+            function_provider=function_provider,
         )
         ex = OperationExecutionWithImprompt(params)
         response = ex.run()

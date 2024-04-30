@@ -3,7 +3,8 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
-from ..llms import LLM, Config
+from ..config import Config
+from ..function_providers import FunctionProvider
 
 
 class OperationExecutionResponse(BaseModel):
@@ -24,7 +25,7 @@ class OperationExecutionParams(BaseModel):
     query_params: Optional[dict]
     body: Optional[dict]
     header: Optional[dict]
-    llm: Optional[LLM]
+    function_provider: FunctionProvider
 
     def get_temperature(self):
         if self.llm:

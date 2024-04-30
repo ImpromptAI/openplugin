@@ -5,11 +5,12 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from loguru import logger
 
+from .config import Config
+from .function_providers import FunctionProvider, FunctionProviders
 from .helper import time_taken
-from .llms import Config
-from .plugin import PluginBuilder, PreferredApproach
+from .plugin import PluginBuilder
 from .plugin_execution_pipeline import PluginExecutionPipeline
-from .port import Port, PortType, PortMetadata
+from .port import Port, PortMetadata, PortType
 
 load_dotenv()
 
@@ -20,7 +21,7 @@ async def run_prompt_on_plugin(
     prompt: str,
     config: Optional[Config] = None,
     output_port_types: Optional[List[PortType]] = None,
-    preferred_approach: Optional[PreferredApproach] = None,
+    function_provider: Optional[FunctionProvider] = None,
     log_level: Optional[str] = "INFO",
 ) -> Optional[Port]:
     """
@@ -54,8 +55,8 @@ async def run_prompt_on_plugin(
 
     if config is None:
         config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
-    if preferred_approach is None:
-        preferred_approach = plugin_obj.preferred_approaches[0]
+    if function_provider is None:
+        function_provider = FunctionProviders.build().get_default_provider()
 
     if output_port_types is None:
         output_port_types = plugin_obj.get_output_port_types()
@@ -65,7 +66,7 @@ async def run_prompt_on_plugin(
         config=config,
         header={},
         auth_query_param=None,
-        preferred_approach=preferred_approach,
+        function_provider=function_provider,
         output_module_names=[],
     )
     for key, value in execution_response.output_module_map.items():

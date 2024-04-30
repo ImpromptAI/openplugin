@@ -1,11 +1,12 @@
 import json
+import re
 from typing import Any, Dict, List, Optional
 
 import requests
 from pydantic import BaseModel
 
 from .plugin import Plugin
-import re
+
 
 class API(BaseModel):
     url: str
@@ -78,7 +79,7 @@ class Function(BaseModel):
         # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
         pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
         matches = pattern.findall(self.name)
-        validated_name = ''.join(matches)
+        validated_name = "".join(matches)
 
         json = {
             "name": validated_name,
@@ -126,9 +127,11 @@ class Functions(BaseModel):
                     data = file.read()
                     manifest_obj = json.loads(data)
         elif plugin and plugin.manifest_object:
-            manifest_obj=plugin.manifest_object
+            manifest_obj = plugin.manifest_object
         else:
-            raise ValueError("Manifest URL or Plugin object with manifest object is required")
+            raise ValueError(
+                "Manifest URL or Plugin object with manifest object is required"
+            )
 
         open_api_spec_url = manifest_obj.get("openapi_doc_url")
         valid_operations = []
@@ -211,7 +214,7 @@ class Functions(BaseModel):
                 # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
                 pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
                 matches = pattern.findall(f"{method}{path.replace('/', '_')}")
-                validated_name = ''.join(matches)
+                validated_name = "".join(matches)
                 function_values["name"] = validated_name
                 if details.get("summary") is None:
                     function_values["description"] = function_values["name"]

@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from ..llms import LLM, Config
+from ..config import Config
+from ..function_providers import FunctionProvider
 from ..messages import Message
 from ..plugin import Plugin
 from ..plugin_detected import SelectedApiSignatureResponse
@@ -13,7 +14,7 @@ class OperationSignatureBuilder(ABC):
     def __init__(
         self,
         plugin: Plugin,
-        llm: LLM,
+        function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
@@ -29,7 +30,7 @@ class OperationSignatureBuilder(ABC):
         """
         self.plugin = plugin
         self.config = config
-        self.llm = llm
+        self.function_provider = function_provider
         self.pre_prompts = pre_prompts
         self.selected_operation = selected_operation
 
