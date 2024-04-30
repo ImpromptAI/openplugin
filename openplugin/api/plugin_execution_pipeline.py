@@ -37,7 +37,7 @@ async def plugin_execution_pipeline(
     prompt: str = Body(...),
     header: dict = Body(...),
     function_provider_input: Optional[FunctionProviderInput] = Body(
-        ..., alias="function_provider"
+        None, alias="function_provider"
     ),
     conversation: list = Body(...),
     auth_query_param: Optional[dict] = Body(default=None),

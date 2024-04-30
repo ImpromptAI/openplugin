@@ -223,4 +223,4 @@ class FunctionProviders(BaseModel):
         raise ValueError("Incorrect provider name")
 
     def get_default_provider(self):
-        return self.llm_based_function_providers[0]
+        return self.providers[0]
