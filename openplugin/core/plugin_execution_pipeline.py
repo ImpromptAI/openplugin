@@ -106,6 +106,10 @@ class PluginExecutionPipeline(BaseModel):
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
     ) -> PluginExecutionResponse:
+        if not run_all_output_modules and (
+            output_module_names is None or len(output_module_names) == 0
+        ):
+            output_module_names = ["original_response"]
         config.replace_missing_with_system_keys()
         # setup default keys
         flow_port = input
