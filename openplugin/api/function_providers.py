@@ -67,6 +67,6 @@ def run_function_provider(run_function_input: RunFunctionInput):
         response = func_response.dict()
         response["detected_operation"] = ""
         response["detected_method"] = "get"
-        return JSONResponse(status_code=200, content={"fc_resonse": response})
+        return JSONResponse(status_code=200, content={"fc_response_json": response})
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed: {e}"})
