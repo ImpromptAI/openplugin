@@ -44,13 +44,16 @@ class PluginExecutionResponse(BaseModel):
 
     @computed_field  # type: ignore
     @property
-    def performance_metrics(self) -> List:
+    def tracing_steps(self) -> List:
         metrics = [
             {
                 "name": "input_module_step",
                 "label": "Input Module",
                 "processing_time_seconds": self.input_modules[0].get_metadata(
                     PortMetadata.PROCESSING_TIME_SECONDS
+                ),
+                "processor_logs": self.input_modules[0].get_metadata(
+                    PortMetadata.LOG_PROCESSOR_RUN, []
                 ),
                 "status_code": self.input_modules[0].get_metadata(
                     PortMetadata.STATUS_CODE
@@ -65,6 +68,12 @@ class PluginExecutionResponse(BaseModel):
                 "status_code": self.api_and_signature_detection_step.get(
                     "metadata", {}
                 ).get("status_code"),
+                "input_text": self.api_and_signature_detection_step.get(
+                    "metadata", {}
+                ).get("input_text"),
+                "output_text": self.api_and_signature_detection_step.get(
+                    "metadata", {}
+                ).get("output_text"),
             },
             {
                 "name": "api_execution_step",
@@ -74,6 +83,12 @@ class PluginExecutionResponse(BaseModel):
                 ),
                 "status_code": self.api_execution_step.original_response.get_metadata(
                     PortMetadata.STATUS_CODE
+                ),
+                "input_text": self.api_execution_step.original_response.get_metadata(
+                    PortMetadata.LOG_INPUT_TEXT
+                ),
+                "output_text": self.api_execution_step.original_response.get_metadata(
+                    PortMetadata.LOG_OUTPUT_TEXT
                 ),
             },
         ]
@@ -87,6 +102,7 @@ class PluginExecutionResponse(BaseModel):
                     "processing_time_seconds": item.get_metadata(
                         PortMetadata.PROCESSING_TIME_SECONDS
                     ),
+                    "processor_logs": item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN),
                     "status_code": item.get_metadata(PortMetadata.STATUS_CODE),
                 }
             )
@@ -117,6 +133,13 @@ class PluginExecutionPipeline(BaseModel):
         flow_port.metadata = {
             PortMetadata.PROCESSING_TIME_SECONDS: 0,
             PortMetadata.STATUS_CODE: 200,
+            PortMetadata.LOG_PROCESSOR_RUN: [
+                {
+                    "label": "Standard [No Change]",
+                    "input_text": input.value,
+                    "output_text": input.value
+                }
+            ],
         }
         input_modules: List[Port] = []
         if self.plugin.input_modules:
@@ -227,6 +250,7 @@ class PluginExecutionPipeline(BaseModel):
             status_code = 500
             if response.run_completed:
                 status_code = 200
+            output_port_text = f"api_called={ops[0].api_called}, method={ops[0].method}, mapped_operation_parameters={ops[0].mapped_operation_parameters}"
             val = {
                 "api_called": ops[0].api_called,
                 "method": ops[0].method,
@@ -235,6 +259,8 @@ class PluginExecutionPipeline(BaseModel):
                     "tokens_used": response.tokens_used,
                     "llm_api_cost": response.llm_api_cost,
                     "status_code": status_code,
+                    "input_text": str(input.value),
+                    "output_text": str(output_port_text),
                 },
                 "mapped_operation_parameters": ops[0].mapped_operation_parameters,
             }
@@ -258,6 +284,8 @@ class PluginExecutionPipeline(BaseModel):
         api_called = input.value.get("api_called")
         method = input.value.get("method")
         query_params = input.value.get("mapped_operation_parameters")
+
+        input_port_text = f"api_called={api_called}, method={method}, mapped_operation_parameters={query_params}"
 
         # identify path parameters
         pattern = re.compile(r"\{([^}]+)\}")
@@ -296,6 +324,8 @@ class PluginExecutionPipeline(BaseModel):
             metadata={
                 PortMetadata.PROCESSING_TIME_SECONDS: response.api_call_response_seconds,
                 PortMetadata.STATUS_CODE: response.api_call_status_code,
+                PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                PortMetadata.LOG_OUTPUT_TEXT: str(response.original_response),
             },
         )
 
@@ -309,6 +339,8 @@ class PluginExecutionPipeline(BaseModel):
                 metadata={
                     PortMetadata.PROCESSING_TIME_SECONDS: response.clarifying_question_response_seconds,
                     PortMetadata.STATUS_CODE: response.clarifying_question_status_code,
+                    PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                    PortMetadata.LOG_OUTPUT_TEXT: str(response.original_response),
                 },
             )
         logger.info(f"\n[PLUGIN_EXECUTION_RESPONSE] {original_port.value}")

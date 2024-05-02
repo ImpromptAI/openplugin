@@ -78,6 +78,9 @@ class PortMetadata(Enum):
     TEMPLATE_ENGINE = "template_engine"
     TEMPLATE_MIME_TYPE = "template_mime_type"
     DEFAULT_OUTPUT_MODULE = "default_output_module"
+    LOG_INPUT_TEXT = "log_input_text"
+    LOG_OUTPUT_TEXT = "log_output_text"
+    LOG_PROCESSOR_RUN = "log_processor_run"
 
 
 class Port(BaseModel):
@@ -98,10 +101,10 @@ class Port(BaseModel):
             self.metadata = {}
         self.metadata[key] = value
 
-    def get_metadata(self, key: PortMetadata):
+    def get_metadata(self, key: PortMetadata, default=None):
         if self.metadata is None:
             return None
-        return self.metadata.get(key)
+        return self.metadata.get(key, default)
 
     @field_serializer("data_type")
     def serialize_data_type(self, data_type: PortType, _info):

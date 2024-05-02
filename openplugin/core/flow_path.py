@@ -75,14 +75,24 @@ class FlowPath(BaseModel):
     async def run(self, input: Port) -> Port:
         port = input
         start_time = time.time()
+        processor_run_log = []
         for processor in self.processors:
+            input_text = port.value
             port = await processor.run_processor(port)
+            label = f"{self.name} [{processor.processor.name}]"
+            processor_run_log.append(
+                {
+                    "label": label,
+                    "input_text": str(input_text),
+                    "output_text": str(port.value),
+                }
+            )
         end_time = time.time()
         port.metadata = {
             PortMetadata.PROCESSING_TIME_SECONDS: round((end_time - start_time), 4),
             PortMetadata.STATUS_CODE: 200,
+            PortMetadata.LOG_PROCESSOR_RUN: processor_run_log,
         }
-
         return port
 
     def get_output_port_type(self) -> PortType:
