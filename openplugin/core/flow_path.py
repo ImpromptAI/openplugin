@@ -1,3 +1,4 @@
+import json
 import time
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -78,14 +79,20 @@ class FlowPath(BaseModel):
         processor_run_log = []
         for processor in self.processors:
             input_text = port.value
+            if isinstance(input_text, dict):
+                input_text = json.dumps(input_text)
+            else:
+                input_text = str(input_text)
             port = await processor.run_processor(port)
+
+            output_text = port.value
+            if isinstance(output_text, dict):
+                output_text = json.dumps(output_text)
+            else:
+                output_text = str(output_text)
             label = f"{self.name} [{processor.processor.name}]"
             processor_run_log.append(
-                {
-                    "label": label,
-                    "input_text": str(input_text),
-                    "output_text": str(port.value),
-                }
+                {"label": label, "input_text": input_text, "output_text": output_text}
             )
         end_time = time.time()
         port.metadata = {
