@@ -135,7 +135,7 @@ class PluginExecutionPipeline(BaseModel):
             PortMetadata.STATUS_CODE: 200,
             PortMetadata.LOG_PROCESSOR_RUN: [
                 {
-                    "label": "Standard [No Change]",
+                    "label": "Input Module [Standard]",
                     "input_text": input.value,
                     "output_text": input.value
                 }
