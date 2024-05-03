@@ -1,5 +1,5 @@
 import asyncio
-import re
+import re, json
 from typing import Dict, List, Optional
 
 from loguru import logger
@@ -315,7 +315,6 @@ class PluginExecutionPipeline(BaseModel):
         )
         ex = OperationExecutionWithImprompt(params)
         response = ex.run()
-
         # original port
         original_port = Port(
             name="original_response",
@@ -325,7 +324,7 @@ class PluginExecutionPipeline(BaseModel):
                 PortMetadata.PROCESSING_TIME_SECONDS: response.api_call_response_seconds,
                 PortMetadata.STATUS_CODE: response.api_call_status_code,
                 PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
-                PortMetadata.LOG_OUTPUT_TEXT: str(response.original_response),
+                PortMetadata.LOG_OUTPUT_TEXT: json.dumps(response.original_response),
             },
         )
 
