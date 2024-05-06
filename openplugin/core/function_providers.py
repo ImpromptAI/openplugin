@@ -56,7 +56,7 @@ class FunctionLLM(BaseModel):
                 model=self.model_name,
                 temperature=self.configuration.temperature,
                 max_tokens=self.configuration.max_tokens,
-                fireworks_api_key=os.environ["FIREWORKS"],
+                fireworks_api_key=os.environ["FIREWORKS_API_KEY"],
             )
         elif self.provider.lower() == "anthropic":
             from langchain_anthropic import ChatAnthropic
@@ -78,13 +78,18 @@ class FunctionLLM(BaseModel):
             return ChatCohere(model="command-r")
         elif self.provider.lower() == "groq":
             from langchain_groq import ChatGroq
-
             chat = ChatGroq(
                 temperature=0,
                 groq_api_key=os.environ.get("GROQ_API_KEY"),
                 model_name="mixtral-8x7b-32768",
             )
             return chat
+        elif self.provider.lower() == "togetherai":
+            from langchain_openai import ChatOpenAI
+            return ChatOpenAI(
+                base_url="https://api.together.xyz/v1",
+                api_key=os.environ["TOGETHER_API_KEY"],
+                model=self.model_name)
         else:
             raise ValueError(f"LLM provider {self.provider} not supported")
 
@@ -136,6 +141,7 @@ class LLMBasedFunctionProvider(FunctionProvider):
         llm_model = self.llm.convert_to_langchain_llm_model()
         llm_with_tools = llm_model.bind_tools(function_json)
         response = llm_with_tools.invoke(request_prompt)
+
         llm_latency_seconds = time.time() - start_time
         # llm_api_cost = litellm.completion_cost(completion_response=response)
         # TODO

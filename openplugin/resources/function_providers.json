@@ -108,8 +108,7 @@
             }
         },
         "required_auth_keys": [
-            "TOGETHER_API_KEY",
-            "TOGETHER_BASE_URL"
+            "TOGETHER_API_KEY"
         ]
     },
     {
