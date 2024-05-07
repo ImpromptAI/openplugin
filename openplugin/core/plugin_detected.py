@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -45,3 +45,5 @@ class SelectedApiSignatureResponse(BaseModel):
     tokens_used: Optional[int]
     llm_api_cost: Optional[float]
     llm_calls: Optional[List[Dict]]
+    function_request_json: Optional[Union[Dict, List]] = None
+    function_response_json: Optional[Union[Dict, List]] = None

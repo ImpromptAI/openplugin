@@ -13,6 +13,7 @@ load_dotenv()
 class FunctionResponse(BaseModel):
     response_content: str
     usage: dict
+    response_metadata: dict
     cost: int
     llm_latency_seconds: float
     total_tokens: Optional[int]
@@ -78,6 +79,7 @@ class FunctionLLM(BaseModel):
             return ChatCohere(model="command-r")
         elif self.provider.lower() == "groq":
             from langchain_groq import ChatGroq
+
             chat = ChatGroq(
                 temperature=0,
                 groq_api_key=os.environ.get("GROQ_API_KEY"),
@@ -86,10 +88,12 @@ class FunctionLLM(BaseModel):
             return chat
         elif self.provider.lower() == "togetherai":
             from langchain_openai import ChatOpenAI
+
             return ChatOpenAI(
                 base_url="https://api.together.xyz/v1",
                 api_key=os.environ["TOGETHER_API_KEY"],
-                model=self.model_name)
+                model=self.model_name,
+            )
         else:
             raise ValueError(f"LLM provider {self.provider} not supported")
 
@@ -141,7 +145,6 @@ class LLMBasedFunctionProvider(FunctionProvider):
         llm_model = self.llm.convert_to_langchain_llm_model()
         llm_with_tools = llm_model.bind_tools(function_json)
         response = llm_with_tools.invoke(request_prompt)
-
         llm_latency_seconds = time.time() - start_time
         # llm_api_cost = litellm.completion_cost(completion_response=response)
         # TODO
@@ -153,6 +156,7 @@ class LLMBasedFunctionProvider(FunctionProvider):
         tool_calls = response.additional_kwargs.get("tool_calls")
         if not tool_calls:
             tool_calls = response.tool_calls
+
         is_function_call = False
         function_name = None
         arguments = None
@@ -167,7 +171,10 @@ class LLMBasedFunctionProvider(FunctionProvider):
                 message_json = tool_calls[0]
                 function_name = message_json.get("name")
                 arguments = message_json["args"]
-
+        response_metadata = {
+            "response": response.additional_kwargs,
+            "metadata": response.response_metadata,
+        }
         return FunctionResponse(
             response_content=str(response.content),
             usage=response.response_metadata,
@@ -177,6 +184,7 @@ class LLMBasedFunctionProvider(FunctionProvider):
             is_function_call=is_function_call,
             detected_function_name=function_name,
             detected_function_arguments=arguments,
+            response_metadata=response_metadata,
         )
 
     def get_temperature(self) -> int:

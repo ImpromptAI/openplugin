@@ -72,6 +72,16 @@ class PluginExecutionResponse(BaseModel):
                 "input_text": self.api_and_signature_detection_step.get(
                     "metadata", {}
                 ).get("input_text"),
+                "intermediate_fc_request": json.dumps(
+                    self.api_and_signature_detection_step.get("metadata", {}).get(
+                        "intermediate_fc_request"
+                    )
+                ),
+                "intermediate_fc_response": json.dumps(
+                    self.api_and_signature_detection_step.get("metadata", {}).get(
+                        "intermediate_fc_response"
+                    )
+                ),
                 "output_text": self.api_and_signature_detection_step.get(
                     "metadata", {}
                 ).get("output_text"),
@@ -262,6 +272,8 @@ class PluginExecutionPipeline(BaseModel):
                     "status_code": status_code,
                     "input_text": str(input.value),
                     "output_text": str(output_port_text),
+                    "intermediate_fc_request": response.function_request_json,
+                    "intermediate_fc_response": response.function_response_json,
                 },
                 "mapped_operation_parameters": ops[0].mapped_operation_parameters,
             }

@@ -74,10 +74,12 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
 
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
+        func_response_metadata_json = None
         try:
             func_response: FunctionResponse = self.function_provider.run(
                 request_prompt, function_json
             )
+            func_response_metadata_json = func_response.response_metadata
             llm_calls.append(
                 {
                     "used_for": "signature_builder",
@@ -105,6 +107,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 tokens_used=0,
                 llm_api_cost=0,
                 llm_calls=llm_calls,
+                function_request_json=function_json,
             )
 
         if func_response.is_function_call:
@@ -129,6 +132,8 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             tokens_used=func_response.total_tokens,
             llm_api_cost=func_response.cost,
             llm_calls=llm_calls,
+            function_request_json=function_json,
+            function_response_json=func_response_metadata_json,
         )
         return response_obj
 
