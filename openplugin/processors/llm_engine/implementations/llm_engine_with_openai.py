@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from litellm import completion
@@ -20,6 +21,15 @@ class LLMEngineWithOpenAI(LLMEngine):
         else:
             prompt = str(input.value)
         messages = [{"content": prompt, "role": "user"}]
-        response = completion(model="gpt-3.5-turbo", messages=messages)
+        openai_api_key = None
+        if os.environ.get("OPENAI_API_KEY"):
+            openai_api_key = os.environ.get("OPENAI_API_KEY")
+        elif config is not None and config.openai_api_key is not None:
+            openai_api_key = config.openai_api_key
+        else:
+            raise Exception("LLM Engine with OpenAI: OpenAI API Key not found")
+        response = completion(
+            model="gpt-3.5-turbo", messages=messages, api_key=openai_api_key
+        )
         content = response["choices"][0]["message"]["content"]
         return Port(data_type=PortType.TEXT, value=content)
