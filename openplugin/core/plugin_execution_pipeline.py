@@ -21,9 +21,9 @@ from .plugin import Plugin
 from .port import Port, PortMetadata, PortType, PortValueError
 
 
-async def run_module(output_module, flow_port):
+async def run_module(output_module, flow_port, config: Config):
     logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
-    output_port = await output_module.run(flow_port)
+    output_port = await output_module.run(flow_port, config)
     output_port.name = output_module.name
     if output_module.default_module:
         output_port.add_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE, True)
@@ -189,7 +189,7 @@ class PluginExecutionPipeline(BaseModel):
                 for output_module in supported_output_modules:
                     o_ports = await asyncio.gather(
                         *(
-                            run_module(output_module, flow_port)
+                            run_module(output_module, flow_port, config)
                             for output_module in supported_output_modules
                         )
                     )
@@ -202,7 +202,7 @@ class PluginExecutionPipeline(BaseModel):
                         selected_output_modules.append(output_module)
                 o_ports = await asyncio.gather(
                     *(
-                        run_module(output_module, flow_port)
+                        run_module(output_module, flow_port, config)
                         for output_module in selected_output_modules
                     )
                 )

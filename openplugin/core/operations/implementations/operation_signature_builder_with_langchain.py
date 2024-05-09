@@ -77,7 +77,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         func_response_metadata_json = None
         try:
             func_response: FunctionResponse = self.function_provider.run(
-                request_prompt, function_json
+                request_prompt, function_json, self.config
             )
             func_response_metadata_json = func_response.response_metadata
             llm_calls.append(

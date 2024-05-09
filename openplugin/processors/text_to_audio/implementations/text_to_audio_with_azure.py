@@ -34,6 +34,8 @@ class TextToAudioWithAzure(TextToAudio):
             self.azure_api_key = config.azure_api_key
         if input.value is None:
             raise PortValueError("Input value cannot be None")
+        if config and config.azure_api_key:
+            self.azure_api_key = config.azure_api_key
         text = input.value
         if self.voice_name == "en-US-JasonCustomNeural":
             speech_config = speechsdk.SpeechConfig(

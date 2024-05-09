@@ -7,6 +7,8 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from pydantic import BaseModel, validator
 
+from .config import Config
+
 load_dotenv()
 
 
@@ -33,40 +35,65 @@ class FunctionLLM(BaseModel):
     model_name: str
     configuration: LLMConfig
 
-    def convert_to_langchain_llm_model(self):
+    def convert_to_langchain_llm_model(self, config: Optional[Config]):
         if self.provider.lower() in ["openai", "openaichat"]:
             from langchain_openai import ChatOpenAI
 
+            if os.environ.get("OPENAI_API_KEY") is not None:
+                openai_api_key = os.environ["OPENAI_API_KEY"]
+            elif config is not None and config.openai_api_key is not None:
+                openai_api_key = config.openai_api_key
+            else:
+                raise Exception("OpenAI API Key not found")
             return ChatOpenAI(
                 model=self.model_name,
                 temperature=self.configuration.temperature,
+                api_key=openai_api_key,
             )
         elif self.provider.lower() == "mistral":
             from langchain_mistralai.chat_models import ChatMistralAI
 
+            if os.environ.get("MISTRAL_API_KEY") is not None:
+                mistral_api_key = os.environ["MISTRAL_API_KEY"]
+            elif config is not None and config.mistral_api_key is not None:
+                mistral_api_key = config.mistral_api_key
+            else:
+                raise Exception("MISTRAL_API_KEY API Key not found")
             return ChatMistralAI(
                 model=self.model_name,
                 temperature=self.configuration.temperature,
                 max_tokens=self.configuration.max_tokens,
-                mistral_api_key=os.environ["MISTRAL_API_KEY"],
+                mistral_api_key=mistral_api_key,
             )
         elif self.provider.lower() == "fireworks":
             from langchain_fireworks import ChatFireworks
 
+            if os.environ.get("FIREWORKS_API_KEY") is not None:
+                fireworks_api_key = os.environ["FIREWORKS_API_KEY"]
+            elif config is not None and config.fireworks_api_key is not None:
+                fireworks_api_key = config.fireworks_api_key
+            else:
+                raise Exception("Fireworks API Key not found")
             return ChatFireworks(
                 model=self.model_name,
                 temperature=self.configuration.temperature,
                 max_tokens=self.configuration.max_tokens,
-                fireworks_api_key=os.environ["FIREWORKS_API_KEY"],
+                api_key=fireworks_api_key,
             )
         elif self.provider.lower() == "anthropic":
             from langchain_anthropic import ChatAnthropic
 
+            if os.environ.get("ANTHROPIC_API_KEY") is not None:
+                anthropic_api_key = os.environ["ANTHROPIC_API_KEY"]
+            elif config is not None and config.anthropic_api_key is not None:
+                anthropic_api_key = config.anthropic_api_key
+            else:
+                raise Exception("Anthropic API Key not found")
             return ChatAnthropic(
                 model=self.model_name,
                 temperature=self.configuration.temperature,
                 max_tokens=self.configuration.max_tokens,
-                anthropic_api_key=os.environ["ANTHROPIC_API_KEY"],
+                api_key=anthropic_api_key,
             )
         elif self.provider.lower() == "google":
             from langchain_google_vertexai import ChatVertexAI
@@ -75,23 +102,40 @@ class FunctionLLM(BaseModel):
         elif self.provider.lower() == "cohere":
             from langchain_cohere import ChatCohere
 
-            os.environ["COHERE_API_KEY"] = os.environ.get("COHERE_API_KEY")
-            return ChatCohere(model="command-r")
+            if os.environ.get("COHERE_API_KEY") is not None:
+                cohere_api_key = os.environ["COHERE_API_KEY"]
+            elif config is not None and config.cohere_api_key is not None:
+                cohere_api_key = config.cohere_api_key
+            else:
+                raise Exception("Cohere API Key not found")
+            return ChatCohere(model="command-r", cohere_api_key=cohere_api_key)
         elif self.provider.lower() == "groq":
             from langchain_groq import ChatGroq
 
-            chat = ChatGroq(
+            if os.environ.get("GROQ_API_KEY") is not None:
+                groq_api_key = os.environ["GROQ_API_KEY"]
+            elif config is not None and config.groq_api_key is not None:
+                groq_api_key = config.groq_api_key
+            else:
+                raise Exception("Groq API Key not found")
+            return ChatGroq(
                 temperature=0,
-                groq_api_key=os.environ.get("GROQ_API_KEY"),
+                groq_api_key=groq_api_key,
                 model_name="mixtral-8x7b-32768",
             )
-            return chat
         elif self.provider.lower() == "togetherai":
             from langchain_openai import ChatOpenAI
 
+            if os.environ.get("TOGETHER_API_KEY") is not None:
+                together_api_key = os.environ["TOGETHER_API_KEY"]
+            elif config is not None and config.together_api_Key is not None:
+                together_api_key = config.together_api_Key
+            else:
+                raise Exception("Together API Key not found")
+
             return ChatOpenAI(
                 base_url="https://api.together.xyz/v1",
-                api_key=os.environ["TOGETHER_API_KEY"],
+                api_key=together_api_key,
                 model=self.model_name,
             )
         else:
@@ -133,16 +177,20 @@ class FunctionProvider(BaseModel):
         pass
 
     @abstractmethod
-    def run(self, request_prompt: str, function_json) -> FunctionResponse:
+    def run(
+        self, request_prompt: str, function_json, config: Optional[Config]
+    ) -> FunctionResponse:
         pass
 
 
 class LLMBasedFunctionProvider(FunctionProvider):
     llm: FunctionLLM
 
-    def run(self, request_prompt: str, function_json) -> FunctionResponse:
+    def run(
+        self, request_prompt: str, function_json, config: Optional[Config]
+    ) -> FunctionResponse:
         start_time = time.time()
-        llm_model = self.llm.convert_to_langchain_llm_model()
+        llm_model = self.llm.convert_to_langchain_llm_model(config)
         llm_with_tools = llm_model.bind_tools(function_json)
         response = llm_with_tools.invoke(request_prompt)
         llm_latency_seconds = time.time() - start_time

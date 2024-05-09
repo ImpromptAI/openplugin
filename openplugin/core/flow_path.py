@@ -12,6 +12,7 @@ from openplugin.processors import (
     get_processor_from_str,
 )
 
+from .config import Config
 from .helper import time_taken
 from .port import PORT_TYPE_MAPPING, Port, PortMetadata, PortType
 
@@ -50,8 +51,8 @@ class ProcessorNode(BaseModel):
         return values
 
     @time_taken
-    async def run_processor(self, input: Port) -> Port:
-        return await self.processor.process(input)
+    async def run_processor(self, input: Port, config: Config) -> Port:
+        return await self.processor.process(input, config)
 
 
 class FlowPath(BaseModel):
@@ -73,7 +74,7 @@ class FlowPath(BaseModel):
         values["log_title"] = f"[MODULE-PROCESSING-FINISHED] name={values['name']}"
         return values
 
-    async def run(self, input: Port) -> Port:
+    async def run(self, input: Port, config: Config) -> Port:
         port = input
         start_time = time.time()
         processor_run_log = []
@@ -83,7 +84,7 @@ class FlowPath(BaseModel):
                 input_text = json.dumps(input_text)
             else:
                 input_text = str(input_text)
-            port = await processor.run_processor(port)
+            port = await processor.run_processor(port, config)
 
             output_text = port.value
             if isinstance(output_text, dict):
