@@ -1,7 +1,7 @@
 import datetime
 import os
 import traceback
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
@@ -12,7 +12,10 @@ from openplugin.api import auth
 from openplugin.core.config import Config
 from openplugin.core.function_providers import FunctionProviders
 from openplugin.core.plugin import PluginBuilder
-from openplugin.core.plugin_execution_pipeline import PluginExecutionPipeline
+from openplugin.core.plugin_execution_pipeline import (
+    PluginExecutionPipeline,
+    PluginExecutionPipelineError,
+)
 from openplugin.core.port import Port, PortType
 
 # Create a FastAPI router instance
@@ -46,33 +49,41 @@ async def plugin_execution_pipeline(
     output_module_names: Optional[List[str]] = None,
     api_key: APIKey = Depends(auth.get_api_key),
 ) -> JSONResponse:
-    try:
-        start = datetime.datetime.now()
-        input = Port(data_type=PortType.TEXT, value=prompt)
-        if openplugin_manifest_obj is not None:
-            plugin_obj = PluginBuilder.build_from_manifest_obj(openplugin_manifest_obj)
-        elif openplugin_manifest_url is not None:
-            if openplugin_manifest_url.startswith("http"):
-                plugin_obj = PluginBuilder.build_from_manifest_url(
-                    openplugin_manifest_url
-                )
-            else:
-                plugin_obj = PluginBuilder.build_from_manifest_file(
-                    openplugin_manifest_url
-                )
-        else:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "message": "Either manifest URL or manifest object is required"
-                },
+    start = datetime.datetime.now()
+    input = Port(data_type=PortType.TEXT, value=prompt)
+    if openplugin_manifest_obj is not None:
+        plugin_obj = PluginBuilder.build_from_manifest_obj(openplugin_manifest_obj)
+    elif openplugin_manifest_url is not None:
+        if openplugin_manifest_url.startswith("http"):
+            plugin_obj = PluginBuilder.build_from_manifest_url(
+                openplugin_manifest_url
             )
+        else:
+            plugin_obj = PluginBuilder.build_from_manifest_file(
+                openplugin_manifest_url
+            )
+    else:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "message": "Either manifest URL or manifest object is required"
+            },
+        )
 
-        if config is None:
+    if config is None:
+        if "OPENAI_API_KEY" in os.environ:
             config = Config(openai_api_key=os.environ["OPENAI_API_KEY"])
-        pipeline = PluginExecutionPipeline(plugin=plugin_obj)
-        if function_provider_input is None:
-            function_provider_input = function_providers.get_default_provider()
+        else:
+            config = Config()
+
+    pipeline = PluginExecutionPipeline(plugin=plugin_obj)
+    if function_provider_input is None:
+        function_provider_input = function_providers.get_default_provider()
+
+    json_data = {}
+    error = None
+    trace: Dict[Any, Any] = {"steps": []}
+    try:
         response_obj = await pipeline.start(
             input=input,
             config=config,
@@ -84,24 +95,35 @@ async def plugin_execution_pipeline(
             output_module_names=output_module_names,
             run_all_output_modules=run_all_output_modules,
         )
+        status_code = 200
         json_data = response_obj.model_dump(
             exclude={"output_ports__type_object", "output_ports__value"}
         )
-        end = datetime.datetime.now()
-        elapsed_time = end - start
-        response = {
-            "metadata": {
-                "start_time": start.strftime("%Y-%m-%d %H:%M:%S.%f"),
-                "end_time": end.strftime("%Y-%m-%d %H:%M:%S.%f"),
-                "total_time_taken_seconds": elapsed_time.total_seconds(),
-                "total_time_taken_ms": elapsed_time.microseconds,
-            },
-            "response": json_data,
-        }
-        return JSONResponse(status_code=200, content=response)
-    except Exception as e:
-        print(e)
+    except PluginExecutionPipelineError as e:
+        status_code = 500
         traceback.print_exc()
-        return JSONResponse(
-            status_code=500, content={"message": f"Failed to run plugin. {e}"}
-        )
+        error = {"message": e.message}
+    except Exception as e:
+        status_code = 500
+        traceback.print_exc()
+        error_message = f"Failed to run plugin. {e}"
+        error = {"message": error_message}
+
+    trace = {"steps": pipeline.tracing_steps}
+    end = datetime.datetime.now()
+    elapsed_time = end - start
+    response = {
+        "metadata": {
+            "start_time": start.strftime("%Y-%m-%d %H:%M:%S.%f"),
+            "end_time": end.strftime("%Y-%m-%d %H:%M:%S.%f"),
+            "total_time_taken_seconds": elapsed_time.total_seconds(),
+            "total_time_taken_ms": elapsed_time.microseconds,
+            "function_provider_name": function_provider_input.name,
+            "output_module_names": output_module_names,
+            "cost": None,
+        },
+        "response": json_data,
+        "error": error,
+        "trace": trace,
+    }
+    return JSONResponse(status_code=status_code, content=response)

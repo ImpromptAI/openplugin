@@ -128,8 +128,8 @@ class FunctionLLM(BaseModel):
 
             if os.environ.get("TOGETHER_API_KEY") is not None:
                 together_api_key = os.environ["TOGETHER_API_KEY"]
-            elif config is not None and config.together_api_Key is not None:
-                together_api_key = config.together_api_Key
+            elif config is not None and config.together_api_key is not None:
+                together_api_key = config.together_api_key
             else:
                 raise Exception("Together API Key not found")
 
@@ -147,6 +147,7 @@ class FunctionProvider(BaseModel):
     required_auth_keys: set
     type: str
     is_supported: bool = False
+    is_default: bool = False
 
     @validator("is_supported", pre=True, always=True)
     def set_is_supported(cls, v, values):

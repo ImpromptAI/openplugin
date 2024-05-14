@@ -12,6 +12,19 @@
         "required_auth_keys": [
             "OPENAI_API_KEY"
         ]
+    },{
+        "name": "OpenAI [gpt-4o]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "OpenAI",
+            "model_name": "gpt-4o",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "OPENAI_API_KEY"
+        ]
     },
     {
         "name": "OpenAI [gpt-3.5-turbo-0613]",
@@ -81,20 +94,6 @@
         },
         "required_auth_keys": [
             "FIREWORKS_API_KEY"
-        ]
-    },
-    {
-        "name": "Mistral [mistral-large-latest]",
-        "type": "llm-based",
-        "llm": {
-            "provider": "Mistral",
-            "model_name": "mistral-large-latest",
-            "configuration": {
-                "temperature": 0
-            }
-        },
-        "required_auth_keys": [
-            "MISTRAL_API_KEY"
         ]
     },
     {

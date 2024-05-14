@@ -1,10 +1,10 @@
 import asyncio
 import json
 import re
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from loguru import logger
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel
 
 from .config import Config
 from .execution.implementations.operation_execution_with_imprompt import (
@@ -22,18 +22,38 @@ from .port import Port, PortMetadata, PortType, PortValueError
 
 
 async def run_module(output_module, flow_port, config: Config):
-    logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
-    output_port = await output_module.run(flow_port, config)
-    output_port.name = output_module.name
-    if output_module.default_module:
-        output_port.add_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE, True)
-    logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
-    return output_port
+    try:
+        logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
+        output_port = await output_module.run(flow_port, config)
+        output_port.name = output_module.name
+        if output_module.default_module:
+            output_port.add_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE, True)
+        logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
+        return output_port
+    except Exception as e:
+        raise PluginExecutionPipelineError(
+            message=f"Output Module Error for {output_module.name}: {e}"
+        )
 
 
 class APIExecutionStepResponse(BaseModel):
     original_response: Port
     clarifying_response: Optional[Port]
+
+
+class PluginExecutionPipelineError(Exception):
+    """Exception raised when a plugin execution operation is not found.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message="Plugin execution pipeline failed."):
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self):
+        return self.message
 
 
 class PluginExecutionResponse(BaseModel):
@@ -43,85 +63,10 @@ class PluginExecutionResponse(BaseModel):
     output_module_map: Dict[str, Port]
     default_output_module: Optional[str]
 
-    @computed_field  # type: ignore
-    @property
-    def tracing_steps(self) -> List:
-        metrics = [
-            {
-                "name": "input_module_step",
-                "label": "Input Module",
-                "processing_time_seconds": self.input_modules[0].get_metadata(
-                    PortMetadata.PROCESSING_TIME_SECONDS
-                ),
-                "processor_logs": self.input_modules[0].get_metadata(
-                    PortMetadata.LOG_PROCESSOR_RUN, []
-                ),
-                "status_code": self.input_modules[0].get_metadata(
-                    PortMetadata.STATUS_CODE
-                ),
-            },
-            {
-                "name": "api_and_signature_detection_step",
-                "label": "Signature Creation (w/ LLM)",
-                "processing_time_seconds": self.api_and_signature_detection_step.get(
-                    "metadata", {}
-                ).get("processing_time_seconds"),
-                "status_code": self.api_and_signature_detection_step.get(
-                    "metadata", {}
-                ).get("status_code"),
-                "input_text": self.api_and_signature_detection_step.get(
-                    "metadata", {}
-                ).get("input_text"),
-                "intermediate_fc_request": json.dumps(
-                    self.api_and_signature_detection_step.get("metadata", {}).get(
-                        "intermediate_fc_request"
-                    )
-                ),
-                "intermediate_fc_response": json.dumps(
-                    self.api_and_signature_detection_step.get("metadata", {}).get(
-                        "intermediate_fc_response"
-                    )
-                ),
-                "output_text": self.api_and_signature_detection_step.get(
-                    "metadata", {}
-                ).get("output_text"),
-            },
-            {
-                "name": "api_execution_step",
-                "label": "API Execution",
-                "processing_time_seconds": self.api_execution_step.original_response.get_metadata(
-                    PortMetadata.PROCESSING_TIME_SECONDS
-                ),
-                "status_code": self.api_execution_step.original_response.get_metadata(
-                    PortMetadata.STATUS_CODE
-                ),
-                "input_text": self.api_execution_step.original_response.get_metadata(
-                    PortMetadata.LOG_INPUT_TEXT
-                ),
-                "output_text": self.api_execution_step.original_response.get_metadata(
-                    PortMetadata.LOG_OUTPUT_TEXT
-                ),
-            },
-        ]
-
-        for key, item in self.output_module_map.items():
-            metrics.append(
-                {
-                    "name": item.name,
-                    "label": f"Output Module [ {item.name.replace('_',' ')} ]",
-                    "parallel": True,
-                    "processing_time_seconds": item.get_metadata(
-                        PortMetadata.PROCESSING_TIME_SECONDS
-                    ),
-                    "processor_logs": item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN),
-                    "status_code": item.get_metadata(PortMetadata.STATUS_CODE),
-                }
-            )
-        return metrics
-
 
 class PluginExecutionPipeline(BaseModel):
     plugin: Plugin
+    tracing_steps: List[Dict[Any, Any]] = []
 
     async def start(
         self,
@@ -138,34 +83,18 @@ class PluginExecutionPipeline(BaseModel):
         ):
             output_module_names = ["original_response"]
         config.replace_missing_with_system_keys()
-        # setup default keys
-        flow_port = input
-        flow_port.name = "default_no_change_input"
-        flow_port.metadata = {
-            PortMetadata.PROCESSING_TIME_SECONDS: 0,
-            PortMetadata.STATUS_CODE: 200,
-            PortMetadata.LOG_PROCESSOR_RUN: [
-                {
-                    "label": "Input Module [Standard]",
-                    "input_text": input.value,
-                    "output_text": input.value,
-                }
-            ],
-        }
+
+        # INPUT MODULE PROCESSING
         input_modules: List[Port] = []
-        if self.plugin.input_modules:
-            for input_module in self.plugin.input_modules:
-                if input_module.initial_input_port.data_type == flow_port.data_type:
-                    logger.info(f"\n[RUNNING_INPUT_MODULE] {input_module}")
-                    flow_port = await input_module.run(flow_port)
-                    break
+        flow_port = await self._input_module_processing(input, config)
         input_modules.append(flow_port)
 
+        # API SIGNATURE DETECTION
         api_signature_port = self._run_plugin_signature_selector(
             input=flow_port, config=config, function_provider=function_provider
         )
 
-        logger.info(f"\n[PLUGIN_SIGNATURE_RESPONSE] {api_signature_port.value}")
+        # API EXECUTION
         api_execution_step = self._run_plugin_execution(
             input=api_signature_port,
             config=config,
@@ -173,61 +102,17 @@ class PluginExecutionPipeline(BaseModel):
             auth_query_param=auth_query_param,
             function_provider=function_provider,
         )
-        default_output_module = None
-        output_module_map = {}
-        if api_execution_step.clarifying_response is None:
-            flow_port = api_execution_step.original_response
-            response_output_ports: List[Port] = []
 
-            api_called = api_signature_port.value.get("api_called")
-            method = api_signature_port.value.get("method")
-
-            supported_output_modules = self.plugin.get_supported_output_modules(
-                operation=api_called, method=method
+        # OUTPUT MODULE PROCESSING
+        output_module_map, default_output_module = (
+            await self._output_module_processing(
+                api_execution_step,
+                api_signature_port,
+                config,
+                run_all_output_modules,
+                output_module_names,
             )
-            if run_all_output_modules and supported_output_modules:
-                for output_module in supported_output_modules:
-                    o_ports = await asyncio.gather(
-                        *(
-                            run_module(output_module, flow_port, config)
-                            for output_module in supported_output_modules
-                        )
-                    )
-                    if o_ports:
-                        response_output_ports.extend(o_ports)
-            elif output_module_names and supported_output_modules:
-                selected_output_modules = []
-                for output_module in supported_output_modules:
-                    if output_module.name in output_module_names:
-                        selected_output_modules.append(output_module)
-                o_ports = await asyncio.gather(
-                    *(
-                        run_module(output_module, flow_port, config)
-                        for output_module in selected_output_modules
-                    )
-                )
-                if o_ports:
-                    response_output_ports.extend(o_ports)
-        else:
-            default_output_module = "clarifying_response"
-            output_module_map[
-                "clarifying_response"
-            ] = api_execution_step.clarifying_response
-
-        if response_output_ports:
-            for output_port in response_output_ports:
-                output_module_map[output_port.name] = output_port
-                if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
-                    default_output_module = output_port.name
-        # set the first one as default if not set in manifest
-        if default_output_module is None and response_output_ports:
-            default_output_module = response_output_ports[0].name
-
-        if output_module_names and "original_response" in output_module_names:
-            output_module_map[
-                "original_response"
-            ] = api_execution_step.original_response
-            default_output_module = "original_response"
+        )
 
         return PluginExecutionResponse(
             input_modules=input_modules,
@@ -235,6 +120,184 @@ class PluginExecutionPipeline(BaseModel):
             api_execution_step=api_execution_step,
             api_and_signature_detection_step=api_signature_port.value,
             default_output_module=default_output_module,
+        )
+
+    async def _output_module_processing(
+        self,
+        api_execution_step: APIExecutionStepResponse,
+        api_signature_port: Port,
+        config: Config,
+        run_all_output_modules: bool = False,
+        output_module_names: Optional[List[str]] = None,
+    ):
+        try:
+            output_module_map = {}
+            default_output_module = None
+            if api_execution_step.clarifying_response is None:
+                flow_port = api_execution_step.original_response
+                response_output_ports: List[Port] = []
+                if api_signature_port.value is None:
+                    raise PluginExecutionPipelineError(
+                        message="API Signature Detection Error: No operations found."
+                    )
+                api_called = api_signature_port.value.get("api_called")
+                method = api_signature_port.value.get("method")
+
+                supported_output_modules = self.plugin.get_supported_output_modules(
+                    operation=api_called, method=method
+                )
+                if run_all_output_modules and supported_output_modules:
+                    for output_module in supported_output_modules:
+                        o_ports = await asyncio.gather(
+                            *(
+                                run_module(output_module, flow_port, config)
+                                for output_module in supported_output_modules
+                            )
+                        )
+                        if o_ports:
+                            response_output_ports.extend(o_ports)
+                elif output_module_names and supported_output_modules:
+                    selected_output_modules = []
+                    for output_module in supported_output_modules:
+                        if output_module.name in output_module_names:
+                            selected_output_modules.append(output_module)
+                    o_ports = await asyncio.gather(
+                        *(
+                            run_module(output_module, flow_port, config)
+                            for output_module in selected_output_modules
+                        )
+                    )
+                    if o_ports:
+                        response_output_ports.extend(o_ports)
+            else:
+                default_output_module = "clarifying_response"
+                output_module_map["clarifying_response"] = (
+                    api_execution_step.clarifying_response
+                )
+
+            if response_output_ports:
+                for output_port in response_output_ports:
+                    self.add_output_module_trace(output_port)
+                    output_module_map[output_port.name] = output_port
+                    if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
+                        default_output_module = output_port.name
+
+            # set the first one as default if not set in manifest
+            if default_output_module is None and response_output_ports:
+                default_output_module = response_output_ports[0].name
+
+            if output_module_names and "original_response" in output_module_names:
+                output_module_map["original_response"] = (
+                    api_execution_step.original_response
+                )
+                default_output_module = "original_response"
+
+            return output_module_map, default_output_module
+        except Exception as e:
+            raise PluginExecutionPipelineError(message=f"Output Module Error: {e}")
+
+    async def _input_module_processing(
+        self,
+        input: Port,
+        config: Config,
+    ):
+        try:
+            flow_port = input
+            flow_port.name = "default_no_change_input"
+            flow_port.metadata = {
+                PortMetadata.PROCESSING_TIME_SECONDS: 0,
+                PortMetadata.STATUS_CODE: 200,
+                PortMetadata.LOG_PROCESSOR_RUN: [
+                    {
+                        "label": "Input Module [Standard]",
+                        "input_text": input.value,
+                        "output_text": input.value,
+                    }
+                ],
+            }
+            if self.plugin.input_modules:
+                for input_module in self.plugin.input_modules:
+                    if (
+                        input_module.initial_input_port.data_type
+                        == flow_port.data_type
+                    ):
+                        logger.info(f"\n[RUNNING_INPUT_MODULE] {input_module}")
+                        flow_port = await input_module.run(flow_port, config)
+                        break
+            self.add_input_module_trace(flow_port)
+            return flow_port
+        except Exception as e:
+            raise PluginExecutionPipelineError(message=f"Input Module Error: {e}")
+
+    def add_input_module_trace(self, input_module: Port):
+        self.tracing_steps.append(
+            {
+                "name": "input_module_step",
+                "label": "Input Module",
+                "processing_time_seconds": input_module.get_metadata(
+                    PortMetadata.PROCESSING_TIME_SECONDS
+                ),
+                "processor_logs": input_module.get_metadata(
+                    PortMetadata.LOG_PROCESSOR_RUN, []
+                ),
+                "status_code": input_module.get_metadata(PortMetadata.STATUS_CODE),
+            }
+        )
+
+    def add_signature_detection_trace(self, signature_port: Dict[Any, Any]):
+        self.tracing_steps.append(
+            {
+                "name": "api_and_signature_detection_step",
+                "label": "Signature Creation (w/ LLM)",
+                "processing_time_seconds": signature_port.get("metadata", {}).get(
+                    "processing_time_seconds"
+                ),
+                "status_code": signature_port.get("metadata", {}).get("status_code"),
+                "input_text": signature_port.get("metadata", {}).get("input_text"),
+                "intermediate_fc_request": json.dumps(
+                    signature_port.get("metadata", {}).get("intermediate_fc_request")
+                ),
+                "intermediate_fc_response": json.dumps(
+                    signature_port.get("metadata", {}).get(
+                        "intermediate_fc_response"
+                    )
+                ),
+                "output_text": signature_port.get("metadata", {}).get("output_text"),
+            }
+        )
+
+    def add_api_execution_trace(self, api_execution_step):
+        self.tracing_steps.append(
+            {
+                "name": "api_execution_step",
+                "label": "API Execution",
+                "processing_time_seconds": api_execution_step.original_response.get_metadata(
+                    PortMetadata.PROCESSING_TIME_SECONDS
+                ),
+                "status_code": api_execution_step.original_response.get_metadata(
+                    PortMetadata.STATUS_CODE
+                ),
+                "input_text": api_execution_step.original_response.get_metadata(
+                    PortMetadata.LOG_INPUT_TEXT
+                ),
+                "output_text": api_execution_step.original_response.get_metadata(
+                    PortMetadata.LOG_OUTPUT_TEXT
+                ),
+            }
+        )
+
+    def add_output_module_trace(self, item: Port):
+        self.tracing_steps.append(
+            {
+                "name": item.name,
+                "label": f"Output Module [ {item.name.replace('_',' ')} ]",
+                "parallel": True,
+                "processing_time_seconds": item.get_metadata(
+                    PortMetadata.PROCESSING_TIME_SECONDS
+                ),
+                "processor_logs": item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN),
+                "status_code": item.get_metadata(PortMetadata.STATUS_CODE),
+            }
         )
 
     @time_taken
@@ -248,7 +311,9 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be text.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
+        messages = [
+            Message(content=input.value, message_type=MessageType.HumanMessage)
+        ]
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] provider]={function_provider}")
         # API signature selector
         oai_selector = LangchainOperationSignatureBuilder(
@@ -277,8 +342,31 @@ class PluginExecutionPipeline(BaseModel):
                 },
                 "mapped_operation_parameters": ops[0].mapped_operation_parameters,
             }
+            self.add_signature_detection_trace(val)
             return Port(data_type=PortType.JSON, value=val)
-        raise Exception("No operations detected")
+        else:
+            val = {
+                "api_called": None,
+                "method": None,
+                "mapped_operation_parameters": None,
+                "metadata": {
+                    "processing_time_seconds": response.response_time,
+                    "tokens_used": response.tokens_used,
+                    "llm_api_cost": response.llm_api_cost,
+                    "status_code": 500,
+                    "input_text": str(input.value),
+                    "output_text": "No operations found",
+                    "intermediate_fc_request": response.function_request_json,
+                    "intermediate_fc_response": response.function_response_json,
+                },
+            }
+            self.add_signature_detection_trace(val)
+            if response.run_completed is False:
+                raise PluginExecutionPipelineError(
+                    message=f"Failed to run plugin signature selector. {response.final_text_response}"
+                )
+            else:
+                raise PluginExecutionPipelineError(message="No operations found.")
 
     @time_taken
     def _run_plugin_execution(
@@ -293,74 +381,82 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be JSON.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
+        try:
+            api_called = input.value.get("api_called")
+            method = input.value.get("method")
+            query_params = input.value.get("mapped_operation_parameters")
 
-        api_called = input.value.get("api_called")
-        method = input.value.get("method")
-        query_params = input.value.get("mapped_operation_parameters")
+            input_port_text = f"api_called={api_called}, method={method}, mapped_operation_parameters={query_params}"
 
-        input_port_text = f"api_called={api_called}, method={method}, mapped_operation_parameters={query_params}"
+            # identify path parameters
+            pattern = re.compile(r"\{([^}]+)\}")
+            path_params = pattern.findall(api_called)
 
-        # identify path parameters
-        pattern = re.compile(r"\{([^}]+)\}")
-        path_params = pattern.findall(api_called)
+            # use path parameter values instead of names in endpoint
+            # "example.com/path/{id}" >> "example.com/path/1"
+            for param_name in path_params:
+                if param_name in query_params:
+                    parameter_key = f"{{{param_name}}}"
+                    parameter_value = str(query_params[param_name])
+                    api_called = api_called.replace(parameter_key, parameter_value)
 
-        # use path parameter values instead of names in endpoint
-        # "example.com/path/{id}" >> "example.com/path/1"
-        for param_name in path_params:
-            if param_name in query_params:
-                parameter_key = f"{{{param_name}}}"
-                parameter_value = str(query_params[param_name])
-                api_called = api_called.replace(parameter_key, parameter_value)
-
-                # remove matched path parameters from query_params
-                del query_params[param_name]
-        logger.info(f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}")
-        if auth_query_param:
-            query_params.update(auth_query_param)
-        params = OperationExecutionParams(
-            config=config,
-            api=api_called,
-            method=method,
-            query_params=query_params,
-            body={},
-            header=header,
-            function_provider=function_provider,
-        )
-        ex = OperationExecutionWithImprompt(params)
-        response = ex.run()
-        # original port
-        if isinstance(response.original_response, dict):
-            output_text = json.dumps(response.original_response)
-        else:
-            output_text = str(response.original_response)
-        original_port = Port(
-            name="original_response",
-            data_type=PortType.JSON,
-            value=response.original_response,
-            metadata={
-                PortMetadata.PROCESSING_TIME_SECONDS: response.api_call_response_seconds,
-                PortMetadata.STATUS_CODE: response.api_call_status_code,
-                PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
-                PortMetadata.LOG_OUTPUT_TEXT: output_text,
-            },
-        )
-
-        # clarifying question
-        clarifying_port = None
-        if response.clarifying_response:
-            clarifying_port = Port(
-                name="clarifying_response",
-                data_type=PortType.TEXT,
-                value=response.clarifying_response,
+                    # remove matched path parameters from query_params
+                    del query_params[param_name]
+            logger.info(
+                f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
+            )
+            if auth_query_param:
+                query_params.update(auth_query_param)
+            params = OperationExecutionParams(
+                config=config,
+                api=api_called,
+                method=method,
+                query_params=query_params,
+                body={},
+                header=header,
+                function_provider=function_provider,
+            )
+            ex = OperationExecutionWithImprompt(params)
+            response = ex.run()
+            # original port
+            if isinstance(response.original_response, dict):
+                output_text = json.dumps(response.original_response)
+            else:
+                output_text = str(response.original_response)
+            original_port = Port(
+                name="original_response",
+                data_type=PortType.JSON,
+                value=response.original_response,
                 metadata={
-                    PortMetadata.PROCESSING_TIME_SECONDS: response.clarifying_question_response_seconds,
-                    PortMetadata.STATUS_CODE: response.clarifying_question_status_code,
+                    PortMetadata.PROCESSING_TIME_SECONDS: response.api_call_response_seconds,
+                    PortMetadata.STATUS_CODE: response.api_call_status_code,
                     PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
-                    PortMetadata.LOG_OUTPUT_TEXT: str(response.original_response),
+                    PortMetadata.LOG_OUTPUT_TEXT: output_text,
                 },
             )
-        logger.info(f"\n[PLUGIN_EXECUTION_RESPONSE] {original_port.value}")
-        return APIExecutionStepResponse(
-            original_response=original_port,
-            clarifying_response=clarifying_port,
-        )
+
+            # clarifying question
+            clarifying_port = None
+            if response.clarifying_response:
+                clarifying_port = Port(
+                    name="clarifying_response",
+                    data_type=PortType.TEXT,
+                    value=response.clarifying_response,
+                    metadata={
+                        PortMetadata.PROCESSING_TIME_SECONDS: response.clarifying_question_response_seconds,
+                        PortMetadata.STATUS_CODE: response.clarifying_question_status_code,
+                        PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                        PortMetadata.LOG_OUTPUT_TEXT: str(
+                            response.original_response
+                        ),
+                    },
+                )
+            logger.info(f"\n[PLUGIN_EXECUTION_RESPONSE] {original_port.value}")
+            api_execution_step = APIExecutionStepResponse(
+                original_response=original_port,
+                clarifying_response=clarifying_port,
+            )
+            self.add_api_execution_trace(api_execution_step)
+            return api_execution_step
+        except Exception as e:
+            raise PluginExecutionPipelineError(message=f"API Execution Error: {e}")

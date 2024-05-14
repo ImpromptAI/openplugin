@@ -16,12 +16,12 @@ class Config(BaseModel):
     fireworks_api_key: Optional[str] = None
     google_palm_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
+    together_api_key: Optional[str] = None
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None
     aws_region_name: Optional[str] = None
     azure_api_key: Optional[str] = None
     groq_api_key: Optional[str] = None
-    together_api_Key: Optional[str] = None
 
     def replace_missing_with_system_keys(self):
         if not self.openai_api_key and os.environ.get("OPENAI_API_KEY"):
