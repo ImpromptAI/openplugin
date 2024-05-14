@@ -22,13 +22,18 @@ from .port import Port, PortMetadata, PortType, PortValueError
 
 
 async def run_module(output_module, flow_port, config: Config):
-    logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
-    output_port = await output_module.run(flow_port, config)
-    output_port.name = output_module.name
-    if output_module.default_module:
-        output_port.add_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE, True)
-    logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
-    return output_port
+    try:
+        logger.info(f"\n[RUNNING_OUTPUT_MODULE] {output_module}")
+        output_port = await output_module.run(flow_port, config)
+        output_port.name = output_module.name
+        if output_module.default_module:
+            output_port.add_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE, True)
+        logger.info(f"\n[FINAL_RESPONSE] {output_port.value}")
+        return output_port
+    except Exception as e:
+        raise PluginExecutionPipelineError(
+            message=f"Output Module Error for {output_module.name}: {e}"
+        )
 
 
 class APIExecutionStepResponse(BaseModel):
@@ -99,12 +104,14 @@ class PluginExecutionPipeline(BaseModel):
         )
 
         # OUTPUT MODULE PROCESSING
-        output_module_map, default_output_module = await self._output_module_processing(
-            api_execution_step,
-            api_signature_port,
-            config,
-            run_all_output_modules,
-            output_module_names,
+        output_module_map, default_output_module = (
+            await self._output_module_processing(
+                api_execution_step,
+                api_signature_port,
+                config,
+                run_all_output_modules,
+                output_module_names,
+            )
         )
 
         return PluginExecutionResponse(
@@ -164,9 +171,9 @@ class PluginExecutionPipeline(BaseModel):
                         response_output_ports.extend(o_ports)
             else:
                 default_output_module = "clarifying_response"
-                output_module_map[
-                    "clarifying_response"
-                ] = api_execution_step.clarifying_response
+                output_module_map["clarifying_response"] = (
+                    api_execution_step.clarifying_response
+                )
 
             if response_output_ports:
                 for output_port in response_output_ports:
@@ -180,9 +187,9 @@ class PluginExecutionPipeline(BaseModel):
                 default_output_module = response_output_ports[0].name
 
             if output_module_names and "original_response" in output_module_names:
-                output_module_map[
-                    "original_response"
-                ] = api_execution_step.original_response
+                output_module_map["original_response"] = (
+                    api_execution_step.original_response
+                )
                 default_output_module = "original_response"
 
             return output_module_map, default_output_module
@@ -210,7 +217,10 @@ class PluginExecutionPipeline(BaseModel):
             }
             if self.plugin.input_modules:
                 for input_module in self.plugin.input_modules:
-                    if input_module.initial_input_port.data_type == flow_port.data_type:
+                    if (
+                        input_module.initial_input_port.data_type
+                        == flow_port.data_type
+                    ):
                         logger.info(f"\n[RUNNING_INPUT_MODULE] {input_module}")
                         flow_port = await input_module.run(flow_port, config)
                         break
@@ -248,7 +258,9 @@ class PluginExecutionPipeline(BaseModel):
                     signature_port.get("metadata", {}).get("intermediate_fc_request")
                 ),
                 "intermediate_fc_response": json.dumps(
-                    signature_port.get("metadata", {}).get("intermediate_fc_response")
+                    signature_port.get("metadata", {}).get(
+                        "intermediate_fc_response"
+                    )
                 ),
                 "output_text": signature_port.get("metadata", {}).get("output_text"),
             }
@@ -299,13 +311,16 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be text.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
+        messages = [
+            Message(content=input.value, message_type=MessageType.HumanMessage)
+        ]
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] provider]={function_provider}")
         # API signature selector
         oai_selector = LangchainOperationSignatureBuilder(
             plugin=self.plugin, function_provider=function_provider, config=config
         )
         response = oai_selector.run(messages)
+
         ops = response.detected_plugin_operations
         if ops and len(ops) > 0:
             status_code = 500
@@ -346,7 +361,12 @@ class PluginExecutionPipeline(BaseModel):
                 },
             }
             self.add_signature_detection_trace(val)
-            raise PluginExecutionPipelineError(message="No operations found.")
+            if response.run_completed is False:
+                raise PluginExecutionPipelineError(
+                    message=f"Failed to run plugin signature selector. {response.final_text_response}"
+                )
+            else:
+                raise PluginExecutionPipelineError(message="No operations found.")
 
     @time_taken
     def _run_plugin_execution(
@@ -426,7 +446,9 @@ class PluginExecutionPipeline(BaseModel):
                         PortMetadata.PROCESSING_TIME_SECONDS: response.clarifying_question_response_seconds,
                         PortMetadata.STATUS_CODE: response.clarifying_question_status_code,
                         PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
-                        PortMetadata.LOG_OUTPUT_TEXT: str(response.original_response),
+                        PortMetadata.LOG_OUTPUT_TEXT: str(
+                            response.original_response
+                        ),
                     },
                 )
             logger.info(f"\n[PLUGIN_EXECUTION_RESPONSE] {original_port.value}")

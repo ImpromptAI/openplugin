@@ -89,7 +89,9 @@ def get_function_provider_request(
         plugin = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
         functions.add_from_plugin(plugin)
         function_json = functions.get_json()
-        return JSONResponse(status_code=200, content={"fc_request_json": function_json})
+        return JSONResponse(
+            status_code=200, content={"fc_request_json": function_json}
+        )
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": f"Failed: {e}"})
 

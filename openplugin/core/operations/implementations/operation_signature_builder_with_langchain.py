@@ -100,8 +100,8 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         except Exception as e:
             print(e)
             return SelectedApiSignatureResponse(
-                run_completed=True,
-                final_text_response="Failed to run plugin",
+                run_completed=False,
+                final_text_response="Reason: " + str(e),
                 detected_plugin_operations=[],
                 response_time=round(time.time() - start_test_case_time, 2),
                 tokens_used=0,

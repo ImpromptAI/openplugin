@@ -55,13 +55,19 @@ async def plugin_execution_pipeline(
         plugin_obj = PluginBuilder.build_from_manifest_obj(openplugin_manifest_obj)
     elif openplugin_manifest_url is not None:
         if openplugin_manifest_url.startswith("http"):
-            plugin_obj = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
+            plugin_obj = PluginBuilder.build_from_manifest_url(
+                openplugin_manifest_url
+            )
         else:
-            plugin_obj = PluginBuilder.build_from_manifest_file(openplugin_manifest_url)
+            plugin_obj = PluginBuilder.build_from_manifest_file(
+                openplugin_manifest_url
+            )
     else:
         return JSONResponse(
             status_code=400,
-            content={"message": "Either manifest URL or manifest object is required"},
+            content={
+                "message": "Either manifest URL or manifest object is required"
+            },
         )
 
     if config is None:
