@@ -147,6 +147,7 @@ class FunctionProvider(BaseModel):
     required_auth_keys: set
     type: str
     is_supported: bool = False
+    is_default: bool = False
 
     @validator("is_supported", pre=True, always=True)
     def set_is_supported(cls, v, values):
