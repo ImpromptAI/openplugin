@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import os
 import traceback
@@ -34,7 +35,7 @@ function_providers = FunctionProviders.build()
 
 # Define a POST endpoint for plugin-pipeline API
 @router.post("/plugin-execution-pipeline")
-async def plugin_execution_pipeline(
+def plugin_execution_pipeline(
     openplugin_manifest_url: Optional[str] = Body(None),
     openplugin_manifest_obj: Optional[dict] = Body(None),
     prompt: str = Body(...),
@@ -84,16 +85,18 @@ async def plugin_execution_pipeline(
     error = None
     trace: Dict[Any, Any] = {"steps": []}
     try:
-        response_obj = await pipeline.start(
-            input=input,
-            config=config,
-            function_provider=function_providers.get_by_name(
-                function_provider_input.name
-            ),
-            header=header,
-            auth_query_param=auth_query_param,
-            output_module_names=output_module_names,
-            run_all_output_modules=run_all_output_modules,
+        response_obj = asyncio.run(
+            pipeline.start(
+                input=input,
+                config=config,
+                function_provider=function_providers.get_by_name(
+                    function_provider_input.name
+                ),
+                header=header,
+                auth_query_param=auth_query_param,
+                output_module_names=output_module_names,
+                run_all_output_modules=run_all_output_modules,
+            )
         )
         status_code = 200
         json_data = response_obj.model_dump(
