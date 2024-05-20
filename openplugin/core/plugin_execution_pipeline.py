@@ -133,6 +133,7 @@ class PluginExecutionPipeline(BaseModel):
         try:
             output_module_map = {}
             default_output_module = None
+            processor_metadata = {}
             if api_execution_step.clarifying_response is None:
                 flow_port = api_execution_step.original_response
                 response_output_ports: List[Port] = []
@@ -148,6 +149,9 @@ class PluginExecutionPipeline(BaseModel):
                 )
                 if run_all_output_modules and supported_output_modules:
                     for output_module in supported_output_modules:
+                        processor_metadata.update(
+                            output_module.get_processor_metadata()
+                        )
                         o_ports = await asyncio.gather(
                             *(
                                 run_module(output_module, flow_port, config)
@@ -160,6 +164,9 @@ class PluginExecutionPipeline(BaseModel):
                     selected_output_modules = []
                     for output_module in supported_output_modules:
                         if output_module.name in output_module_names:
+                            processor_metadata.update(
+                                output_module.get_processor_metadata()
+                            )
                             selected_output_modules.append(output_module)
                     o_ports = await asyncio.gather(
                         *(
@@ -177,7 +184,7 @@ class PluginExecutionPipeline(BaseModel):
 
             if response_output_ports:
                 for output_port in response_output_ports:
-                    self.add_output_module_trace(output_port)
+                    self.add_output_module_trace(output_port, processor_metadata)
                     output_module_map[output_port.name] = output_port
                     if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
                         default_output_module = output_port.name
@@ -286,15 +293,17 @@ class PluginExecutionPipeline(BaseModel):
             }
         )
 
-    def add_output_module_trace(self, item: Port):
+    def add_output_module_trace(self, item: Port, metadata: dict):
         self.tracing_steps.append(
             {
                 "name": item.name,
+                "is_output_module": True,
                 "label": f"Output Module [ {item.name.replace('_',' ')} ]",
                 "parallel": True,
                 "processing_time_seconds": item.get_metadata(
                     PortMetadata.PROCESSING_TIME_SECONDS
                 ),
+                "processor_metadata": metadata,
                 "processor_logs": item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN),
                 "status_code": item.get_metadata(PortMetadata.STATUS_CODE),
             }
