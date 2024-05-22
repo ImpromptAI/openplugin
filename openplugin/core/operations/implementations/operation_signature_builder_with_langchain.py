@@ -45,9 +45,16 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         functions = Functions()
         functions.add_from_plugin(self.plugin, self.selected_operation)
         llm_calls: list = []
+        request_prompt = functions.get_x_helpers()
+
+        for message in messages:
+            if message.message_type == MessageType.HumanMessage:
+                request_prompt += f"\n#PROMPT={message.content}"
+
         if len(functions.functions) == 0:
             return SelectedApiSignatureResponse(
                 run_completed=True,
+                modified_input_prompt=request_prompt,
                 final_text_response="No functions found",
                 detected_plugin_operations=[],
                 response_time=round(time.time() - start_test_case_time, 2),
@@ -55,15 +62,6 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 llm_api_cost=0,
                 llm_calls=llm_calls,
             )
-        helper_pre_prompt = functions.get_prompt_signatures_prompt()
-        request_prompt = helper_pre_prompt
-        index = 0
-        for message in messages:
-            if message.message_type == MessageType.HumanMessage:
-                if index == len(messages) - 1:
-                    message.content = f"#PROMPT={message.content}"
-                request_prompt = request_prompt + " " + message.content
-            index += 1
 
         f_messages = [
             msg.get_openai_message()
@@ -71,7 +69,6 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             if msg.get_openai_message() is not None
         ]
         function_json = functions.get_json()
-
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
         func_response_metadata_json = None
@@ -101,6 +98,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             print(e)
             return SelectedApiSignatureResponse(
                 run_completed=False,
+                modified_input_prompt=request_prompt,
                 final_text_response="Reason: " + str(e),
                 detected_plugin_operations=[],
                 response_time=round(time.time() - start_test_case_time, 2),
@@ -126,6 +124,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
 
         response_obj = SelectedApiSignatureResponse(
             run_completed=True,
+            modified_input_prompt=request_prompt,
             final_text_response=final_text_response,
             detected_plugin_operations=detected_plugin_operations,
             response_time=time.time() - start_test_case_time,

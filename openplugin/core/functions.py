@@ -3,6 +3,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 import requests
+from openapi_parser import parse
 from pydantic import BaseModel
 
 from .plugin import Plugin
@@ -30,6 +31,7 @@ class FunctionProperty(BaseModel):
     description: Optional[str] = None
     enum: Optional[List[str]] = None
     items: Optional[dict] = None
+    x_helpers: Optional[List[str]] = []
     is_required: bool = False
 
 
@@ -39,6 +41,7 @@ class Function(BaseModel):
     description: Optional[str]
     param_type: Optional[str]
     param_properties: Optional[List[FunctionProperty]]
+    x_helpers: Optional[List[str]] = []
     human_usage_examples: Optional[List[str]] = []
     plugin_signature_helpers: Optional[List[str]] = []
 
@@ -64,9 +67,13 @@ class Function(BaseModel):
     def get_property_map(self):
         map = {}
         for param_property in self.param_properties:
+            description = ""
+            if param_property.description:
+                description = param_property.description
             obj = {
                 "type": param_property.type,
-                "description": param_property.description,
+                "x-helpers": param_property.x_helpers,
+                "description": description,
             }
             if param_property.type == "array":
                 obj["items"] = param_property.items
@@ -80,10 +87,13 @@ class Function(BaseModel):
         pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
         matches = pattern.findall(self.name)
         validated_name = "".join(matches)
-
+        description = ""
+        if self.description:
+            description = self.description
         json = {
             "name": validated_name,
-            "description": self.description,
+            "description": description,
+            "x-helpers": self.x_helpers,
             "parameters": {
                 "type": self.param_type,
                 "properties": self.get_property_map(),
@@ -95,6 +105,7 @@ class Function(BaseModel):
 
 class Functions(BaseModel):
     functions: List[Function] = []
+    helpers: dict = {}
     plugin_map: dict = {}
     function_map: dict = {}
 
@@ -110,7 +121,9 @@ class Functions(BaseModel):
     def get_function_from_func_name(self, function_name):
         return self.function_map.get(function_name)
 
-    def add_from_plugin(self, plugin: Plugin, selected_operation: Optional[str] = None):
+    def add_from_plugin(
+        self, plugin: Plugin, selected_operation: Optional[str] = None
+    ):
         self.add_from_manifest(plugin.manifest_url, plugin, selected_operation)
 
     def add_from_manifest(
@@ -140,7 +153,9 @@ class Functions(BaseModel):
         if selected_operation and " " in selected_operation:
             selected_operation_path = selected_operation.split(" ")[1]
             selected_operation_method = selected_operation.split(" ")[0]
-            selected_op_key = f"{selected_operation_path}_{selected_operation_method}"
+            selected_op_key = (
+                f"{selected_operation_path}_{selected_operation_method}"
+            )
 
         for key in manifest_obj.get("plugin_operations"):
             methods = manifest_obj.get("plugin_operations").get(key).keys()
@@ -170,7 +185,14 @@ class Functions(BaseModel):
                 index = index + 1
         prompt = prompt.strip()
         if len(prompt) > 0:
-            prompt = "#system=( " + prompt + ") "
+            prompt = "#SYSTEM=( " + prompt + ") "
+        return prompt.strip()
+
+    def get_x_helpers(self):
+        prompt = "#SYSTEM=( "
+        for key, value in self.helpers.items():
+            prompt += f"{key}, helpers={value} "
+        prompt += ") "
         return prompt.strip()
 
     def get_examples_prompt(self):
@@ -193,23 +215,25 @@ class Functions(BaseModel):
         plugin_operations_map: Optional[dict],
         valid_operations: Optional[List[str]],
     ):
+        content = parse(open_api_spec_url)
         openapi_doc_json = requests.get(open_api_spec_url).json()
         if openapi_doc_json is None:
             return ValueError("Could not get OpenAPI spec from URL")
         server_url = openapi_doc_json.get("servers")[0].get("url")
-        api_endpoints = []
         paths = openapi_doc_json.get("paths")
         functions = []
-
-        for path in paths:
-            api_endpoints.append(f"{server_url}{path}")
-            for method in paths[path]:
+        for content_path in content.paths:
+            for content_operation in content_path.operations:
+                path = content_path.url
+                method = content_operation.method.value
                 if valid_operations is not None:
                     if f"{path}_{method}" not in valid_operations:
                         continue
                 details = paths[path][method]
                 function_values: Dict[str, Any] = {}
-                function_values["api"] = API(url=f"{server_url}{path}", method=method)
+                function_values["api"] = API(
+                    url=f"{server_url}{path}", method=method
+                )
 
                 # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
                 pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
@@ -223,26 +247,23 @@ class Functions(BaseModel):
                 function_values["param_type"] = "object"
                 if method.lower() == "get":
                     g_properties = []
-                    for param in details.get("parameters"):
-                        if param.get("$ref"):
-                            ref = param.get("$ref")
-                            ref = ref.replace("#/components/parameters/", "")
-                            param = (
-                                openapi_doc_json.get("components")
-                                .get("parameters")
-                                .get(ref)
-                            )
+                    # for param in details.get("parameters"):
+                    for parameter in content_operation.parameters:
+
                         properties_values = {}
-                        properties_values["name"] = param.get("name")
-                        type = "string"
-                        if param.get("schema").get("type"):
-                            type = param.get("schema").get("type")
-                        properties_values["type"] = type
-                        if param.get("description") is None:
-                            properties_values["description"] = param.get("name")
+                        properties_values["name"] = parameter.name
+                        properties_values["type"] = parameter.schema.type.value
+                        if parameter.description:
+                            properties_values["description"] = parameter.description
+                        if parameter.required:
+                            properties_values["is_required"] = "True"
                         else:
-                            properties_values["description"] = param.get("description")
-                        properties_values["is_required"] = param.get("required", False)
+                            properties_values["is_required"] = "False"
+                        if parameter.extensions:
+                            helpers = parameter.extensions.get("helpers", [])
+                            properties_values["x_helpers"] = helpers
+                            key = f"For path={path}, method={method}, parameter={parameter.name}"
+                            self.helpers[key] = helpers
                         g_properties.append(FunctionProperty(**properties_values))
                     function_values["param_properties"] = g_properties
                 elif method.lower() == "post" or method.lower() == "put":
@@ -312,10 +333,148 @@ class Functions(BaseModel):
                         .get(method, {})
                         .get("plugin_signature_helpers", [])
                     )
-                function_values["plugin_signature_helpers"] = plugin_signature_helpers
+                function_values["plugin_signature_helpers"] = (
+                    plugin_signature_helpers
+                )
+
+                if content_operation.extensions:
+                    helpers = content_operation.extensions.get("helpers", [])
+                    key = f"For path={path}, method={method}"
+                    self.helpers[key] = helpers
+                    function_values["x_helpers"] = helpers
+                else:
+                    function_values["x_helpers"] = []
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin
                 self.function_map[func.name] = func
                 functions.append(func)
+
+        """
+        for path in paths:
+            api_endpoints.append(f"{server_url}{path}")
+            for method in paths[path]:
+                if valid_operations is not None:
+                    if f"{path}_{method}" not in valid_operations:
+                        continue
+                details = paths[path][method]
+                function_values: Dict[str, Any] = {}
+                function_values["api"] = API(
+                    url=f"{server_url}{path}", method=method
+                )
+
+                # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
+                pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
+                matches = pattern.findall(f"{method}{path.replace('/', '_')}")
+                validated_name = "".join(matches)
+                function_values["name"] = validated_name
+                if details.get("summary") is None:
+                    function_values["description"] = function_values["name"]
+                else:
+                    function_values["description"] = details.get("summary")
+                function_values["param_type"] = "object"
+                if method.lower() == "get":
+                    g_properties = []
+                    for param in details.get("parameters"):
+                        if param.get("$ref"):
+                            ref = param.get("$ref")
+                            ref = ref.replace("#/components/parameters/", "")
+                            param = (
+                                openapi_doc_json.get("components")
+                                .get("parameters")
+                                .get(ref)
+                            )
+                        properties_values = {}
+                        properties_values["name"] = param.get("name")
+                        type = "string"
+                        if param.get("schema").get("type"):
+                            type = param.get("schema").get("type")
+                        properties_values["type"] = type
+                        if param.get("description") is None:
+                            properties_values["description"] = param.get("name")
+                        else:
+                            properties_values["description"] = param.get(
+                                "description"
+                            )
+                        properties_values["is_required"] = param.get(
+                            "required", False
+                        )
+                        g_properties.append(FunctionProperty(**properties_values))
+                    function_values["param_properties"] = g_properties
+                elif method.lower() == "post" or method.lower() == "put":
+                    p_properties = []
+                    application_json_schema = (
+                        details.get("requestBody")
+                        .get("content")
+                        .get("application/json")
+                        .get("schema")
+                    )
+                    required_params = {}
+                    if "properties" in application_json_schema:
+                        params = application_json_schema.get("properties")
+                        required_params = application_json_schema.get("required", {})
+                    elif "$ref" in application_json_schema:
+                        ref = application_json_schema.get("$ref")
+                        ref = ref.replace("#/components/schemas/", "")
+                        params = (
+                            openapi_doc_json.get("components")
+                            .get("schemas")
+                            .get(ref)
+                            .get("properties")
+                        )
+                        required_params = (
+                            openapi_doc_json.get("components")
+                            .get("schemas")
+                            .get(ref)
+                            .get("required", {})
+                        )
+                    for param in params:
+                        properties_values_put: dict[str, Any] = {}
+                        properties_values_put["name"] = param
+
+                        type = "string"
+                        if params.get(param).get("type"):
+                            type = params.get(param).get("type")
+                        properties_values_put["type"] = type
+                        if params.get(param).get("type") == "array":
+                            properties_values_put["items"] = params.get(param).get(
+                                "items"
+                            )
+                        if params.get(param).get("description") is None:
+                            properties_values_put["description"] = param
+                        else:
+                            properties_values_put["description"] = params.get(
+                                param
+                            ).get("description")
+                        if param in required_params:
+                            properties_values_put["is_required"] = True
+                        else:
+                            properties_values_put["is_required"] = False
+                        p_properties.append(properties_values_put)
+                    function_values["param_properties"] = p_properties
+
+                human_usage_examples = []
+                if plugin_operations_map is not None:
+                    human_usage_examples = (
+                        plugin_operations_map.get(path, {})
+                        .get(method, {})
+                        .get("human_usage_examples", [])
+                    )
+                function_values["human_usage_examples"] = human_usage_examples
+                plugin_signature_helpers = []
+                if plugin_operations_map is not None:
+                    plugin_signature_helpers = (
+                        plugin_operations_map.get(path, {})
+                        .get(method, {})
+                        .get("plugin_signature_helpers", [])
+                    )
+                function_values["plugin_signature_helpers"] = (
+                    plugin_signature_helpers
+                )
+                func = Function(**function_values)
+                if plugin:
+                    self.plugin_map[func.name] = plugin
+                self.function_map[func.name] = func
+                functions.append(func)
+        """
         self.functions.extend(functions)

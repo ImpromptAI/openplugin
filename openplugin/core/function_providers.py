@@ -209,7 +209,6 @@ class LLMBasedFunctionProvider(FunctionProvider):
             llm_with_tools = llm_model.bind_tools(function_json)
             response = llm_with_tools.invoke(request_prompt)
             llm_api_cost = 0
-
         llm_latency_seconds = time.time() - start_time
         total_tokens = response.response_metadata.get("token_usage", {}).get(
             "total_tokens"

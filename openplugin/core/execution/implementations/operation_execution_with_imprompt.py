@@ -1,5 +1,6 @@
 import json
 import time
+import urllib.parse
 from urllib.parse import urlencode
 
 import requests
@@ -44,6 +45,15 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )
+        if str(response.status_code) == "403" and method.lower() == "get":
+            query_string = urllib.parse.urlencode(params)
+            response = requests.request(
+                method.upper(),
+                f"{url}?{query_string}",
+                headers=headers,
+                params=params,
+                data=body,
+            )
         if response.status_code == 200:
             response_json = response.json()
             if not isinstance(response_json, list):

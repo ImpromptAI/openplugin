@@ -80,7 +80,6 @@ class PluginExecutionPipeline(BaseModel):
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
     ) -> PluginExecutionResponse:
-
         if not run_all_output_modules and (
             output_module_names is None or len(output_module_names) == 0
         ):
@@ -358,7 +357,7 @@ class PluginExecutionPipeline(BaseModel):
                     "tokens_used": response.tokens_used,
                     "llm_api_cost": response.llm_api_cost,
                     "status_code": status_code,
-                    "input_text": str(input.value),
+                    "input_text": response.modified_input_prompt,
                     "output_text": str(output_port_text),
                     "intermediate_fc_request": response.function_request_json,
                     "intermediate_fc_response": response.function_response_json,

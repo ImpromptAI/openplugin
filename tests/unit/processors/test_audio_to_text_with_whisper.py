@@ -22,8 +22,6 @@ def audio_to_text_obj():
 def test_audio_to_text_with_default1(audio_to_text_obj):
     input_port = Port(data_type=PortType.FILEPATH, value="output.mp3")
     output_port = audio_to_text_obj.process(input_port)
-    print("+++++")
-    print(output_port)
     assert False
     assert output_port.data_type == PortType.TEXT
 

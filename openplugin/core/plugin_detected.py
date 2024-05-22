@@ -39,6 +39,7 @@ class SelectedApiSignatureResponse(BaseModel):
     """
 
     run_completed: bool
+    modified_input_prompt: Optional[str]
     final_text_response: Optional[str]
     detected_plugin_operations: Optional[List[PluginDetectedParams]]
     response_time: Optional[float]
