@@ -117,6 +117,20 @@ class Port(BaseModel):
             values[key.name.lower()] = value
         return values
 
+    def get_total_tokens_used(self):
+        if self.metadata:
+            return self.metadata.get("tokens_used", 0)
+        if self.data_type == PortType.JSON:
+            return self.value.get("metadata", {}).get("tokens_used", 0)
+        return 0
+
+    def get_total_cost(self):
+        if self.metadata:
+            return self.metadata.get("llm_api_cost", 0)
+        if self.data_type == PortType.JSON:
+            return self.value.get("metadata", {}).get("llm_api_cost", 0)
+        return 0
+
     @classmethod
     def supported_types(cls):
         return list(PortType)

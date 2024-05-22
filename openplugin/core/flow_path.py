@@ -84,7 +84,7 @@ class FlowPath(BaseModel):
         metadata = {}
         for processor in self.processors:
             if processor.metadata:
-                metadata.update(processor.metadata)
+                metadata[processor.processor.name] = processor.metadata
         return metadata
 
     async def run(self, input: Port, config: Config) -> Port:

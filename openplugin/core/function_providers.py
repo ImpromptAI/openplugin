@@ -5,6 +5,7 @@ from abc import abstractmethod
 from typing import List, Optional
 
 from dotenv import load_dotenv
+from langchain_community.callbacks import get_openai_callback
 from pydantic import BaseModel, validator
 
 from .config import Config
@@ -16,7 +17,7 @@ class FunctionResponse(BaseModel):
     response_content: str
     usage: dict
     response_metadata: dict
-    cost: int
+    cost: float
     llm_latency_seconds: float
     total_tokens: Optional[int]
     is_function_call: bool = False
@@ -34,6 +35,11 @@ class FunctionLLM(BaseModel):
     provider: str
     model_name: str
     configuration: LLMConfig
+
+    def get_callback_manager(self):
+        if self.provider.lower() in ["openai", "openaichat"]:
+            return get_openai_callback()
+        return None
 
     def convert_to_langchain_llm_model(self, config: Optional[Config]):
         if self.provider.lower() in ["openai", "openaichat"]:
@@ -192,16 +198,22 @@ class LLMBasedFunctionProvider(FunctionProvider):
     ) -> FunctionResponse:
         start_time = time.time()
         llm_model = self.llm.convert_to_langchain_llm_model(config)
-        llm_with_tools = llm_model.bind_tools(function_json)
-        response = llm_with_tools.invoke(request_prompt)
+
+        call_back_manager = self.llm.get_callback_manager()
+        if call_back_manager:
+            with call_back_manager as cb:
+                llm_with_tools = llm_model.bind_tools(function_json)
+                response = llm_with_tools.invoke(request_prompt)
+                llm_api_cost = cb.total_cost
+        else:
+            llm_with_tools = llm_model.bind_tools(function_json)
+            response = llm_with_tools.invoke(request_prompt)
+            llm_api_cost = 0
+
         llm_latency_seconds = time.time() - start_time
-        # llm_api_cost = litellm.completion_cost(completion_response=response)
-        # TODO
-        llm_api_cost = 0
         total_tokens = response.response_metadata.get("token_usage", {}).get(
             "total_tokens"
         )
-
         tool_calls = response.additional_kwargs.get("tool_calls")
         if not tool_calls:
             tool_calls = response.tool_calls

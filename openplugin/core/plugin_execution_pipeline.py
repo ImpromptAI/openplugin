@@ -67,6 +67,8 @@ class PluginExecutionResponse(BaseModel):
 class PluginExecutionPipeline(BaseModel):
     plugin: Plugin
     tracing_steps: List[Dict[Any, Any]] = []
+    total_tokens_used: int = 0
+    total_cost: float = 0
 
     async def start(
         self,
@@ -78,6 +80,7 @@ class PluginExecutionPipeline(BaseModel):
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
     ) -> PluginExecutionResponse:
+
         if not run_all_output_modules and (
             output_module_names is None or len(output_module_names) == 0
         ):
@@ -93,6 +96,7 @@ class PluginExecutionPipeline(BaseModel):
         api_signature_port = self._run_plugin_signature_selector(
             input=flow_port, config=config, function_provider=function_provider
         )
+        self.add_tokens(api_signature_port)
 
         # API EXECUTION
         api_execution_step = self._run_plugin_execution(
@@ -149,7 +153,7 @@ class PluginExecutionPipeline(BaseModel):
                 )
                 if run_all_output_modules and supported_output_modules:
                     for output_module in supported_output_modules:
-                        processor_metadata.update(
+                        processor_metadata[output_module.name] = (
                             output_module.get_processor_metadata()
                         )
                         o_ports = await asyncio.gather(
@@ -164,7 +168,7 @@ class PluginExecutionPipeline(BaseModel):
                     selected_output_modules = []
                     for output_module in supported_output_modules:
                         if output_module.name in output_module_names:
-                            processor_metadata.update(
+                            processor_metadata[output_module.name] = (
                                 output_module.get_processor_metadata()
                             )
                             selected_output_modules.append(output_module)
@@ -294,6 +298,17 @@ class PluginExecutionPipeline(BaseModel):
         )
 
     def add_output_module_trace(self, item: Port, metadata: dict):
+        processor_logs = item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN)
+        transformed_metadata = {}
+        for key, value in metadata.items():
+            for key1, value1 in value.items():
+                tranformed_key = key + " [" + key1 + "]"
+                transformed_metadata[tranformed_key] = value1
+        for processor_log in processor_logs:
+            processor_log["metadata"] = transformed_metadata.get(
+                processor_log.get("label"), {}
+            )
+
         self.tracing_steps.append(
             {
                 "name": item.name,
@@ -303,8 +318,7 @@ class PluginExecutionPipeline(BaseModel):
                 "processing_time_seconds": item.get_metadata(
                     PortMetadata.PROCESSING_TIME_SECONDS
                 ),
-                "processor_metadata": metadata,
-                "processor_logs": item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN),
+                "processor_logs": processor_logs,
                 "status_code": item.get_metadata(PortMetadata.STATUS_CODE),
             }
         )
@@ -469,3 +483,12 @@ class PluginExecutionPipeline(BaseModel):
             return api_execution_step
         except Exception as e:
             raise PluginExecutionPipelineError(message=f"API Execution Error: {e}")
+
+    def add_tokens(self, port: Port):
+        if port:
+            token = port.get_total_tokens_used()
+            if token:
+                self.total_tokens_used += token
+            cost = port.get_total_cost()
+            if cost:
+                self.total_cost += port.get_total_cost()

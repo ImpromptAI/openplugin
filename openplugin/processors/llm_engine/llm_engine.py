@@ -11,7 +11,7 @@ from ..processor import (
 
 
 class LLMEngine(Processor):
-    name: str = "LLM tranformation"
+    name: str = "LLM transformation"
     description: str = "Converts using LLM"
 
     async def validate_input_port(self, input: Port) -> bool:
@@ -29,7 +29,9 @@ class LLMEngine(Processor):
         return True
 
     @abstractmethod
-    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
+    async def process_input(
+        self, input: Port, config: Optional[Config] = None
+    ) -> Port:
         pass
 
     def __str__(self):
