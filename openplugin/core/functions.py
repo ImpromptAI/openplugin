@@ -269,10 +269,10 @@ class Functions(BaseModel):
                 elif method.lower() == "post" or method.lower() == "put":
                     p_properties = []
                     application_json_schema = (
-                        details.get("requestBody")
-                        .get("content")
-                        .get("application/json")
-                        .get("schema")
+                        details.get("requestBody", {})
+                        .get("content", {})
+                        .get("application/json", {})
+                        .get("schema", {})
                     )
                     required_params = {}
                     if "properties" in application_json_schema:
