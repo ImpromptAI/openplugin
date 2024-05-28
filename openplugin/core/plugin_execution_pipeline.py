@@ -144,9 +144,9 @@ class PluginExecutionPipeline(BaseModel):
         method = api_signature_port.value.get("method")
         filter_module = self.plugin.get_filter_module(api_called, method)
         if filter_module:
-            input_text = port.value
+            input_text = json.dumps(port.value)
             port = await filter_module.run(port, config)
-            output_text = port.value
+            output_text = json.dumps(port.value)
             self.tracing_steps.append(
                 {
                     "name": "filter_step",
