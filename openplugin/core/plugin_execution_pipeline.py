@@ -136,30 +136,49 @@ class PluginExecutionPipeline(BaseModel):
         api_signature_port: Port,
         config: Config,
     ):
-        if api_signature_port.value is None:
+        try:
+            input_text = None
+            if api_signature_port.value is None:
+                raise PluginExecutionPipelineError(
+                    message="API Signature Detection Error: No operations found."
+                )
+            api_called = api_signature_port.value.get("api_called")
+            method = api_signature_port.value.get("method")
+            filter_module = self.plugin.get_filter_module(api_called, method)
+            if filter_module:
+                input_text = json.dumps(port.value)
+                port = await filter_module.run(port, config)
+                output_text = json.dumps(port.value)
+                self.tracing_steps.append(
+                    {
+                        "name": "filter_step",
+                        "label": "API Response Filter Step",
+                        "processing_time_seconds": port.get_metadata(
+                            PortMetadata.PROCESSING_TIME_SECONDS
+                        ),
+                        "status_code": port.get_metadata(PortMetadata.STATUS_CODE),
+                        "input_text": input_text,
+                        "output_text": output_text,
+                    }
+                )
+            return port
+        except Exception as e:
+            if port:
+                self.tracing_steps.append(
+                    {
+                        "name": "filter_step",
+                        "label": "API Response Filter Step",
+                        "processing_time_seconds": port.get_metadata(
+                            PortMetadata.PROCESSING_TIME_SECONDS
+                        ),
+                        "status_code": port.get_metadata(PortMetadata.STATUS_CODE),
+                        "input_text": input_text,
+                        "output_text": f"Error: {str(e)}",
+                    }
+                )
             raise PluginExecutionPipelineError(
-                message="API Signature Detection Error: No operations found."
+                message="Filter Module Error: Not able to run the jinja template on the api response"
             )
-        api_called = api_signature_port.value.get("api_called")
-        method = api_signature_port.value.get("method")
-        filter_module = self.plugin.get_filter_module(api_called, method)
-        if filter_module:
-            input_text = json.dumps(port.value)
-            port = await filter_module.run(port, config)
-            output_text = json.dumps(port.value)
-            self.tracing_steps.append(
-                {
-                    "name": "filter_step",
-                    "label": "API response filter step",
-                    "processing_time_seconds": port.get_metadata(
-                        PortMetadata.PROCESSING_TIME_SECONDS
-                    ),
-                    "status_code": port.get_metadata(PortMetadata.STATUS_CODE),
-                    "input_text": input_text,
-                    "output_text": output_text,
-                }
-            )
-        return port
 
     async def _output_module_processing(
         self,
