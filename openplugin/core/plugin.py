@@ -27,6 +27,7 @@ class PluginOperation(BaseModel):
     human_usage_examples: List[str] = Field(default=[])
     plugin_signature_helpers: List[str] = Field(default=[])
     output_modules: List[FlowPath] = Field(default=[])
+    filter: Optional[FlowPath] = Field(default=None)
 
 
 class Plugin(BaseModel):
@@ -171,6 +172,18 @@ class Plugin(BaseModel):
                                     self.plugin_operations[key1][key2].output_modules
                                 )
         return supported_output_modules
+
+    def get_filter_module(self, operation: str, method: str):
+        if self.plugin_operations:
+            for key1 in self.plugin_operations.keys():
+                if key1.lower() == operation.lower() or operation.lower().endswith(
+                    key1.lower()
+                ):
+                    for key2 in self.plugin_operations[key1].keys():
+                        if key2.lower() == method.lower():
+                            if self.plugin_operations[key1][key2].filter:
+                                return self.plugin_operations[key1][key2].filter
+        return None
 
 
 class PluginBuilder:

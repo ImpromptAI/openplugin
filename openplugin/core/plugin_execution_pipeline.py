@@ -106,6 +106,11 @@ class PluginExecutionPipeline(BaseModel):
             function_provider=function_provider,
         )
 
+        # filter response
+        api_execution_step.original_response = await self._run_filter_module(
+            api_execution_step.original_response, api_signature_port, config=config
+        )
+
         # OUTPUT MODULE PROCESSING
         output_module_map, default_output_module = (
             await self._output_module_processing(
@@ -124,6 +129,37 @@ class PluginExecutionPipeline(BaseModel):
             api_and_signature_detection_step=api_signature_port.value,
             default_output_module=default_output_module,
         )
+
+    async def _run_filter_module(
+        self,
+        port: Port,
+        api_signature_port: Port,
+        config: Config,
+    ):
+        if api_signature_port.value is None:
+            raise PluginExecutionPipelineError(
+                message="API Signature Detection Error: No operations found."
+            )
+        api_called = api_signature_port.value.get("api_called")
+        method = api_signature_port.value.get("method")
+        filter_module = self.plugin.get_filter_module(api_called, method)
+        if filter_module:
+            input_text = port.value
+            port = await filter_module.run(port, config)
+            output_text = port.value
+            self.tracing_steps.append(
+                {
+                    "name": "filter_step",
+                    "label": "API response filter step",
+                    "processing_time_seconds": port.get_metadata(
+                        PortMetadata.PROCESSING_TIME_SECONDS
+                    ),
+                    "status_code": port.get_metadata(PortMetadata.STATUS_CODE),
+                    "input_text": input_text,
+                    "output_text": output_text,
+                }
+            )
+        return port
 
     async def _output_module_processing(
         self,
