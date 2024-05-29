@@ -70,11 +70,39 @@
         ]
     },
     {
+        "name": "Google [gemini-1.5-pro-latest]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Google",
+            "model_name": "gemini-1.5-pro-latest",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "GEMINI_API_KEY"
+        ]
+    },
+    {
         "name": "Cohere [command-r]",
         "type": "llm-based",
         "llm": {
             "provider": "Cohere",
             "model_name": "command-r",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "COHERE_API_KEY"
+        ]
+    },
+    {
+        "name": "Cohere [command-r-plus]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Cohere",
+            "model_name": "command-r-plus",
             "configuration": {
                 "temperature": 0
             }

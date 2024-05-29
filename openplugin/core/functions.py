@@ -72,7 +72,7 @@ class Function(BaseModel):
                 description = param_property.description
             obj = {
                 "type": param_property.type,
-                "x-helpers": param_property.x_helpers,
+                # "x-helpers": param_property.x_helpers,  not working with FC
                 "description": description,
             }
             if param_property.type == "array":
@@ -93,7 +93,7 @@ class Function(BaseModel):
         json = {
             "name": validated_name,
             "description": description,
-            "x-helpers": self.x_helpers,
+            # "x-helpers": self.x_helpers, not working with FC
             "parameters": {
                 "type": self.param_type,
                 "properties": self.get_property_map(),
