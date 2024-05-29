@@ -12,7 +12,8 @@
         "required_auth_keys": [
             "OPENAI_API_KEY"
         ]
-    },{
+    },
+    {
         "name": "OpenAI [gpt-4o]",
         "type": "llm-based",
         "llm": {
@@ -116,6 +117,20 @@
         "llm": {
             "provider": "Groq",
             "model_name": "Llama3-8b-8192",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "GROQ_API_KEY"
+        ]
+    },
+    {
+        "name": "Groq [Llama3-70b-8192]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Groq",
+            "model_name": "Llama3-70b-8192",
             "configuration": {
                 "temperature": 0
             }

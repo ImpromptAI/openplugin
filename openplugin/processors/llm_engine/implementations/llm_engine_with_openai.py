@@ -13,7 +13,9 @@ class LLMEngineWithOpenAI(LLMEngine):
     model_name: str = "gpt-3.5-turbo"
     pre_prompt: Optional[str] = None
 
-    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
+    async def process_input(
+        self, input: Port, config: Optional[Config] = None
+    ) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         if self.pre_prompt:
@@ -28,8 +30,11 @@ class LLMEngineWithOpenAI(LLMEngine):
             openai_api_key = config.openai_api_key
         else:
             raise Exception("LLM Engine with OpenAI: OpenAI API Key not found")
-        response = completion(
-            model="gpt-3.5-turbo", messages=messages, api_key=openai_api_key
-        )
-        content = response["choices"][0]["message"]["content"]
+        try:
+            response = completion(
+                model="gpt-3.5-turbo", messages=messages, api_key=openai_api_key
+            )
+            content = response["choices"][0]["message"]["content"]
+        except Exception as e:
+            raise Exception(f"Context Limit Error: Failed to run completion. {e}")
         return Port(data_type=PortType.TEXT, value=content)
