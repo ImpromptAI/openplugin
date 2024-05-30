@@ -14,8 +14,8 @@ from .execution.implementations.operation_execution_with_imprompt import (
 from .function_providers import FunctionProvider
 from .helper import time_taken
 from .messages import Message, MessageType
-from .operations.implementations.operation_signature_builder_with_langchain import (
-    LangchainOperationSignatureBuilder,
+from .operations.implementations.operation_signature_builder_custom import (
+    CustomOperationSignatureBuilder,
 )
 from .plugin import Plugin
 from .port import Port, PortMetadata, PortType, PortValueError
@@ -393,7 +393,7 @@ class PluginExecutionPipeline(BaseModel):
         ]
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] provider]={function_provider}")
         # API signature selector
-        oai_selector = LangchainOperationSignatureBuilder(
+        oai_selector = CustomOperationSignatureBuilder(
             plugin=self.plugin, function_provider=function_provider, config=config
         )
         response = oai_selector.run(messages)

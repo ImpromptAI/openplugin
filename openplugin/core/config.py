@@ -15,6 +15,7 @@ class Config(BaseModel):
     mistral_api_key: Optional[str] = None
     fireworks_api_key: Optional[str] = None
     google_palm_key: Optional[str] = None
+    gemini_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     together_api_key: Optional[str] = None
     aws_access_key_id: Optional[str] = None

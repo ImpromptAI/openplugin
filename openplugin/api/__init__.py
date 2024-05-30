@@ -36,10 +36,12 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
         response = await call_next(request)
         response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers[
-            "Access-Control-Allow-Methods"
-        ] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = (
+            "GET, POST, PUT, DELETE, OPTIONS"
+        )
+        response.headers["Access-Control-Allow-Headers"] = (
+            "Content-Type, Authorization"
+        )
         return response
 
     # Allow Cross-Origin Resource Sharing (CORS)

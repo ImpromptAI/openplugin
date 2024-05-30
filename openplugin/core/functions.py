@@ -3,6 +3,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 import requests
+from arrow import get
 from openapi_parser import parse
 from pydantic import BaseModel
 
@@ -70,9 +71,15 @@ class Function(BaseModel):
             description = ""
             if param_property.description:
                 description = param_property.description
+
+            # appending x helper to description
+            for helper in param_property.x_helpers:
+                if helper.trim().lower() != description.trim().lower():
+                    description = f"{description}\n {helper}"
+
             obj = {
                 "type": param_property.type,
-                # "x-helpers": param_property.x_helpers,  not working with FC
+                # "x-helpers": param_property.x_helpers,
                 "description": description,
             }
             if param_property.type == "array":
@@ -90,10 +97,16 @@ class Function(BaseModel):
         description = ""
         if self.description:
             description = self.description
+
+        # appending x helper to description
+        for helper in self.x_helpers:
+            if helper.trim().lower() != description.trim().lower():
+                description = f"{description}\n {helper}"
+
         json = {
             "name": validated_name,
             "description": description,
-            # "x-helpers": self.x_helpers, not working with FC
+            # "x-helpers": self.x_helpers,
             "parameters": {
                 "type": self.param_type,
                 "properties": self.get_property_map(),
@@ -113,6 +126,14 @@ class Functions(BaseModel):
         json = []
         for function in self.functions:
             json.append(function.get_openai_function_json())
+        return json
+
+    def get_litellm_json(self):
+        json = []
+        for function in self.functions:
+            json.append(
+                {"type": "function", "function": function.get_openai_function_json()}
+            )
         return json
 
     def get_plugin_from_func_name(self, function_name):
