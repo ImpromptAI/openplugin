@@ -74,7 +74,7 @@ class Function(BaseModel):
 
             # appending x helper to description
             for helper in param_property.x_helpers:
-                if helper.trim().lower() != description.trim().lower():
+                if helper.strip().lower() != description.strip().lower():
                     description = f"{description}\n {helper}"
 
             obj = {
@@ -100,7 +100,7 @@ class Function(BaseModel):
 
         # appending x helper to description
         for helper in self.x_helpers:
-            if helper.trim().lower() != description.trim().lower():
+            if helper.strip().lower() != description.strip().lower():
                 description = f"{description}\n {helper}"
 
         json = {
