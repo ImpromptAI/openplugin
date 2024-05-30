@@ -25,13 +25,6 @@
                         "long_form": false
                     },
                     {
-                        "key": "azure_api_key",
-                        "required": true,
-                        "type": "string",
-                        "is_user_provided": true,
-                        "long_form": false
-                    },
-                    {
                         "key": "output_filename",
                         "required": false,
                         "default_value": "output.mp3",
@@ -60,13 +53,6 @@
                 "processor_implementation_type": "audio_to_text_with_whisper",
                 "name": "Whisper",
                 "metadata": [
-                    {
-                        "key": "openai_api_key",
-                        "required": true,
-                        "type": "string",
-                        "is_user_provided": true,
-                        "long_form": false
-                    },
                     {
                         "key": "model_name",
                         "required": false,
@@ -180,27 +166,6 @@
                 "name": "S3",
                 "metadata": [
                     {
-                        "key": "aws_region",
-                        "required": true,
-                        "type": "string",
-                        "is_user_provided": true,
-                        "long_form": false
-                    },
-                    {
-                        "key": "aws_access_key",
-                        "required": true,
-                        "type": "string",
-                        "is_user_provided": true,
-                        "long_form": false
-                    },
-                    {
-                        "key": "aws_secret_access_key",
-                        "required": true,
-                        "type": "string",
-                        "is_user_provided": true,
-                        "long_form": false
-                    },
-                    {
                         "key": "bucket_name",
                         "required": false,
                         "default_value": "openplugin-output",
@@ -259,23 +224,10 @@
                 "name": "OpenAI",
                 "metadata": [
                     {
-                        "key": "model_name",
-                        "required": false,
-                        "default_value": "gpt-3.5-turbo",
-                        "type": "string",
-                        "long_form": false
-                    },
-                    {
                         "key": "pre_prompt",
                         "required": false,
                         "default_value": null,
                         "type": "string",
-                        "long_form": false
-                    },{
-                        "key": "openai_api_key",
-                        "required": true,
-                        "type": "string",
-                        "is_user_provided": true,
                         "long_form": false
                     }
                 ]
