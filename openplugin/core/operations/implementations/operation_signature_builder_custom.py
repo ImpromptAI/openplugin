@@ -48,34 +48,31 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
             raise ValueError("OpenAI API Key is not configured")
 
     def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
-        start_test_case_time = time.time()
-        functions = Functions()
-        functions.add_from_plugin(self.plugin, self.selected_operation)
-        # request_prompt = functions.get_x_helpers()
-        request_prompt = ""
-        for message in messages:
-            if message.message_type == MessageType.HumanMessage:
-                request_prompt += f"\n#PROMPT={message.content}"
-        if len(functions.functions) == 0:
-            return SelectedApiSignatureResponse(
-                run_completed=True,
-                modified_input_prompt=request_prompt,
-                final_text_response="No functions found",
-                detected_plugin_operations=[],
-                response_time=round(time.time() - start_test_case_time, 2),
-                tokens_used=0,
-                llm_api_cost=0,
-                llm_calls=[],
-            )
-        f_messages = [
-            msg.get_openai_message()
-            for msg in messages
-            if msg.get_openai_message() is not None
-        ]
-        if self.function_provider.get_provider_name().lower() in [
-            "cohere",
-            "google",
-        ]:
+        if self.function_provider.get_provider_name().lower() in ["cohere"]:
+            start_test_case_time = time.time()
+            functions = Functions()
+            functions.add_from_plugin(self.plugin, self.selected_operation)
+            # request_prompt = functions.get_x_helpers()
+            request_prompt = ""
+            for message in messages:
+                if message.message_type == MessageType.HumanMessage:
+                    request_prompt += f"\n#PROMPT={message.content}"
+            if len(functions.functions) == 0:
+                return SelectedApiSignatureResponse(
+                    run_completed=True,
+                    modified_input_prompt=request_prompt,
+                    final_text_response="No functions found",
+                    detected_plugin_operations=[],
+                    response_time=round(time.time() - start_test_case_time, 2),
+                    tokens_used=0,
+                    llm_api_cost=0,
+                    llm_calls=[],
+                )
+            f_messages = [
+                msg.get_openai_message()
+                for msg in messages
+                if msg.get_openai_message() is not None
+            ]
             llm_api_key = None
             if self.config is not None:
                 if self.function_provider.get_provider_name().lower() == "cohere":
@@ -103,7 +100,6 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
                 tool_choice="auto",  # auto is default, but we'll be explicit
             )
             # print("\nFirst LLM Response:\n", response)
-
             response_message = response.choices[0].message
             response_content = response_message.content
             tool_calls = response_message.tool_calls

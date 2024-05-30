@@ -45,8 +45,8 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         functions = Functions()
         functions.add_from_plugin(self.plugin, self.selected_operation)
         llm_calls: list = []
-        request_prompt = functions.get_x_helpers()
-
+        # request_prompt = functions.get_x_helpers()
+        request_prompt = ""
         for message in messages:
             if message.message_type == MessageType.HumanMessage:
                 request_prompt += f"\n#PROMPT={message.content}"

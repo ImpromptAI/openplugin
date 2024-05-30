@@ -70,11 +70,11 @@
         ]
     },
     {
-        "name": "Google [gemini-1.5-pro-latest]",
+        "name": "Google [gemini-1.5-pro]",
         "type": "llm-based",
         "llm": {
             "provider": "Google",
-            "model_name": "gemini-1.5-pro-latest",
+            "model_name": "gemini-1.5-pro",
             "configuration": {
                 "temperature": 0
             }
