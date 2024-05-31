@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Set
 
 import requests
 import yaml
-from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, ValidationError, root_validator
 
 from .flow_path import FlowPath
 
@@ -195,7 +195,11 @@ class PluginBuilder:
                 and manifest_obj.get("auth", {}).get("type") == "none"
             ):
                 manifest_obj["auth"] = None
-        plugin = Plugin(**manifest_obj)
+        try:
+            plugin = Plugin(**manifest_obj)
+        except ValidationError as e:
+            print(e.json(indent=4))
+            raise e
         plugin.manifest_object = manifest_obj
         return plugin
 

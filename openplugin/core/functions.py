@@ -3,7 +3,6 @@ import re
 from typing import Any, Dict, List, Optional
 
 import requests
-from arrow import get
 from openapi_parser import parse
 from pydantic import BaseModel
 
@@ -236,13 +235,41 @@ class Functions(BaseModel):
         plugin_operations_map: Optional[dict],
         valid_operations: Optional[List[str]],
     ):
-        content = parse(open_api_spec_url)
+        try:
+            functions = self.add_from_openapi_spec_using_parser(
+                open_api_spec_url,
+                plugin,
+                header,
+                plugin_operations_map,
+                valid_operations,
+            )
+        except Exception as e:
+            print(f"Failed to parse OPENAPI spec using parser: {e}")
+            functions = self.add_from_openapi_spec_custom(
+                open_api_spec_url,
+                plugin,
+                header,
+                plugin_operations_map,
+                valid_operations,
+            )
+        self.functions.extend(functions)
+
+    def add_from_openapi_spec_using_parser(
+        self,
+        open_api_spec_url: str,
+        plugin: Optional[Plugin],
+        header: Optional[dict],
+        plugin_operations_map: Optional[dict],
+        valid_operations: Optional[List[str]],
+    ):
         openapi_doc_json = requests.get(open_api_spec_url).json()
         if openapi_doc_json is None:
             return ValueError("Could not get OpenAPI spec from URL")
         server_url = openapi_doc_json.get("servers")[0].get("url")
         paths = openapi_doc_json.get("paths")
+
         functions = []
+        content = parse(open_api_spec_url)
         for content_path in content.paths:
             for content_operation in content_path.operations:
                 path = content_path.url
@@ -370,10 +397,23 @@ class Functions(BaseModel):
                     self.plugin_map[func.name] = plugin
                 self.function_map[func.name] = func
                 functions.append(func)
+        return functions
 
-        """
+    def add_from_openapi_spec_custom(
+        self,
+        open_api_spec_url: str,
+        plugin: Optional[Plugin],
+        header: Optional[dict],
+        plugin_operations_map: Optional[dict],
+        valid_operations: Optional[List[str]],
+    ):
+        openapi_doc_json = requests.get(open_api_spec_url).json()
+        if openapi_doc_json is None:
+            return ValueError("Could not get OpenAPI spec from URL")
+        server_url = openapi_doc_json.get("servers")[0].get("url")
+        paths = openapi_doc_json.get("paths")
+        functions = []
         for path in paths:
-            api_endpoints.append(f"{server_url}{path}")
             for method in paths[path]:
                 if valid_operations is not None:
                     if f"{path}_{method}" not in valid_operations:
@@ -449,6 +489,12 @@ class Functions(BaseModel):
                             .get(ref)
                             .get("required", {})
                         )
+                    elif "allOf" in application_json_schema:
+                        allOf = application_json_schema.get("allOf")
+                        for obj in allOf:
+                            if "properties" in obj:
+                                params = obj.get("properties")
+                                required_params = obj.get("required", {})
                     for param in params:
                         properties_values_put: dict[str, Any] = {}
                         properties_values_put["name"] = param
@@ -497,5 +543,4 @@ class Functions(BaseModel):
                     self.plugin_map[func.name] = plugin
                 self.function_map[func.name] = func
                 functions.append(func)
-        """
-        self.functions.extend(functions)
+        return functions
