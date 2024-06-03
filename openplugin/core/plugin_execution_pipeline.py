@@ -90,13 +90,11 @@ class PluginExecutionPipeline(BaseModel):
         input_modules: List[Port] = []
         flow_port = await self._input_module_processing(input, config)
         input_modules.append(flow_port)
-
         # API SIGNATURE DETECTION
         api_signature_port = self._run_plugin_signature_selector(
             input=flow_port, config=config, function_provider=function_provider
         )
         self.add_tokens(api_signature_port)
-
         # API EXECUTION
         api_execution_step = self._run_plugin_execution(
             input=api_signature_port,
@@ -105,7 +103,6 @@ class PluginExecutionPipeline(BaseModel):
             auth_query_param=auth_query_param,
             function_provider=function_provider,
         )
-
         # filter response
         api_execution_step.original_response = await self._run_filter_module(
             api_execution_step.original_response, api_signature_port, config=config
@@ -121,7 +118,6 @@ class PluginExecutionPipeline(BaseModel):
                 output_module_names,
             )
         )
-
         return PluginExecutionResponse(
             input_modules=input_modules,
             output_module_map=output_module_map,
@@ -192,9 +188,10 @@ class PluginExecutionPipeline(BaseModel):
             output_module_map = {}
             default_output_module = None
             processor_metadata = {}
+            response_output_ports: List[Port] = []
             if api_execution_step.clarifying_response is None:
                 flow_port = api_execution_step.original_response
-                response_output_ports: List[Port] = []
+
                 if api_signature_port.value is None:
                     raise PluginExecutionPipelineError(
                         message="API Signature Detection Error: No operations found."

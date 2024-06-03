@@ -28,28 +28,18 @@ class OperationExecutionParams(BaseModel):
     function_provider: FunctionProvider
 
     def get_temperature(self):
-        if self.llm:
-            return self.llm.temperature
-        return None
+        return 0.2
 
     def get_top_p(self):
-        if self.llm:
-            return self.llm.top_p
         return None
 
     def get_max_tokens(self):
-        if self.llm:
-            return self.llm.max_tokens
         return None
 
     def get_frequency_penalty(self):
-        if self.llm:
-            return self.llm.frequency_penalty
         return None
 
     def get_presence_penalty(self):
-        if self.llm:
-            return self.llm.presence_penalty
         return None
 
 

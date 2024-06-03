@@ -1,5 +1,6 @@
 import json
 import time
+import traceback
 import urllib.parse
 from urllib.parse import urlencode
 
@@ -42,6 +43,9 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                 .replace("/edit)", "/edit )")
                 .replace(".txt)", ".txt )")
             )
+        if isinstance(body, str):
+            body = json.loads(body)
+
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )
@@ -54,7 +58,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                 params=params,
                 data=body,
             )
-        if response.status_code == 200:
+        if response.status_code == 200 or response.status_code == 201:
             response_json = response.json()
             if not isinstance(response_json, list):
                 if response_json.get("message") and response_json.get(
@@ -97,7 +101,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                     response.elapsed.total_seconds(),
                 )
         raise ExecutionException(
-            "API Execution Failed",
+            f"API Execution Failed: status_code={response.status_code}, response={response.text}",
             metadata={
                 "status_code": response.status_code,
                 "response": response.text,
@@ -167,7 +171,6 @@ class OperationExecutionWithImprompt(OperationExecution):
                     and self.params.function_provider.get_model_name() is not None
                 ):
                     model_name = self.params.function_provider.get_model_name()
-
                 response = get_llm_response_from_messages(
                     msgs=[
                         {
@@ -194,6 +197,7 @@ class OperationExecutionWithImprompt(OperationExecution):
                 clarifying_question_status_code = "200"
                 clarifying_question_response_seconds = time.time() - start_time
             except Exception as e:
+                traceback.print_exc()
                 clarifying_response = f"Failed: {e}"
                 clarifying_question_status_code = "500"
 
