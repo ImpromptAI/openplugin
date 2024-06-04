@@ -71,10 +71,6 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             if msg.get_openai_message() is not None
         ]
 
-        print("*)*)*)*)*)*)*()")
-        print(f_messages)
-        print(conversation)
-
         function_json = functions.get_json()
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
