@@ -45,7 +45,6 @@ def _call(url, method="GET", headers=None, params=None, body=None):
             )
         if isinstance(body, str):
             body = json.loads(body)
-
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )

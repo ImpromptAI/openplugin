@@ -35,7 +35,9 @@ class OperationSignatureBuilder(ABC):
         self.selected_operation = selected_operation
 
     @abstractmethod
-    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
+    def run(
+        self, messages: List[Message], conversation: Optional[List] = []
+    ) -> SelectedApiSignatureResponse:
         """
         Run the plugin selector on the given list of messages and return a response.
         This method should be implemented by the derived classes.

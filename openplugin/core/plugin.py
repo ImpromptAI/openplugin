@@ -196,6 +196,9 @@ class PluginBuilder:
             ):
                 manifest_obj["auth"] = None
         try:
+            openapi_doc_url = manifest_obj.get("openapi_doc_url")
+            if openapi_doc_url is None or openapi_doc_url.strip() == "":
+                raise ValueError("openapi_doc_url is missing in the manifest.")
             plugin = Plugin(**manifest_obj)
         except ValidationError as e:
             print(e.json(indent=4))

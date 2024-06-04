@@ -79,6 +79,7 @@ class PluginExecutionPipeline(BaseModel):
         auth_query_param: Optional[dict],
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
+        conversation: Optional[List] = [],
     ) -> PluginExecutionResponse:
         if not run_all_output_modules and (
             output_module_names is None or len(output_module_names) == 0
@@ -92,7 +93,10 @@ class PluginExecutionPipeline(BaseModel):
         input_modules.append(flow_port)
         # API SIGNATURE DETECTION
         api_signature_port = self._run_plugin_signature_selector(
-            input=flow_port, config=config, function_provider=function_provider
+            input=flow_port,
+            config=config,
+            function_provider=function_provider,
+            conversation=conversation,
         )
         self.add_tokens(api_signature_port)
         # API EXECUTION
@@ -380,6 +384,7 @@ class PluginExecutionPipeline(BaseModel):
         input: Port,
         config: Config,
         function_provider: FunctionProvider,
+        conversation: Optional[List] = [],
     ) -> Port:
         if input.data_type != PortType.TEXT:
             raise Exception("Input data type to plugin must be text.")
@@ -393,7 +398,7 @@ class PluginExecutionPipeline(BaseModel):
         oai_selector = CustomOperationSignatureBuilder(
             plugin=self.plugin, function_provider=function_provider, config=config
         )
-        response = oai_selector.run(messages)
+        response = oai_selector.run(messages, conversation=conversation)
 
         ops = response.detected_plugin_operations
         if ops and len(ops) > 0:

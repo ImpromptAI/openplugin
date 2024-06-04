@@ -40,7 +40,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         else:
             raise ValueError("OpenAI API Key is not configured")
 
-    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
+    def run(
+        self, messages: List[Message], conversation: Optional[List] = []
+    ) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
         functions = Functions()
         functions.add_from_plugin(self.plugin, self.selected_operation)
@@ -68,13 +70,18 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             for msg in messages
             if msg.get_openai_message() is not None
         ]
+
+        print("*)*)*)*)*)*)*()")
+        print(f_messages)
+        print(conversation)
+
         function_json = functions.get_json()
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
         func_response_metadata_json = None
         try:
             func_response: FunctionResponse = self.function_provider.run(
-                request_prompt, function_json, self.config
+                request_prompt, function_json, self.config, conversation=conversation
             )
             func_response_metadata_json = func_response.response_metadata
             llm_calls.append(

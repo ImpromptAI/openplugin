@@ -47,7 +47,9 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
         else:
             raise ValueError("OpenAI API Key is not configured")
 
-    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
+    def run(
+        self, messages: List[Message], conversation: Optional[List] = []
+    ) -> SelectedApiSignatureResponse:
         if self.function_provider.get_provider_name().lower() in ["cohere"]:
             start_test_case_time = time.time()
             functions = Functions()
@@ -160,7 +162,7 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
                 function_provider=self.function_provider,
                 config=self.config,
             )
-            response = oai_selector.run(messages)
+            response = oai_selector.run(messages, conversation)
             return response
 
     @classmethod

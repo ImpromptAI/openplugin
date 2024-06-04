@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from dotenv import load_dotenv
 from langchain_community.callbacks import get_openai_callback
+from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, validator
 
 from .config import Config
@@ -185,7 +186,11 @@ class FunctionProvider(BaseModel):
 
     @abstractmethod
     def run(
-        self, request_prompt: str, function_json, config: Optional[Config]
+        self,
+        request_prompt: str,
+        function_json,
+        config: Optional[Config],
+        conversation: Optional[List] = [],
     ) -> FunctionResponse:
         pass
 
@@ -194,21 +199,35 @@ class LLMBasedFunctionProvider(FunctionProvider):
     llm: FunctionLLM
 
     def run(
-        self, request_prompt: str, function_json, config: Optional[Config]
+        self,
+        request_prompt: str,
+        function_json,
+        config: Optional[Config],
+        conversation: Optional[List] = [],
     ) -> FunctionResponse:
         start_time = time.time()
         llm_model = self.llm.convert_to_langchain_llm_model(config)
 
         call_back_manager = self.llm.get_callback_manager()
+
+        inp_messages = []
+        if conversation:
+            for conv in conversation:
+                if conv.get("role") == "user":
+                    inp_messages.append(AIMessage(content=conv.get("content")))
+                else:
+                    inp_messages.append(HumanMessage(content=conv.get("content")))
+        inp_messages.append(HumanMessage(content=request_prompt))
         if call_back_manager:
             with call_back_manager as cb:
                 llm_with_tools = llm_model.bind_tools(function_json)
-                response = llm_with_tools.invoke(request_prompt)
+                response = llm_with_tools.invoke(inp_messages)
                 llm_api_cost = cb.total_cost
         else:
             llm_with_tools = llm_model.bind_tools(function_json)
-            response = llm_with_tools.invoke(request_prompt)
+            response = llm_with_tools.invoke(inp_messages)
             llm_api_cost = 0
+
         llm_latency_seconds = time.time() - start_time
         total_tokens = response.response_metadata.get("token_usage", {}).get(
             "total_tokens"
