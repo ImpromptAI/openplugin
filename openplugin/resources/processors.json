@@ -214,9 +214,9 @@
     },
     {
         "processor_type": "llm_engine",
-         "processor_name": "LLM Engine",
+        "processor_name": "LLM Engine",
         "description": "Generates text using a language model",
-        "input_port": "text",
+        "input_port": "json",
         "output_port": "text",
         "implementations": [
             {

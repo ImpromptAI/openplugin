@@ -202,7 +202,7 @@ class PluginBuilder:
             plugin = Plugin(**manifest_obj)
         except ValidationError as e:
             print(e.json(indent=4))
-            raise e
+            raise Exception(f"Invalid manifest. {e}")
         plugin.manifest_object = manifest_obj
         return plugin
 

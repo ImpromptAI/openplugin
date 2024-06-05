@@ -137,6 +137,13 @@ def plugin_execution_pipeline(
         status_code = 500
         traceback.print_exc()
         error = {"message": f"Failed to run plugin. {e}"}
+
+    trace = {}
+    try:
+        trace = {"steps": pipeline.tracing_steps}
+    except Exception as e:
+        print(e)
+
     end = datetime.datetime.now()
     elapsed_time = end - start
     response = {
@@ -152,6 +159,6 @@ def plugin_execution_pipeline(
         },
         "response": {},
         "error": error,
-        "trace": {},
+        "trace": trace,
     }
     return JSONResponse(status_code=status_code, content=response)
