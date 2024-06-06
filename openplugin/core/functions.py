@@ -40,7 +40,7 @@ class Function(BaseModel):
     api: Optional[API]
     description: Optional[str]
     param_type: Optional[str]
-    param_properties: Optional[List[FunctionProperty]]
+    param_properties: Optional[List[FunctionProperty]] = []
     x_helpers: Optional[List[str]] = []
     human_usage_examples: Optional[List[str]] = []
     plugin_signature_helpers: Optional[List[str]] = []
@@ -243,8 +243,11 @@ class Functions(BaseModel):
                 plugin_operations_map,
                 valid_operations,
             )
+            self.functions.extend(functions)
+            return
         except Exception as e:
             print(f"Failed to parse OPENAPI spec using parser: {e}")
+        try:
             functions = self.add_from_openapi_spec_custom(
                 open_api_spec_url,
                 plugin,
@@ -252,7 +255,10 @@ class Functions(BaseModel):
                 plugin_operations_map,
                 valid_operations,
             )
-        self.functions.extend(functions)
+            self.functions.extend(functions)
+        except Exception as e:
+            print(f"Failed to parse OPENAPI spec custom: {e}")
+            raise Exception(f"Failed to parse OPENAPI spec: {e}")
 
     def add_from_openapi_spec_using_parser(
         self,
@@ -450,6 +456,10 @@ class Functions(BaseModel):
                         type = "string"
                         if param.get("schema").get("type"):
                             type = param.get("schema").get("type")
+                        if param.get("schema", {}).get("items"):
+                            properties_values["items"] = param.get("schema").get(
+                                "items"
+                            )
                         properties_values["type"] = type
                         if param.get("description") is None:
                             properties_values["description"] = param.get("name")
@@ -464,12 +474,24 @@ class Functions(BaseModel):
                     function_values["param_properties"] = g_properties
                 elif method.lower() == "post" or method.lower() == "put":
                     p_properties = []
-                    application_json_schema = (
-                        details.get("requestBody")
-                        .get("content")
-                        .get("application/json")
-                        .get("schema")
-                    )
+                    content = details.get("requestBody").get("content")
+                    print(content)
+                    if "application/json" in content:
+                        application_json_schema = content.get(
+                            "application/json"
+                        ).get("schema")
+                    elif "multipart/form-data" in content:
+                        application_json_schema = content.get(
+                            "multipart/form-data"
+                        ).get("schema")
+                    elif "application/x-www-form-urlencoded" in content:
+                        application_json_schema = content.get(
+                            "application/x-www-form-urlencoded"
+                        ).get("schema")
+                    else:
+                        application_json_schema = content.get(
+                            "application/json"
+                        ).get("schema")
                     required_params = {}
                     if "properties" in application_json_schema:
                         params = application_json_schema.get("properties")
