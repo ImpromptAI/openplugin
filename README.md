@@ -2,7 +2,7 @@
         OpenPlugin
     </h1>
     <p align="center">
-        <p align="center">:open_hands::electric_plug: Multimodal API Bridge - make APIs into chat and multimodal ready interfaces
+        <p align="center">:open_hands::electric_plug: LLM Tool Runner - Chat with your APIs - Abstraction Layer over Function Calling -
         <br>
     </p>
 <h4 align="center">
