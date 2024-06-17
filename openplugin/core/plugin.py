@@ -60,7 +60,10 @@ class Plugin(BaseModel):
     def _set_fields(cls, values: dict) -> dict:
         """This is a validator that sets the field values based on the manifest_url"""
         openapi_doc_url = str(values.get("openapi_doc_url", ""))
-        openapi_doc_json = requests.get(openapi_doc_url).json()
+        r = requests.get(openapi_doc_url)
+        if r.status_code != 200:
+            raise ValueError("Invalid openapi_doc_url.")
+        openapi_doc_json = r.json()
         if values.get("schema_version") is not None and isinstance(
             values.get("schema_version"), int
         ):
@@ -201,8 +204,9 @@ class PluginBuilder:
                 raise ValueError("openapi_doc_url is missing in the manifest.")
             plugin = Plugin(**manifest_obj)
         except ValidationError as e:
+            print(e.errors())
             print(e.json(indent=4))
-            raise Exception(f"Invalid manifest. {e}")
+            raise Exception(f"Invalid manifest. {str(e)}")
         plugin.manifest_object = manifest_obj
         return plugin
 

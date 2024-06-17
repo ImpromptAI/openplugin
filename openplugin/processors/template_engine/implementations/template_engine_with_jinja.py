@@ -28,4 +28,8 @@ class TemplateEngineWithJinja(TemplateEngine):
             template_response = template.render(data=input.value)
         if self.output_port == PortType.JSON:
             template_response = json.loads(template_response)
-        return Port(data_type=self.output_port, value=template_response)
+        return Port(
+            data_type=self.output_port,
+            mime_type=self.mime_type,
+            value=template_response,
+        )

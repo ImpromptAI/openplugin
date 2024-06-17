@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 import requests
 from loguru import logger
+from pytest import param
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
 from openplugin.utils import get_llm_response_from_messages
@@ -43,8 +44,9 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                 .replace("/edit)", "/edit )")
                 .replace(".txt)", ".txt )")
             )
-        if isinstance(body, str):
-            body = json.loads(body)
+        # if isinstance(body, str):
+        #    body = json.loads(body)
+
         response = requests.request(
             method.upper(), url, headers=headers, params=params, data=body
         )

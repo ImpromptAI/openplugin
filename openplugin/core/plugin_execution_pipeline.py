@@ -333,24 +333,27 @@ class PluginExecutionPipeline(BaseModel):
         )
 
     def add_api_execution_trace(self, api_execution_step):
-        self.tracing_steps.append(
-            {
-                "name": "api_execution_step",
-                "label": "API Execution",
-                "processing_time_seconds": api_execution_step.original_response.get_metadata(
-                    PortMetadata.PROCESSING_TIME_SECONDS
-                ),
-                "status_code": api_execution_step.original_response.get_metadata(
-                    PortMetadata.STATUS_CODE
-                ),
-                "input_text": api_execution_step.original_response.get_metadata(
-                    PortMetadata.LOG_INPUT_TEXT
-                ),
-                "output_text": api_execution_step.original_response.get_metadata(
-                    PortMetadata.LOG_OUTPUT_TEXT
-                ),
-            }
-        )
+        try:
+            self.tracing_steps.append(
+                {
+                    "name": "api_execution_step",
+                    "label": "API Execution",
+                    "processing_time_seconds": api_execution_step.original_response.get_metadata(
+                        PortMetadata.PROCESSING_TIME_SECONDS
+                    ),
+                    "status_code": api_execution_step.original_response.get_metadata(
+                        PortMetadata.STATUS_CODE
+                    ),
+                    "input_text": api_execution_step.original_response.get_metadata(
+                        PortMetadata.LOG_INPUT_TEXT
+                    ),
+                    "output_text": api_execution_step.original_response.get_metadata(
+                        PortMetadata.LOG_OUTPUT_TEXT
+                    ),
+                }
+            )
+        except Exception as e:
+            print(e)
 
     def add_output_module_trace(self, item: Port, metadata: dict):
         processor_logs = item.get_metadata(PortMetadata.LOG_PROCESSOR_RUN)
@@ -460,12 +463,11 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be JSON.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
+        input_port_text = None
         try:
             api_called = input.value.get("api_called")
             method = input.value.get("method")
             query_params = input.value.get("mapped_operation_parameters")
-
-            input_port_text = f"api_called={api_called}, method={method}, mapped_operation_parameters={query_params}"
 
             # identify path parameters
             pattern = re.compile(r"\{([^}]+)\}")
@@ -478,14 +480,17 @@ class PluginExecutionPipeline(BaseModel):
                     parameter_key = f"{{{param_name}}}"
                     parameter_value = str(query_params[param_name])
                     api_called = api_called.replace(parameter_key, parameter_value)
-
                     # remove matched path parameters from query_params
                     del query_params[param_name]
+
+            input_port_text = f"api_called={api_called}, method={method}, mapped_operation_parameters={query_params}"
+
             logger.info(
                 f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
             )
             if auth_query_param:
                 query_params.update(auth_query_param)
+
             params = OperationExecutionParams(
                 config=config,
                 api=api_called,
@@ -513,7 +518,6 @@ class PluginExecutionPipeline(BaseModel):
                     PortMetadata.LOG_OUTPUT_TEXT: output_text,
                 },
             )
-
             # clarifying question
             clarifying_port = None
             if response.clarifying_response:
@@ -538,6 +542,21 @@ class PluginExecutionPipeline(BaseModel):
             self.add_api_execution_trace(api_execution_step)
             return api_execution_step
         except Exception as e:
+            api_execution_step = APIExecutionStepResponse(
+                original_response=Port(
+                    name="original_response",
+                    data_type=PortType.JSON,
+                    value={},
+                    metadata={
+                        PortMetadata.PROCESSING_TIME_SECONDS: None,
+                        PortMetadata.STATUS_CODE: 500,
+                        PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                        PortMetadata.LOG_OUTPUT_TEXT: None,
+                    },
+                ),
+                clarifying_response=None,
+            )
+            self.add_api_execution_trace(api_execution_step)
             raise PluginExecutionPipelineError(message=f"API Execution Error: {e}")
 
     def add_tokens(self, port: Port):

@@ -6,7 +6,7 @@ import litellm
 
 from ...config import Config
 from ...function_providers import FunctionProvider
-from ...functions import Functions
+from ...functions import Functions, build_function_name
 from ...messages import Message
 from ...plugin import Plugin
 from ...plugin_detected import PluginDetected, SelectedPluginsResponse
@@ -83,10 +83,7 @@ class OpenAIPluginSelector(PluginSelector):
         detected_plugins = []
         if message.get("function_call"):
             # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
-            pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
-            matches = pattern.findall(message.get("function_call").name)
-            validated_name = "".join(matches)
-            function_name = validated_name
+            function_name = build_function_name(message.get("function_call").name)
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             PluginDetected(

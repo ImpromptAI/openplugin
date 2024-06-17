@@ -7,7 +7,7 @@ import litellm
 
 from ...config import Config
 from ...function_providers import FunctionProvider
-from ...functions import Functions
+from ...functions import Functions, build_function_name
 from ...messages import Message, MessageType
 from ...plugin import Plugin
 from ...plugin_detected import PluginDetectedParams, SelectedApiSignatureResponse
@@ -45,7 +45,9 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             raise ValueError("OpenAI API Key is not configured")
         litellm.api_key = self.openai_api_key
 
-    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
+    def run(
+        self, messages: List[Message], conversation: Optional[List] = []
+    ) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
 
         functions = Functions()
@@ -54,6 +56,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         if len(functions.functions) == 0:
             return SelectedApiSignatureResponse(
                 run_completed=True,
+                modified_input_prompt=None,
                 final_text_response="No functions found",
                 detected_plugin_operations=[],
                 response_time=round(time.time() - start_test_case_time, 2),
@@ -141,6 +144,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             print(e)
             return SelectedApiSignatureResponse(
                 run_completed=True,
+                modified_input_prompt=None,
                 final_text_response="Failed to run plugin",
                 detected_plugin_operations=[],
                 response_time=round(time.time() - start_test_case_time, 2),
@@ -156,11 +160,9 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             and isinstance(message_json, dict)
             and message_json.get("function_call")
         ):
-            # validate for litellm character restrictions: r"^[a-zA-Z0-9_-]{1,64}$"
-            pattern = re.compile("[a-zA-Z0-9_-]{1,64}")
-            matches = pattern.findall(message_json["function_call"]["name"])
-            validated_name = "".join(matches)
-            function_name = validated_name
+            function_name = build_function_name(
+                message_json["function_call"]["name"]
+            )
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             arguments = json.loads(message_json["function_call"]["arguments"])
@@ -189,6 +191,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
 
         response_obj = SelectedApiSignatureResponse(
             run_completed=True,
+            modified_input_prompt=None,
             final_text_response=final_text_response,
             detected_plugin_operations=detected_plugin_operations,
             response_time=time.time() - start_test_case_time,

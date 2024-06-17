@@ -37,6 +37,17 @@ help:
 	@echo "    lint-fix"
 	@echo "        Automatically fix linting errors using ruff."
 	
+test-plugin:
+	pytest --html=assets/plugin_report.html --disable-warnings tests/unit/core/test_openapi_parser.py tests/unit/core/test_function_calling.py
+
+test-plugin-openapi:
+	pytest --html=assets/plugin_openapi_report.html --disable-warnings tests/unit/core/test_openapi_parser.py
+
+test-plugin-fc:
+	pytest --html=assets/plugin_fc_report.html --disable-warnings tests/unit/core/test_function_calling.py
+
+generate-beta-plugin-test-data:
+	ENVIRONMENT=beta python scripts/generate_plugin_test_data.py
 
 start-server:
 	poetry run uvicorn openplugin.api.application:app --reload --host $(HOST) --port $(PORT)

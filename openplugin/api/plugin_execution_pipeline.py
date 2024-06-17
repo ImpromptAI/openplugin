@@ -56,6 +56,7 @@ def plugin_execution_pipeline(
         function_provider_name = function_provider_input.name
     start = datetime.datetime.now()
     try:
+        pipeline = None
         input = Port(data_type=PortType.TEXT, value=prompt)
         if openplugin_manifest_obj is not None:
             plugin_obj = PluginBuilder.build_from_manifest_obj(
@@ -140,7 +141,8 @@ def plugin_execution_pipeline(
 
     trace = {}
     try:
-        trace = {"steps": pipeline.tracing_steps}
+        if pipeline:
+            trace = {"steps": pipeline.tracing_steps}
     except Exception as e:
         print(e)
 

@@ -6,6 +6,7 @@ nohup.out
 .idea/*
 /.idea/*
 
+test_file_gen.py
 .vscode/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -17,6 +18,7 @@ package-lock.json
 package.json
 node_modules/
 
+report.html
 poetry.lock
 sample_prompt.txt
 push_to_ecs.sh
