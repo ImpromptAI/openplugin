@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 langchain = "^0.1.12"
-requests = "2.31.0"
+requests = "2.32.2"
 uvicorn = "^0.22.0"
 fastapi = "0.109.2"
 load-dotenv = "^0.1.0"
