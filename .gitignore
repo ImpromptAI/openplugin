@@ -152,3 +152,4 @@ utils/boardreader/runner.py
 my_runner.py
 **/*user_pass_keys.env
 run_langchain.py
+tests/resources/test_plugins_beta.json
