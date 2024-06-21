@@ -1,3 +1,6 @@
+import trace
+import traceback
+
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
@@ -44,17 +47,17 @@ def openapi_parser(
 
 
 @router.get("/openapi-param-parser")
-def openapi_param_parser(openapi_doc_url: str) -> JSONResponse:
+def openapi_param_parser(openapi_doc_url: str):
     try:
         functions = Functions()
         functions.add_from_openapi_spec(open_api_spec_url=openapi_doc_url)
         function_json = functions.get_expanded_json()
-        return JSONResponse(
-            status_code=200,
-            content={
-                "message": "OpenAPI doc parsed successfully.",
-                "functions": function_json,
-            },
-        )
+        response_json = {
+            "message": "OpenAPI doc parsed successfully.",
+            "functions": function_json,
+        }
+        return response_json
     except Exception as e:
+        traceback.print_exc()
+
         return JSONResponse(status_code=500, content={"error": str(e)})
