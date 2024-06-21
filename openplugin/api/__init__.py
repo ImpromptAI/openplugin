@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from openplugin.api import (
     function_providers,
+    helpers,
     info,
     operation_execution,
     operation_signature_builder,
@@ -62,6 +63,7 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
     router.include_router(plugin_execution_pipeline.router)
     router.include_router(processors.router)
     router.include_router(function_providers.router)
+    router.include_router(helpers.router)
 
     app.include_router(router, prefix=API_PREFIX)
 
