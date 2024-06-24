@@ -85,7 +85,7 @@ def _call(url, method="GET", headers=None, params=None, body=None):
                 response.status_code,
                 response.elapsed.total_seconds(),
             )
-        elif response.status_code == 400:
+        elif response.status_code == 400 or response.status_code == 422:
             return (
                 response.text,
                 response.status_code,
@@ -162,7 +162,7 @@ class OperationExecutionWithImprompt(OperationExecution):
             llm_api_key = self.config.aws_secret_access_key
 
         llm_calls = []
-        if status_code == 400:
+        if status_code == 400 or status_code == 422:
             is_a_clarifying_question = True
             try:
                 start_time = time.time()

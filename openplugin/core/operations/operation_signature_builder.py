@@ -18,6 +18,7 @@ class OperationSignatureBuilder(ABC):
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
+        header: Optional[dict] = None,
     ):
         """
         Initialize the plugin selector.
@@ -33,10 +34,13 @@ class OperationSignatureBuilder(ABC):
         self.function_provider = function_provider
         self.pre_prompts = pre_prompts
         self.selected_operation = selected_operation
+        self.header = header
 
     @abstractmethod
     def run(
-        self, messages: List[Message], conversation: Optional[List] = []
+        self,
+        messages: List[Message],
+        conversation: Optional[List] = [],
     ) -> SelectedApiSignatureResponse:
         """
         Run the plugin selector on the given list of messages and return a response.

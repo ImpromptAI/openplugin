@@ -47,10 +47,10 @@ def plugin_execution_pipeline(
     auth_query_param: Optional[dict] = Body(default=None),
     config: Optional[Config] = Body(None),
     run_all_output_modules: bool = Body(False),
-    output_module_names: Optional[List[str]] = None,
+    output_module_names: Optional[List[str]] = Body(default=None),
+    selected_operation: Optional[str] = Body(default=None),
     api_key: APIKey = Depends(auth.get_api_key),
 ) -> JSONResponse:
-
     function_provider_name = None
     if function_provider_input:
         function_provider_name = function_provider_input.name
@@ -92,7 +92,6 @@ def plugin_execution_pipeline(
         json_data = {}
         error = None
         trace: Dict[Any, Any] = {"steps": []}
-
         response_obj = asyncio.run(
             pipeline.start(
                 input=input,
@@ -105,6 +104,7 @@ def plugin_execution_pipeline(
                 output_module_names=output_module_names,
                 run_all_output_modules=run_all_output_modules,
                 conversation=conversation,
+                selected_operation=selected_operation,
             )
         )
         status_code = 200

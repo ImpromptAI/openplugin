@@ -80,6 +80,7 @@ class PluginExecutionPipeline(BaseModel):
         output_module_names: Optional[List[str]] = None,
         run_all_output_modules: bool = False,
         conversation: Optional[List] = [],
+        selected_operation: Optional[str] = None,
     ) -> PluginExecutionResponse:
         if not run_all_output_modules and (
             output_module_names is None or len(output_module_names) == 0
@@ -97,6 +98,8 @@ class PluginExecutionPipeline(BaseModel):
             config=config,
             function_provider=function_provider,
             conversation=conversation,
+            selected_operation=selected_operation,
+            header=header,
         )
         self.add_tokens(api_signature_port)
         # API EXECUTION
@@ -328,6 +331,9 @@ class PluginExecutionPipeline(BaseModel):
                         "intermediate_fc_response"
                     )
                 ),
+                "x_dep_tracing": signature_port.get("metadata", {}).get(
+                    "x_dep_tracing"
+                ),
                 "output_text": signature_port.get("metadata", {}).get("output_text"),
             }
         )
@@ -388,6 +394,8 @@ class PluginExecutionPipeline(BaseModel):
         config: Config,
         function_provider: FunctionProvider,
         conversation: Optional[List] = [],
+        selected_operation: Optional[str] = None,
+        header: Optional[dict] = None,
     ) -> Port:
         if input.data_type != PortType.TEXT:
             raise Exception("Input data type to plugin must be text.")
@@ -399,7 +407,11 @@ class PluginExecutionPipeline(BaseModel):
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] provider]={function_provider}")
         # API signature selector
         oai_selector = CustomOperationSignatureBuilder(
-            plugin=self.plugin, function_provider=function_provider, config=config
+            plugin=self.plugin,
+            function_provider=function_provider,
+            config=config,
+            selected_operation=selected_operation,
+            header=header,
         )
         response = oai_selector.run(messages, conversation=conversation)
 
@@ -421,6 +433,7 @@ class PluginExecutionPipeline(BaseModel):
                     "output_text": str(output_port_text),
                     "intermediate_fc_request": response.function_request_json,
                     "intermediate_fc_response": response.function_response_json,
+                    "x_dep_tracing": response.x_dep_tracing,
                 },
                 "mapped_operation_parameters": ops[0].mapped_operation_parameters,
             }
@@ -440,6 +453,7 @@ class PluginExecutionPipeline(BaseModel):
                     "output_text": "No operations found",
                     "intermediate_fc_request": response.function_request_json,
                     "intermediate_fc_response": response.function_response_json,
+                    "x_dep_tracing": response.x_dep_tracing,
                 },
             }
             self.add_signature_detection_trace(val)

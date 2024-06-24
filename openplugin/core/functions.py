@@ -1,5 +1,6 @@
 import json
 import re
+import traceback
 from typing import Any, Dict, List, Optional
 
 import jsonref
@@ -39,7 +40,7 @@ class FunctionProperty(BaseModel):
     type: str
     description: Optional[str] = None
     enum: Optional[Any] = None
-    items: Optional[dict] = None
+    items: Optional[Any] = None
     x_helpers: Optional[List[str]] = []
     is_required: bool = False
     example: Optional[Any] = None
@@ -53,6 +54,7 @@ class FunctionProperty(BaseModel):
     additionalProperties: Optional[Any] = None
     readOnly: Optional[Any] = None
     writeOnly: Optional[Any] = None
+    x_dependent: Optional[Dict] = None
 
 
 class Function(BaseModel):
@@ -67,6 +69,7 @@ class Function(BaseModel):
     x_helpers: Optional[List[str]] = []
     human_usage_examples: Optional[List[str]] = []
     plugin_signature_helpers: Optional[List[str]] = []
+    x_dependent_parameter_map: Optional[Dict[str, str]] = {}
 
     def get_api_url(self):
         return self.api.url
@@ -105,7 +108,11 @@ class Function(BaseModel):
                 "description": description,
             }
             if param_property.type == "array":
-                obj["items"] = param_property.items
+                items = param_property.items
+                # function json doesn't take array of items
+                if isinstance(items, list) and len(items) > 0:
+                    items = items[0]
+                obj["items"] = items
             if param_property.enum:
                 obj["enum"] = param_property.enum
             if param_property.example:
@@ -122,6 +129,8 @@ class Function(BaseModel):
                 obj["maxLength"] = param_property.maxLength
             if param_property.minimum:
                 obj["minimum"] = param_property.minimum
+            if param_property.x_dependent:
+                obj["x_dependent"] = param_property.x_dependent
             if param_property.maximum:
                 obj["maximum"] = param_property.maximum
             if param_property.additionalProperties:
@@ -249,13 +258,12 @@ class Functions(BaseModel):
         valid_operations = []
 
         selected_op_key = None
-        if selected_operation and " " in selected_operation:
-            selected_operation_path = selected_operation.split(" ")[1]
-            selected_operation_method = selected_operation.split(" ")[0]
+        if selected_operation and "_" in selected_operation:
+            selected_operation_path = selected_operation.split("<PATH>")[1]
+            selected_operation_method = selected_operation.split("<PATH>")[0]
             selected_op_key = (
                 f"{selected_operation_path}_{selected_operation_method}"
             )
-
         for key in manifest_obj.get("plugin_operations"):
             methods = manifest_obj.get("plugin_operations").get(key).keys()
             for method in methods:
@@ -338,6 +346,7 @@ class Functions(BaseModel):
             )
             self.functions.extend(functions)
         except Exception as e:
+            traceback.print_exc()
             print(f"Failed to parse OPENAPI spec custom: {e}")
             raise Exception(f"[OPENAI_PARSE_ERROR] {e}")
 
@@ -349,10 +358,12 @@ class Functions(BaseModel):
         plugin_operations_map: Optional[dict],
         valid_operations: Optional[List[str]],
     ):
+        functions = []
         openapi_doc_json = requests.get(open_api_spec_url).json()
         openapi_doc_json = jsonref.loads(json.dumps(openapi_doc_json))
         if openapi_doc_json is None:
             raise ValueError("Could not fetch OpenAPI json from URL")
+
         servers = openapi_doc_json.get("servers")
 
         if isinstance(servers, dict) and servers.get("url"):
@@ -365,7 +376,6 @@ class Functions(BaseModel):
         paths = openapi_doc_json.get("paths")
         if paths is None:
             raise ValueError("No paths found in OpenAPI json")
-        functions = []
 
         reference_map = self._build_reference_map(openapi_doc_json)
 
@@ -420,6 +430,7 @@ class Functions(BaseModel):
                 if plugin:
                     self.plugin_map[func.name] = plugin
                 self.function_map[func.name] = func
+
                 functions.append(func)
         return functions
 
@@ -492,6 +503,9 @@ class Functions(BaseModel):
 
         if param_obj.get("minimum"):
             op_property["minimum"] = param_obj.get("minimum")
+
+        if param_obj.get("x-dependent"):
+            op_property["x_dependent"] = param_obj.get("x-dependent")
 
         if param_obj.get("maximum"):
             op_property["maximum"] = param_obj.get("maximum")

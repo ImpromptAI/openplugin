@@ -6,7 +6,7 @@ from typing import List, Optional
 from litellm import completion, completion_cost
 
 from ...config import Config
-from ...function_providers import FunctionProvider, FunctionResponse
+from ...function_providers import FunctionProvider
 from ...functions import Functions
 from ...messages import Message, MessageType
 from ...plugin import Plugin
@@ -28,6 +28,7 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
+        header: Optional[dict] = None,
     ):
         if pre_prompts is None:
             pre_prompts = []
@@ -40,7 +41,12 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
         )
         self.function_provider = function_provider
         super().__init__(
-            plugin, function_provider, config, pre_prompts, selected_operation
+            plugin,
+            function_provider,
+            config,
+            pre_prompts,
+            selected_operation,
+            header,
         )
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
@@ -161,6 +167,8 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
                 plugin=self.plugin,
                 function_provider=self.function_provider,
                 config=self.config,
+                selected_operation=self.selected_operation,
+                header=self.header,
             )
             response = oai_selector.run(messages, conversation)
             return response

@@ -57,14 +57,22 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         pre_prompts: Optional[List[Message]] = None,
         selected_operation: Optional[str] = None,
         use: Optional[str] = None,
+        header: Optional[dict] = None,
     ):
         super().__init__(
-            plugin, function_provider, config, pre_prompts, selected_operation
+            plugin,
+            function_provider,
+            config,
+            pre_prompts,
+            selected_operation,
+            header,
         )
         self.total_tokens_used = 0
         self.use = use
 
-    def run(self, messages: List[Message]) -> SelectedApiSignatureResponse:
+    def run(
+        self, messages: List[Message], conversation: Optional[List] = []
+    ) -> SelectedApiSignatureResponse:
         start_test_case_time = time.time()
         prompt = ""
         for message in messages:
@@ -108,7 +116,10 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         urls = _extract_urls(response.get("response"))
         for url in urls:
             formatted_url = url.split("?")[0].strip()
-            if self.plugin.api_endpoints and formatted_url in self.plugin.api_endpoints:
+            if (
+                self.plugin.api_endpoints
+                and formatted_url in self.plugin.api_endpoints
+            ):
                 api_called = formatted_url
                 query_dict = parse_qs(urlparse(url).query)
                 mapped_operation_parameters = {
@@ -151,7 +162,9 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
                 msgs.append(pre_prompt.get_openai_message())
         msgs.append({"role": "user", "content": prompt})
         if DEBUG:
-            logger.info(f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.function_provider}")
+            logger.info(
+                f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.function_provider}"
+            )
             logger.info(f"\n=-=-=-=-=-=- PROMPT =--=-=-=-=-=--=\n{prompt}")
         response = get_llm_response_from_messages(
             msgs=msgs,
