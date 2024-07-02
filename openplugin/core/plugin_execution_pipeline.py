@@ -314,29 +314,54 @@ class PluginExecutionPipeline(BaseModel):
         )
 
     def add_signature_detection_trace(self, signature_port: Dict[Any, Any]):
-        self.tracing_steps.append(
-            {
-                "name": "api_and_signature_detection_step",
-                "label": "Signature Creation (w/ LLM)",
-                "processing_time_seconds": signature_port.get("metadata", {}).get(
-                    "processing_time_seconds"
-                ),
-                "status_code": signature_port.get("metadata", {}).get("status_code"),
-                "input_text": signature_port.get("metadata", {}).get("input_text"),
-                "intermediate_fc_request": json.dumps(
-                    signature_port.get("metadata", {}).get("intermediate_fc_request")
-                ),
-                "intermediate_fc_response": json.dumps(
+        try:
+            intermediate_fc_request = None
+            if (
+                signature_port.get("metadata", {}).get("intermediate_fc_request")
+                is not None
+            ):
+                intermediate_fc_request = json.dumps(
                     signature_port.get("metadata", {}).get(
-                        "intermediate_fc_response"
+                        "intermediate_fc_request", {}
                     )
-                ),
-                "x_dep_tracing": signature_port.get("metadata", {}).get(
-                    "x_dep_tracing"
-                ),
-                "output_text": signature_port.get("metadata", {}).get("output_text"),
-            }
-        )
+                )
+
+            intermediate_fc_response = None
+            if (
+                signature_port.get("metadata", {}).get("intermediate_fc_response")
+                is not None
+            ):
+                intermediate_fc_response = json.dumps(
+                    signature_port.get("metadata", {}).get(
+                        "intermediate_fc_response", {}
+                    )
+                )
+
+            self.tracing_steps.append(
+                {
+                    "name": "api_and_signature_detection_step",
+                    "label": "Signature Creation (w/ LLM)",
+                    "processing_time_seconds": signature_port.get(
+                        "metadata", {}
+                    ).get("processing_time_seconds"),
+                    "status_code": signature_port.get("metadata", {}).get(
+                        "status_code"
+                    ),
+                    "input_text": signature_port.get("metadata", {}).get(
+                        "input_text"
+                    ),
+                    "intermediate_fc_request": intermediate_fc_request,
+                    "intermediate_fc_response": intermediate_fc_response,
+                    "x_dep_tracing": signature_port.get("metadata", {}).get(
+                        "x_dep_tracing"
+                    ),
+                    "output_text": signature_port.get("metadata", {}).get(
+                        "output_text"
+                    ),
+                }
+            )
+        except Exception as e:
+            print(e)
 
     def add_api_execution_trace(self, api_execution_step):
         try:
@@ -355,6 +380,9 @@ class PluginExecutionPipeline(BaseModel):
                     ),
                     "output_text": api_execution_step.original_response.get_metadata(
                         PortMetadata.LOG_OUTPUT_TEXT
+                    ),
+                    "x_lookup": api_execution_step.original_response.get_metadata(
+                        PortMetadata.X_LOOKUP
                     ),
                 }
             )
@@ -436,6 +464,7 @@ class PluginExecutionPipeline(BaseModel):
                     "x_dep_tracing": response.x_dep_tracing,
                 },
                 "mapped_operation_parameters": ops[0].mapped_operation_parameters,
+                "response_obj_200": response.response_obj_200,
             }
             self.add_signature_detection_trace(val)
             return Port(data_type=PortType.JSON, value=val)
@@ -482,7 +511,7 @@ class PluginExecutionPipeline(BaseModel):
             api_called = input.value.get("api_called")
             method = input.value.get("method")
             query_params = input.value.get("mapped_operation_parameters")
-
+            response_obj_200 = input.value.get("response_obj_200")
             # identify path parameters
             pattern = re.compile(r"\{([^}]+)\}")
             path_params = pattern.findall(api_called)
@@ -512,7 +541,9 @@ class PluginExecutionPipeline(BaseModel):
                 query_params=query_params,
                 body={},
                 header=header,
+                response_obj_200=response_obj_200,
                 function_provider=function_provider,
+                plugin_op_property_map=self.plugin.plugin_op_property_map,
             )
             ex = OperationExecutionWithImprompt(params)
             response = ex.run()
@@ -530,6 +561,7 @@ class PluginExecutionPipeline(BaseModel):
                     PortMetadata.STATUS_CODE: response.api_call_status_code,
                     PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
                     PortMetadata.LOG_OUTPUT_TEXT: output_text,
+                    PortMetadata.X_LOOKUP: response.x_lookup_tracing,
                 },
             )
             # clarifying question

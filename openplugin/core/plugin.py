@@ -1,6 +1,7 @@
 import json
 from typing import Dict, List, Optional, Set
 
+import jsonref
 import requests
 import yaml
 from pydantic import AnyHttpUrl, BaseModel, Field, ValidationError, root_validator
@@ -55,6 +56,7 @@ class Plugin(BaseModel):
     api_endpoints: Optional[Set[str]] = None
     # first str is the path, second str is the method
     plugin_operations: Optional[Dict[str, Dict[str, PluginOperation]]] = None
+    plugin_op_property_map: Optional[Dict[str, Dict[str, Dict]]] = None
 
     @root_validator(pre=True)
     def _set_fields(cls, values: dict) -> dict:
@@ -64,6 +66,7 @@ class Plugin(BaseModel):
         if r.status_code != 200:
             raise ValueError("Invalid openapi_doc_url.")
         openapi_doc_json = r.json()
+
         if values.get("schema_version") is not None and isinstance(
             values.get("schema_version"), int
         ):
@@ -77,6 +80,19 @@ class Plugin(BaseModel):
             values["api_endpoints"] = api_endpoints
         else:
             raise ValueError("Incompatible manifest.")
+
+        plugin_op_property_map = {}
+        if openapi_doc_json:
+            openapi_doc_json = jsonref.loads(json.dumps(openapi_doc_json))
+            for path in openapi_doc_json.get("paths", {}).keys():
+                path_obj = openapi_doc_json.get("paths", {}).get(path, {})
+                method_props = {}
+                for method in path_obj.keys():
+                    method_obj = path_obj.get(method, {})
+                    method_props[method] = method_obj
+                plugin_op_property_map[path] = method_props
+
+        values["plugin_op_property_map"] = plugin_op_property_map
         return values
 
     def get_openapi_doc_json(self):

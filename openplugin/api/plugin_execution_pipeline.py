@@ -50,7 +50,7 @@ def plugin_execution_pipeline(
     output_module_names: Optional[List[str]] = Body(default=None),
     selected_operation: Optional[str] = Body(default=None),
     api_key: APIKey = Depends(auth.get_api_key),
-) -> JSONResponse:
+):
     function_provider_name = None
     if function_provider_input:
         function_provider_name = function_provider_input.name
@@ -129,7 +129,7 @@ def plugin_execution_pipeline(
             "error": error,
             "trace": trace,
         }
-        return JSONResponse(status_code=status_code, content=response)
+        return response
     except PluginExecutionPipelineError as e:
         status_code = 500
         traceback.print_exc()
@@ -163,4 +163,4 @@ def plugin_execution_pipeline(
         "error": error,
         "trace": trace,
     }
-    return JSONResponse(status_code=status_code, content=response)
+    return response

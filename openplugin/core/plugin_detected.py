@@ -49,3 +49,4 @@ class SelectedApiSignatureResponse(BaseModel):
     function_request_json: Optional[Union[Dict, List]] = None
     function_response_json: Optional[Union[Dict, List]] = None
     x_dep_tracing: Optional[List] = None
+    response_obj_200: Optional[Dict] = None

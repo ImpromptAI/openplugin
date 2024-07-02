@@ -70,6 +70,7 @@ class Function(BaseModel):
     human_usage_examples: Optional[List[str]] = []
     plugin_signature_helpers: Optional[List[str]] = []
     x_dependent_parameter_map: Optional[Dict[str, str]] = {}
+    response_obj_200: Optional[Dict[str, Any]] = {}
 
     def get_api_url(self):
         return self.api.url
@@ -426,6 +427,15 @@ class Functions(BaseModel):
                 )
                 function_values["path"] = path
                 function_values["method"] = method
+                response_obj_200 = (
+                    operation_obj.get("responses", {})
+                    .get("200", {})
+                    .get("content", {})
+                    .get("application/json")
+                )
+                if response_obj_200:
+                    response_obj_200["server"] = server_url
+                function_values["response_obj_200"] = response_obj_200
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin
@@ -538,8 +548,12 @@ class Functions(BaseModel):
 
         # print(json.dumps(operation_obj, indent=2))
         function_values: Dict[str, Any] = {}
+        if server_url.endswith("/") and path.startswith("/"):
+            u = f"{server_url}{path[1:]}"
+        else:
+            u = f"{server_url}{path}"
 
-        function_values["api"] = API(url=f"{server_url}{path}", method=method)
+        function_values["api"] = API(url=u, method=method)
 
         validated_name = build_function_name(f"{method}{path.replace('/', '_')}")
 
@@ -678,9 +692,13 @@ class Functions(BaseModel):
                         continue
                 details = paths[path][method]
                 function_values: Dict[str, Any] = {}
-                function_values["api"] = API(
-                    url=f"{server_url}{path}", method=method
-                )
+
+                if server_url.endswith("/") and path.startswith("/"):
+                    u = f"{server_url}{path[1:]}"
+                else:
+                    u = f"{server_url}{path}"
+
+                function_values["api"] = API(url=u, method=method)
                 validated_name = build_function_name(
                     f"{method}{path.replace('/', '_')}"
                 )

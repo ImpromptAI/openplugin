@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -16,6 +16,7 @@ class OperationExecutionResponse(BaseModel):
     clarifying_question_status_code: Optional[str]
     clarifying_question_response_seconds: Optional[float]
     llm_calls: Optional[Any]
+    x_lookup_tracing: Optional[List]
 
 
 class OperationExecutionParams(BaseModel):
@@ -25,7 +26,9 @@ class OperationExecutionParams(BaseModel):
     query_params: Optional[dict]
     body: Optional[dict]
     header: Optional[dict]
+    response_obj_200: Optional[dict]
     function_provider: FunctionProvider
+    plugin_op_property_map: Optional[Dict[str, Dict[str, Dict]]]
 
     def get_temperature(self):
         return 0.2

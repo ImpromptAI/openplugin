@@ -1,3 +1,4 @@
+import sys
 from typing import Optional
 
 from fastapi import APIRouter, FastAPI
@@ -20,6 +21,7 @@ from openplugin.api import (
 def create_app(root_path: Optional[str] = None) -> FastAPI:
     logger.remove()
     try:
+        logger.add(sys.stdout, level="DEBUG")
         logger.level("FLOW", no=38, color="<yellow>", icon="🚀")
     except Exception as e:
         print(e)

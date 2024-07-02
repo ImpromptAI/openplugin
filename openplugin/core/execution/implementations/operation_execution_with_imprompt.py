@@ -2,9 +2,11 @@ import json
 import time
 import traceback
 import urllib.parse
+from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
 import requests
+from jsonpath_ng import jsonpath, parse
 from loguru import logger
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
@@ -113,6 +115,160 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         raise Exception("{}".format(e))
 
 
+def process_x_dep_array(
+    response_json: list,
+    server: Optional[str],
+    path: str,
+    method: str,
+    lookup_parameter: str,
+    lookup_additional_parameters: dict = {},
+    plugin_op_property_map: Optional[Dict[str, Dict[str, Dict]]] = None,
+    headers=None,
+    parameter_name=None,
+):
+    responses = []
+    op_property = None
+    if plugin_op_property_map:
+        for p in plugin_op_property_map.keys():
+            for m in plugin_op_property_map[p].keys():
+                if p == path and m == method:
+                    op_property = plugin_op_property_map[p][m]
+
+    query_params_obj: Optional[Dict[str, Any]] = None
+    if op_property and op_property.get("parameters"):
+        for prop in op_property.get("parameters", []):
+            if prop.get("in") == "query":
+                if query_params_obj is None:
+                    query_params_obj = {}
+                query_params_obj[prop.get("name")] = None
+
+    body_obj: Optional[Dict[str, Any]] = None
+    if op_property and op_property.get("requestBody"):
+        body_obj = {}
+        body_properties = (
+            op_property.get("requestBody", {})
+            .get("content", {})
+            .get("application/json", {})
+            .get("schema", {})
+            .get("properties")
+        )
+        for prop in body_properties.keys():
+            body_obj[prop] = None
+
+    response_json = response_json[:5]
+    traces = []
+    for r_obj in response_json:
+        x_lookup_tracing: Dict[str, Any] = {}
+        try:
+            mapped_value = None
+            mapped_value_original = None
+            if isinstance(r_obj, int) or isinstance(r_obj, str):
+                mapped_value = str(r_obj)
+                mapped_value_original = r_obj
+            elif parameter_name and isinstance(r_obj, dict):
+                mapped_value = str(r_obj.get(parameter_name))
+                mapped_value_original = r_obj.get(parameter_name)
+
+            if mapped_value:
+                server_url = path
+                if server:
+                    if server.endswith("/") and server_url.startswith("/"):
+                        server_url = server + server_url[1:]
+                    else:
+                        server_url = server + server_url
+
+                if lookup_parameter.startswith("$request.path."):
+                    param = lookup_parameter.split("$request.path.")[1]
+                    server_url = server_url.replace(
+                        "{" + f"{param.strip()}" + "}", mapped_value
+                    )
+                if lookup_additional_parameters:
+                    for key, value in lookup_additional_parameters.items():
+                        if key.startswith("$request.path."):
+                            param = key.split("$request.path.")[1]
+                            server_url = server_url.replace(f"{param}", str(value))
+
+                if query_params_obj:
+                    if lookup_parameter.startswith("$request.query."):
+                        jsonpath_expression = parse(
+                            "$." + lookup_parameter.split("$request.query.")[1]
+                        )
+                        jsonpath_expression.update(query_params_obj, mapped_value)
+                    if lookup_additional_parameters:
+                        for key, value in lookup_additional_parameters.items():
+                            if key.startswith("$request.query."):
+                                jsonpath_expression = parse(
+                                    "$."
+                                    + lookup_parameter.split("$request.query.")[1]
+                                )
+                                jsonpath_expression.update(
+                                    query_params_obj, str(value)
+                                )
+                    server_url = (
+                        server_url + "?" + urllib.parse.urlencode(query_params_obj)
+                    )
+
+                if body_obj:
+                    if lookup_parameter.startswith("$request.body."):
+                        jsonpath_expression = parse(
+                            "$." + lookup_parameter.split("$request.body.")[1]
+                        )
+                        jsonpath_expression.update(body_obj, mapped_value_original)
+                    if lookup_additional_parameters:
+                        for key, value in lookup_additional_parameters.items():
+                            if key.startswith("$request.body."):
+                                jsonpath_expression = parse(
+                                    "$." + lookup_parameter.split("$request.body")[1]
+                                )
+                                jsonpath_expression.update(body_obj, str(value))
+
+                rj, status_code, api_call_response_seconds = _call(
+                    server_url,
+                    method=method,
+                    headers=headers,
+                    params=None,
+                    body=body_obj,
+                )
+
+                # add tracing
+                x_lookup_tracing["resolving_obj"] = r_obj
+                x_lookup_tracing["lookup_parameter"] = lookup_parameter
+                x_lookup_tracing["lookup_additional_parameters"] = (
+                    lookup_additional_parameters
+                )
+                x_lookup_tracing["path"] = path
+                x_lookup_tracing["method"] = method
+                if parameter_name:
+                    x_lookup_tracing["parameter_name"] = parameter_name
+                x_lookup_tracing["server_url"] = server_url
+                if body_obj:
+                    x_lookup_tracing["body"] = body_obj
+                x_lookup_tracing["api_call_response_seconds"] = (
+                    api_call_response_seconds
+                )
+                x_lookup_tracing["status_code"] = status_code
+                x_lookup_tracing["response"] = rj
+
+                if status_code and (status_code == 200 or status_code == 201):
+                    key = f"{parameter_name}_op_resolved_key"
+                    if isinstance(r_obj, dict):
+                        r_obj[key] = rj
+                    else:
+                        r_obj = rj
+                else:
+                    x_lookup_tracing["error"] = (
+                        f"Error: API Return Code= {status_code}"
+                    )
+                responses.append(r_obj)
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
+            x_lookup_tracing["error"] = f"Error: {e}"
+            responses.append(r_obj)
+        traces.append(x_lookup_tracing)
+    return responses, traces
+
+
 class OperationExecutionWithImprompt(OperationExecution):
     def __init__(self, params: OperationExecutionParams):
         self.config = params.config
@@ -120,12 +276,10 @@ class OperationExecutionWithImprompt(OperationExecution):
 
     def run(self) -> OperationExecutionResponse:
         try:
-            logger.info(f"API= {self.params.api}")
-            logger.info(f"METHOD= {self.params.method}")
-            logger.info(f"HEADER= {self.params.header}")
-            logger.info(f"QUERY PARAM= {self.params.query_params}")
-            logger.info(f"BODY= {self.params.body}")
-
+            x_lookup_tracing = []
+            logger.info(
+                f"\n[API EXECUTION_DATA] API= {self.params.api}, METHOD= {self.params.method}, HEADER= {self.params.header}, QUERY PARAM= {self.params.query_params}, BODY= {self.params.body}"
+            )
             response_json, status_code, api_call_response_seconds = _call(
                 self.params.api,
                 self.params.method,
@@ -133,6 +287,73 @@ class OperationExecutionWithImprompt(OperationExecution):
                 self.params.query_params,
                 self.params.body,
             )
+            if (
+                status_code == 200
+                and response_json
+                and self.params.response_obj_200
+                and isinstance(response_json, list)
+            ):
+                if (
+                    self.params.response_obj_200.get("schema", {}).get("type")
+                    == "array"
+                ):
+                    items = self.params.response_obj_200.get("schema", {}).get(
+                        "items", {}
+                    )
+                    if items.get("x-lookup") is not None:
+                        if items.get("type") == "object":
+                            print("TODO")
+                        elif items.get("type") == "array":
+                            print("TODO")
+                        elif items.get("type") in [
+                            "string",
+                            "number",
+                            "integer",
+                            "boolean",
+                        ]:
+                            path = items.get("x-lookup").get("path")
+                            method = items.get("x-lookup").get("method")
+                            lookup_parameter = items.get("x-lookup").get("parameter")
+                            lookup_additional_parameters = items.get("x-lookup").get(
+                                "additional_parameters"
+                            )
+                            response_json, tracing = process_x_dep_array(
+                                response_json,
+                                self.params.response_obj_200.get("server"),
+                                path,
+                                method,
+                                lookup_parameter,
+                                lookup_additional_parameters,
+                                self.params.plugin_op_property_map,
+                                self.params.header,
+                            )
+                            x_lookup_tracing.extend(tracing)
+                    elif items.get("properties"):
+                        item_properties = items.get("properties", {})
+                        for item_property in item_properties:
+                            item_obj = item_properties.get(item_property)
+                            path = item_obj.get("x-lookup", {}).get("path")
+                            method = item_obj.get("x-lookup", {}).get("method")
+                            lookup_parameter = item_obj.get("x-lookup", {}).get(
+                                "parameter"
+                            )
+                            lookup_additional_parameters = item_obj.get(
+                                "x-lookup", {}
+                            ).get("additional_parameters")
+
+                            if item_obj and lookup_parameter:
+                                response_json, tracing = process_x_dep_array(
+                                    response_json,
+                                    self.params.response_obj_200.get("server"),
+                                    path,
+                                    method,
+                                    lookup_parameter,
+                                    lookup_additional_parameters,
+                                    self.params.plugin_op_property_map,
+                                    self.params.header,
+                                    item_property,
+                                )
+                                x_lookup_tracing.extend(tracing)
         except RetryError as e:
             original_exception = e.__cause__
             raise ExecutionException(
@@ -210,4 +431,5 @@ class OperationExecutionWithImprompt(OperationExecution):
             clarifying_question_status_code=clarifying_question_status_code,
             llm_calls=llm_calls,
             clarifying_question_response_seconds=clarifying_question_response_seconds,
+            x_lookup_tracing=x_lookup_tracing,
         )

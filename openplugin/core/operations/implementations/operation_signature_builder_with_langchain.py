@@ -120,11 +120,14 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 llm_calls=llm_calls,
                 function_request_json=function_json,
             )
+
         x_dep_tracing = None
+        response_obj_200 = None
         if func_response.is_function_call:
             function_name = func_response.detected_function_name
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
+            response_obj_200 = detected_function.response_obj_200
             mapped_parameters = func_response.detected_function_arguments
             x_dependent_params, x_dep_tracing = self.get_x_dependent_parameters(
                 request_prompt, detected_function, function_json, mapped_parameters
@@ -154,6 +157,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             function_request_json=function_json,
             function_response_json=func_response_metadata_json,
             x_dep_tracing=x_dep_tracing,
+            response_obj_200=response_obj_200,
         )
         return response_obj
 
@@ -173,6 +177,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                     # for every x-depednent property
                     if prop.x_dependent:
                         try:
+                            start_time1 = time.time()
                             functions = Functions()
                             path = f"{prop.x_dependent.get('method')}<PATH>{prop.x_dependent.get('path')}"
                             functions.add_from_plugin(self.plugin, path)
@@ -189,6 +194,8 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                             )
                             api_response = None
                             api_parameter_mapping = None
+                            tokens_used = func_response.total_tokens
+                            llm_api_cost = func_response.cost
                             if func_response.is_function_call:
                                 detected_function = (
                                     functions.get_function_from_func_name(
@@ -203,7 +210,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                                     query_params=func_response.detected_function_arguments,
                                     body=None,
                                     header=self.header,
+                                    response_obj_200=detected_function.response_obj_200,
                                     function_provider=self.function_provider,
+                                    plugin_op_property_map=self.plugin.plugin_op_property_map,
                                 )
                                 ex = OperationExecutionWithImprompt(params)
                                 response = ex.run()
@@ -218,16 +227,23 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                                     )
                             tracing.append(
                                 {
+                                    "step": "x_dependent_resolution",
                                     "property_name": prop.name,
                                     "x_dependent_values": prop.x_dependent,
                                     "prompt": prompt,
                                     "api_parameter_mapping": api_parameter_mapping,
                                     "api_response": api_response,
+                                    "processing_time_seconds": time.time()
+                                    - start_time1,
+                                    "tokens_used": tokens_used,
+                                    "llm_api_cost": llm_api_cost,
                                 }
                             )
                         except Exception as e:
                             tracing.append(
                                 {
+                                    "processing_time_seconds": time.time()
+                                    - start_time1,
                                     "error": f"Failed to resolve the x parameter: {e}",
                                     "property_name": prop.name,
                                     "x_dependent_values": prop.x_dependent,
@@ -236,6 +252,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                             print(f"Failed to resolve the x parameter: {e}")
 
             if x_params_map and len(x_params_map) > 0:
+                start_time2 = time.time()
                 prompt = f"Use these values: {x_params_map}, Rerun {request_prompt}".strip()
                 # run function calling with function json and
                 f_response: FunctionResponse = self.function_provider.run(
@@ -243,6 +260,16 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                     original_function_json,
                     self.config,
                     conversation=[],
+                )
+                tracing.append(
+                    {
+                        "step": "parameter_remapping",
+                        "processing_time_seconds": time.time() - start_time2,
+                        "prompt": prompt,
+                        "api_parameter_mapping": f_response.detected_function_arguments,
+                        "tokens_used": f_response.total_tokens,
+                        "llm_api_cost": f_response.cost,
+                    }
                 )
                 if f_response and f_response.is_function_call:
                     return f_response.detected_function_arguments, tracing
