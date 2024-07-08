@@ -1,12 +1,17 @@
 import json
 import os
+import sys
 import time
+import trace
+import traceback
 from abc import abstractmethod
 from typing import List, Optional
 
 from dotenv import load_dotenv
 from langchain_community.callbacks import get_openai_callback
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
 from pydantic import BaseModel, validator
 
 from .config import Config
@@ -24,6 +29,7 @@ class FunctionResponse(BaseModel):
     is_function_call: bool = False
     detected_function_name: Optional[str] = None
     detected_function_arguments: Optional[dict] = None
+    system_prompt: Optional[str] = None
 
 
 class LLMConfig(BaseModel):
@@ -191,12 +197,16 @@ class FunctionProvider(BaseModel):
         function_json,
         config: Optional[Config],
         conversation: Optional[List] = [],
+        x_few_shot_examples: Optional[List] = [],
     ) -> FunctionResponse:
         pass
 
 
 class LLMBasedFunctionProvider(FunctionProvider):
     llm: FunctionLLM
+    system_prompt: str = """You are an expert tool user.
+
+    Use past tool usage as an example of how to correctly use the tools."""
 
     def run(
         self,
@@ -204,67 +214,128 @@ class LLMBasedFunctionProvider(FunctionProvider):
         function_json,
         config: Optional[Config],
         conversation: Optional[List] = [],
+        x_few_shot_examples: Optional[List] = [],
     ) -> FunctionResponse:
-        start_time = time.time()
-        llm_model = self.llm.convert_to_langchain_llm_model(config)
+        try:
+            start_time = time.time()
+            llm_model = self.llm.convert_to_langchain_llm_model(config)
 
-        call_back_manager = self.llm.get_callback_manager()
+            examples_and_conversation = (
+                self.build_few_shot_examples_and_conversation(
+                    x_few_shot_examples, conversation=conversation
+                )
+            )
+            few_shot_prompt = ChatPromptTemplate.from_messages(
+                [
+                    ("system", self.system_prompt),
+                    *examples_and_conversation,
+                    ("human", "{query}"),
+                ]
+            )
+            call_back_manager = self.llm.get_callback_manager()
+            if call_back_manager:
+                with call_back_manager as cb:
+                    llm_with_tools = llm_model.bind_tools(function_json)
+                    chain = (
+                        {"query": RunnablePassthrough()}
+                        | few_shot_prompt
+                        | llm_with_tools
+                    )
+                    response = chain.invoke(request_prompt)
+                    llm_api_cost = cb.total_cost
+            else:
+                llm_with_tools = llm_model.bind_tools(function_json)
+                chain = (
+                    {"query": RunnablePassthrough()}
+                    | few_shot_prompt
+                    | llm_with_tools
+                )
+                response = chain.invoke(request_prompt)
+                llm_api_cost = 0
 
-        inp_messages = []
+            llm_latency_seconds = time.time() - start_time
+            total_tokens = response.response_metadata.get("token_usage", {}).get(
+                "total_tokens"
+            )
+            tool_calls = response.additional_kwargs.get("tool_calls")
+            if not tool_calls:
+                tool_calls = response.tool_calls
+
+            is_function_call = False
+            function_name = None
+            arguments = None
+            if tool_calls and len(tool_calls) > 0:
+                if tool_calls[0].get("type") == "function":
+                    is_function_call = True
+                    message_json = tool_calls[0]
+                    function_name = message_json.get("function").get("name")
+                    arguments = json.loads(message_json["function"]["arguments"])
+                else:
+                    is_function_call = True
+                    message_json = tool_calls[0]
+                    function_name = message_json.get("name")
+                    arguments = message_json["args"]
+            response_metadata = {
+                "response": response.additional_kwargs,
+                "metadata": response.response_metadata,
+            }
+            return FunctionResponse(
+                response_content=str(response.content),
+                usage=response.response_metadata,
+                cost=llm_api_cost,
+                llm_latency_seconds=llm_latency_seconds,
+                total_tokens=total_tokens,
+                is_function_call=is_function_call,
+                detected_function_name=function_name,
+                detected_function_arguments=arguments,
+                response_metadata=response_metadata,
+                system_prompt=self.system_prompt,
+            )
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
+            raise e
+
+    def build_few_shot_examples_and_conversation(
+        self, x_few_shot_examples: Optional[List], conversation: Optional[List]
+    ) -> List:
+        messages: List = []
+        if x_few_shot_examples:
+            for example in x_few_shot_examples:
+                messages.append(
+                    HumanMessage(
+                        content=example.get("prompt"),
+                        name="example_user",
+                    )
+                )
+                messages.append(
+                    AIMessage(
+                        content="",
+                        tool_calls=[
+                            {
+                                "name": example.get("name"),
+                                "args": example.get("parameter_mapping"),
+                                "id": example.get("tool_call_id"),
+                            }
+                        ],
+                        name="example_assistant",
+                    )
+                )
+                if example.get("response"):
+                    messages.append(
+                        ToolMessage(
+                            content=example.get("response"),
+                            tool_call_id=example.get("tool_call_id"),
+                        )
+                    )
+
         if conversation:
             for conv in conversation:
                 if conv.get("role") == "user":
-                    inp_messages.append(AIMessage(content=conv.get("content")))
+                    messages.append(AIMessage(content=conv.get("content")))
                 else:
-                    inp_messages.append(HumanMessage(content=conv.get("content")))
-        inp_messages.append(HumanMessage(content=request_prompt))
-        if call_back_manager:
-            with call_back_manager as cb:
-                llm_with_tools = llm_model.bind_tools(function_json)
-                response = llm_with_tools.invoke(inp_messages)
-                llm_api_cost = cb.total_cost
-        else:
-            llm_with_tools = llm_model.bind_tools(function_json)
-            response = llm_with_tools.invoke(inp_messages)
-            llm_api_cost = 0
-
-        llm_latency_seconds = time.time() - start_time
-        total_tokens = response.response_metadata.get("token_usage", {}).get(
-            "total_tokens"
-        )
-        tool_calls = response.additional_kwargs.get("tool_calls")
-        if not tool_calls:
-            tool_calls = response.tool_calls
-
-        is_function_call = False
-        function_name = None
-        arguments = None
-        if tool_calls and len(tool_calls) > 0:
-            if tool_calls[0].get("type") == "function":
-                is_function_call = True
-                message_json = tool_calls[0]
-                function_name = message_json.get("function").get("name")
-                arguments = json.loads(message_json["function"]["arguments"])
-            else:
-                is_function_call = True
-                message_json = tool_calls[0]
-                function_name = message_json.get("name")
-                arguments = message_json["args"]
-        response_metadata = {
-            "response": response.additional_kwargs,
-            "metadata": response.response_metadata,
-        }
-        return FunctionResponse(
-            response_content=str(response.content),
-            usage=response.response_metadata,
-            cost=llm_api_cost,
-            llm_latency_seconds=llm_latency_seconds,
-            total_tokens=total_tokens,
-            is_function_call=is_function_call,
-            detected_function_name=function_name,
-            detected_function_arguments=arguments,
-            response_metadata=response_metadata,
-        )
+                    messages.append(HumanMessage(content=conv.get("content")))
+        return messages
 
     def get_temperature(self) -> int:
         return self.llm.configuration.temperature

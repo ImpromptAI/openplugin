@@ -53,6 +53,10 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
     def run(
         self, messages: List[Message], conversation: Optional[List] = []
     ) -> SelectedApiSignatureResponse:
+
+        system_prompt = None
+        x_few_shot_examples = []
+
         start_test_case_time = time.time()
         functions = Functions()
         functions.add_from_plugin(self.plugin, self.selected_operation)
@@ -73,6 +77,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 tokens_used=0,
                 llm_api_cost=0,
                 llm_calls=llm_calls,
+                system_prompt=system_prompt,
+                conversations=conversation,
+                examples=x_few_shot_examples,
             )
 
         f_messages = [
@@ -82,14 +89,30 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         ]
 
         function_json = functions.get_json()
+
+        tool_id = 1
+        for function in functions.functions:
+            if function.x_few_shot_examples:
+                for x in function.x_few_shot_examples:
+                    vals = {k: v for k, v in x.items()}
+                    vals["tool_call_id"] = tool_id
+                    vals["name"] = function.name
+                    x_few_shot_examples.append(vals)
+            tool_id += 1
+
         final_text_response = None
         detected_plugin_operations: list[PluginDetectedParams] = []
         func_response_metadata_json = None
         try:
             func_response: FunctionResponse = self.function_provider.run(
-                request_prompt, function_json, self.config, conversation=conversation
+                request_prompt,
+                function_json,
+                self.config,
+                conversation=conversation,
+                x_few_shot_examples=x_few_shot_examples,
             )
             func_response_metadata_json = func_response.response_metadata
+            system_prompt = func_response.system_prompt
             llm_calls.append(
                 {
                     "used_for": "signature_builder",
@@ -119,6 +142,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                 llm_api_cost=0,
                 llm_calls=llm_calls,
                 function_request_json=function_json,
+                system_prompt=system_prompt,
+                conversations=conversation,
+                examples=x_few_shot_examples,
             )
 
         x_dep_tracing = None
@@ -158,6 +184,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             function_response_json=func_response_metadata_json,
             x_dep_tracing=x_dep_tracing,
             response_obj_200=response_obj_200,
+            system_prompt=system_prompt,
+            conversations=conversation,
+            examples=x_few_shot_examples,
         )
         return response_obj
 

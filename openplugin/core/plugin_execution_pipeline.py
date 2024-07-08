@@ -350,6 +350,13 @@ class PluginExecutionPipeline(BaseModel):
                     "input_text": signature_port.get("metadata", {}).get(
                         "input_text"
                     ),
+                    "system_prompt": signature_port.get("metadata", {}).get(
+                        "system_prompt"
+                    ),
+                    "conversations": signature_port.get("metadata", {}).get(
+                        "conversations"
+                    ),
+                    "examples": signature_port.get("metadata", {}).get("examples"),
                     "intermediate_fc_request": intermediate_fc_request,
                     "intermediate_fc_response": intermediate_fc_response,
                     "x_dep_tracing": signature_port.get("metadata", {}).get(
@@ -462,6 +469,9 @@ class PluginExecutionPipeline(BaseModel):
                     "intermediate_fc_request": response.function_request_json,
                     "intermediate_fc_response": response.function_response_json,
                     "x_dep_tracing": response.x_dep_tracing,
+                    "system_prompt": response.system_prompt,
+                    "conversations": response.conversations,
+                    "examples": response.examples,
                 },
                 "mapped_operation_parameters": ops[0].mapped_operation_parameters,
                 "response_obj_200": response.response_obj_200,
@@ -483,6 +493,9 @@ class PluginExecutionPipeline(BaseModel):
                     "intermediate_fc_request": response.function_request_json,
                     "intermediate_fc_response": response.function_response_json,
                     "x_dep_tracing": response.x_dep_tracing,
+                    "system_prompt": response.system_prompt,
+                    "conversations": response.conversations,
+                    "examples": response.examples,
                 },
             }
             self.add_signature_detection_trace(val)

@@ -67,6 +67,7 @@ class Function(BaseModel):
     param_description: Optional[str] = None
     param_properties: Optional[List[FunctionProperty]] = []
     x_helpers: Optional[List[str]] = []
+    x_few_shot_examples: Optional[List[Dict]] = []
     human_usage_examples: Optional[List[str]] = []
     plugin_signature_helpers: Optional[List[str]] = []
     x_dependent_parameter_map: Optional[Dict[str, str]] = {}
@@ -436,6 +437,10 @@ class Functions(BaseModel):
                 if response_obj_200:
                     response_obj_200["server"] = server_url
                 function_values["response_obj_200"] = response_obj_200
+
+                function_values["x_few_shot_examples"] = operation_obj.get(
+                    "x-few-shot-examples", []
+                )
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin
@@ -809,6 +814,12 @@ class Functions(BaseModel):
                     function_values["x_helpers"] = []
                 function_values["path"] = path
                 function_values["method"] = method
+                if plugin_operations_map is not None:
+                    function_values["x_few_shot_examples"] = (
+                        plugin_operations_map.get(path, {})
+                        .get(method, {})
+                        .get("plugin_signature_helpers", [])
+                    )
                 func = Function(**function_values)
                 if plugin:
                     self.plugin_map[func.name] = plugin

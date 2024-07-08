@@ -115,6 +115,22 @@ def _call(url, method="GET", headers=None, params=None, body=None):
         raise Exception("{}".format(e))
 
 
+def build_post_body_obj(op_property):
+    body_obj = None
+    if op_property and op_property.get("requestBody"):
+        body_obj = {}
+        body_properties = (
+            op_property.get("requestBody", {})
+            .get("content", {})
+            .get("application/json", {})
+            .get("schema", {})
+            .get("properties")
+        )
+        for prop in body_properties.keys():
+            body_obj[prop] = None
+    return body_obj
+
+
 def process_x_dep_array(
     response_json: list,
     server: Optional[str],
@@ -301,11 +317,7 @@ class OperationExecutionWithImprompt(OperationExecution):
                         "items", {}
                     )
                     if items.get("x-lookup") is not None:
-                        if items.get("type") == "object":
-                            print("TODO")
-                        elif items.get("type") == "array":
-                            print("TODO")
-                        elif items.get("type") in [
+                        if items.get("type") in [
                             "string",
                             "number",
                             "integer",
