@@ -76,6 +76,9 @@ class Function(BaseModel):
     def get_api_url(self):
         return self.api.url
 
+    def get_path(self):
+        return self.path
+
     def get_api_method(self):
         return self.api.method
 

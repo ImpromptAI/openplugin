@@ -17,11 +17,13 @@ class OperationExecutionResponse(BaseModel):
     clarifying_question_response_seconds: Optional[float]
     llm_calls: Optional[Any]
     x_lookup_tracing: Optional[List]
+    missing_params: Optional[List[str]]
 
 
 class OperationExecutionParams(BaseModel):
     config: Config
     api: str
+    path: str
     method: str
     query_params: Optional[dict]
     body: Optional[dict]

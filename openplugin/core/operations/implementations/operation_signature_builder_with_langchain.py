@@ -160,10 +160,10 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             )
             if x_dependent_params and len(x_dependent_params) > 0:
                 mapped_parameters = x_dependent_params
-
             p_detected = PluginDetectedParams(
                 plugin=detected_plugin,
                 api_called=detected_function.get_api_url(),
+                path=detected_function.get_path(),
                 method=detected_function.get_api_method(),
                 mapped_operation_parameters=mapped_parameters,
             )

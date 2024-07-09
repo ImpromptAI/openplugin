@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
 import requests
-from jsonpath_ng import jsonpath, parse
+from jsonpath_ng import parse
 from loguru import logger
 from tenacity import RetryError, retry, stop_after_attempt, wait_random_exponential
 
@@ -291,6 +291,28 @@ class OperationExecutionWithImprompt(OperationExecution):
         super().__init__(params)
 
     def run(self) -> OperationExecutionResponse:
+        missing_parameters = self.get_missing_required_parameter()
+        if missing_parameters and len(missing_parameters) > 0:
+            is_a_clarifying_question = True
+            start_time = time.time()
+            missing_param_str = ", ".join(missing_parameters)
+            clarifying_response = f"[CLARIFYING_QUESTION] Please provide the following missing parameters: {missing_param_str}"
+            clarifying_question_status_code = "200"
+            clarifying_question_response_seconds = time.time() - start_time
+
+            return OperationExecutionResponse(
+                original_response={},
+                clarifying_response=clarifying_response,
+                is_a_clarifying_question=is_a_clarifying_question,
+                api_call_status_code=None,
+                api_call_response_seconds=0,
+                clarifying_question_status_code=clarifying_question_status_code,
+                llm_calls=[],
+                clarifying_question_response_seconds=clarifying_question_response_seconds,
+                x_lookup_tracing=[],
+                missing_params=missing_parameters,
+            )
+
         try:
             x_lookup_tracing = []
             logger.info(
@@ -444,4 +466,52 @@ class OperationExecutionWithImprompt(OperationExecution):
             llm_calls=llm_calls,
             clarifying_question_response_seconds=clarifying_question_response_seconds,
             x_lookup_tracing=x_lookup_tracing,
+            missing_params=[],
         )
+
+    def get_missing_required_parameter(self):
+        required_parameters = []
+        try:
+            op_property = None
+            plugin_op_property_map = self.params.plugin_op_property_map
+            if plugin_op_property_map:
+                for p in plugin_op_property_map.keys():
+                    for m in plugin_op_property_map[p].keys():
+                        if p == self.params.path and m == self.params.method:
+                            op_property = plugin_op_property_map[p][m]
+            if op_property:
+                if op_property.get("parameters"):
+                    for prop in op_property.get("parameters", []):
+                        if prop.get("required"):
+                            required_parameters.append(prop.get("name"))
+                if op_property.get("requestBody"):
+                    body_properties = (
+                        op_property.get("requestBody", {})
+                        .get("content", {})
+                        .get("application/json", {})
+                        .get("schema", {})
+                        .get("properties")
+                    )
+                    for prop in body_properties.keys():
+                        if body_properties[prop].get("required"):
+                            required_parameters.append(prop)
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            logger.error(f"Error: {traceback.format_exc()}")
+
+        required_parameters.append("aa")
+
+        qp = {}
+        if self.params.query_params:
+            qp = self.params.query_params
+        bp = {}
+        if self.params.body:
+            bp = self.params.body
+        combined_parameters = {**qp, **bp}
+        # Find missing parameters
+        missing_parameters = [
+            param
+            for param in required_parameters
+            if param not in combined_parameters
+        ]
+        return missing_parameters

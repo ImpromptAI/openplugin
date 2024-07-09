@@ -82,6 +82,7 @@ class PortMetadata(Enum):
     LOG_OUTPUT_TEXT = "log_output_text"
     LOG_PROCESSOR_RUN = "log_processor_run"
     X_LOOKUP = "x_lookup"
+    MISSING_REQUIRED_PARAMS = "missing_required_params"
 
 
 class Port(BaseModel):

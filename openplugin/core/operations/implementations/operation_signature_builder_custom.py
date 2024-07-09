@@ -1,6 +1,5 @@
 import json
 import time
-from math import e
 from typing import List, Optional
 
 from litellm import completion, completion_cost

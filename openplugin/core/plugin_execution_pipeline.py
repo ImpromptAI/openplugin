@@ -110,10 +110,13 @@ class PluginExecutionPipeline(BaseModel):
             auth_query_param=auth_query_param,
             function_provider=function_provider,
         )
-        # filter response
-        api_execution_step.original_response = await self._run_filter_module(
-            api_execution_step.original_response, api_signature_port, config=config
-        )
+        if not api_execution_step.clarifying_response:
+            # filter response
+            api_execution_step.original_response = await self._run_filter_module(
+                api_execution_step.original_response,
+                api_signature_port,
+                config=config,
+            )
 
         # OUTPUT MODULE PROCESSING
         output_module_map, default_output_module = (
@@ -391,6 +394,9 @@ class PluginExecutionPipeline(BaseModel):
                     "x_lookup": api_execution_step.original_response.get_metadata(
                         PortMetadata.X_LOOKUP
                     ),
+                    "missing_required_params": api_execution_step.original_response.get_metadata(
+                        PortMetadata.MISSING_REQUIRED_PARAMS
+                    ),
                 }
             )
         except Exception as e:
@@ -459,6 +465,7 @@ class PluginExecutionPipeline(BaseModel):
             val = {
                 "api_called": ops[0].api_called,
                 "method": ops[0].method,
+                "path": ops[0].path,
                 "metadata": {
                     "processing_time_seconds": response.response_time,
                     "tokens_used": response.tokens_used,
@@ -546,10 +553,10 @@ class PluginExecutionPipeline(BaseModel):
             )
             if auth_query_param:
                 query_params.update(auth_query_param)
-
             params = OperationExecutionParams(
                 config=config,
                 api=api_called,
+                path=input.value.get("path"),
                 method=method,
                 query_params=query_params,
                 body={},
@@ -560,6 +567,8 @@ class PluginExecutionPipeline(BaseModel):
             )
             ex = OperationExecutionWithImprompt(params)
             response = ex.run()
+            print("****")
+            print(response.missing_params)
             # original port
             if isinstance(response.original_response, dict):
                 output_text = json.dumps(response.original_response)
@@ -575,6 +584,7 @@ class PluginExecutionPipeline(BaseModel):
                     PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
                     PortMetadata.LOG_OUTPUT_TEXT: output_text,
                     PortMetadata.X_LOOKUP: response.x_lookup_tracing,
+                    PortMetadata.MISSING_REQUIRED_PARAMS: response.missing_params,
                 },
             )
             # clarifying question
@@ -591,6 +601,7 @@ class PluginExecutionPipeline(BaseModel):
                         PortMetadata.LOG_OUTPUT_TEXT: str(
                             response.original_response
                         ),
+                        PortMetadata.MISSING_REQUIRED_PARAMS: response.missing_params,
                     },
                 )
             logger.info(f"\n[PLUGIN_EXECUTION_RESPONSE] {original_port.value}")

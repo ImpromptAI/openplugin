@@ -12,6 +12,7 @@ class PluginDetected(BaseModel):
 
     plugin: Plugin
     api_called: Optional[str]
+    path: Optional[str]
     method: Optional[str]
 
 
