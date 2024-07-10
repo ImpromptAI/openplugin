@@ -9,7 +9,7 @@ from ..function_providers import FunctionProvider
 
 class OperationExecutionResponse(BaseModel):
     original_response: Optional[Any]
-    clarifying_response: Optional[str]
+    clarifying_response: Optional[Any]
     is_a_clarifying_question: Optional[bool] = False
     api_call_status_code: Optional[int]
     api_call_response_seconds: Optional[float]
@@ -17,7 +17,7 @@ class OperationExecutionResponse(BaseModel):
     clarifying_question_response_seconds: Optional[float]
     llm_calls: Optional[Any]
     x_lookup_tracing: Optional[List]
-    missing_params: Optional[List[str]]
+    missing_params: Optional[List]
 
 
 class OperationExecutionParams(BaseModel):
@@ -31,6 +31,7 @@ class OperationExecutionParams(BaseModel):
     response_obj_200: Optional[dict]
     function_provider: FunctionProvider
     plugin_op_property_map: Optional[Dict[str, Dict[str, Dict]]]
+    enable_ui_form_controls: bool = True
 
     def get_temperature(self):
         return 0.2

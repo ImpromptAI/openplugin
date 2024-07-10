@@ -81,6 +81,7 @@ class PluginExecutionPipeline(BaseModel):
         run_all_output_modules: bool = False,
         conversation: Optional[List] = [],
         selected_operation: Optional[str] = None,
+        enable_ui_form_controls: bool = True,
     ) -> PluginExecutionResponse:
         if not run_all_output_modules and (
             output_module_names is None or len(output_module_names) == 0
@@ -109,7 +110,9 @@ class PluginExecutionPipeline(BaseModel):
             header=header,
             auth_query_param=auth_query_param,
             function_provider=function_provider,
+            enable_ui_form_controls=enable_ui_form_controls,
         )
+
         if not api_execution_step.clarifying_response:
             # filter response
             api_execution_step.original_response = await self._run_filter_module(
@@ -198,6 +201,7 @@ class PluginExecutionPipeline(BaseModel):
             output_module_map = {}
             default_output_module = None
             processor_metadata = {}
+            is_clarifying_response = False
             response_output_ports: List[Port] = []
             if api_execution_step.clarifying_response is None:
                 flow_port = api_execution_step.original_response
@@ -242,27 +246,34 @@ class PluginExecutionPipeline(BaseModel):
                     if o_ports:
                         response_output_ports.extend(o_ports)
             else:
+                is_clarifying_response = True
                 default_output_module = "clarifying_response"
                 output_module_map["clarifying_response"] = (
                     api_execution_step.clarifying_response
                 )
 
-            if response_output_ports:
-                for output_port in response_output_ports:
-                    self.add_output_module_trace(output_port, processor_metadata)
-                    output_module_map[output_port.name] = output_port
-                    if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
-                        default_output_module = output_port.name
+            if not is_clarifying_response:
+                if response_output_ports:
+                    for output_port in response_output_ports:
+                        self.add_output_module_trace(output_port, processor_metadata)
+                        output_module_map[output_port.name] = output_port
+                        if output_port.get_metadata(
+                            PortMetadata.DEFAULT_OUTPUT_MODULE
+                        ):
+                            default_output_module = output_port.name
 
-            # set the first one as default if not set in manifest
-            if default_output_module is None and response_output_ports:
-                default_output_module = response_output_ports[0].name
+                # set the first one as default if not set in manifest
+                if default_output_module is None and response_output_ports:
+                    default_output_module = response_output_ports[0].name
 
-            if output_module_names and "original_response" in output_module_names:
-                output_module_map["original_response"] = (
-                    api_execution_step.original_response
-                )
-                default_output_module = "original_response"
+                if (
+                    output_module_names
+                    and "original_response" in output_module_names
+                ):
+                    output_module_map["original_response"] = (
+                        api_execution_step.original_response
+                    )
+                    default_output_module = "original_response"
 
             return output_module_map, default_output_module
         except Exception as e:
@@ -521,6 +532,7 @@ class PluginExecutionPipeline(BaseModel):
         header: dict,
         auth_query_param: Optional[dict],
         function_provider: FunctionProvider,
+        enable_ui_form_controls: bool = True,
     ) -> APIExecutionStepResponse:
         if input.data_type != PortType.JSON:
             raise Exception("Input data type to plugin must be JSON.")
@@ -564,11 +576,10 @@ class PluginExecutionPipeline(BaseModel):
                 response_obj_200=response_obj_200,
                 function_provider=function_provider,
                 plugin_op_property_map=self.plugin.plugin_op_property_map,
+                enable_ui_form_controls=enable_ui_form_controls,
             )
             ex = OperationExecutionWithImprompt(params)
             response = ex.run()
-            print("****")
-            print(response.missing_params)
             # original port
             if isinstance(response.original_response, dict):
                 output_text = json.dumps(response.original_response)
@@ -589,7 +600,7 @@ class PluginExecutionPipeline(BaseModel):
             )
             # clarifying question
             clarifying_port = None
-            if response.clarifying_response:
+            if response.clarifying_response is not None:
                 clarifying_port = Port(
                     name="clarifying_response",
                     data_type=PortType.TEXT,

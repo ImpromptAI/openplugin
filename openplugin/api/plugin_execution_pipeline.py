@@ -49,6 +49,7 @@ def plugin_execution_pipeline(
     run_all_output_modules: bool = Body(False),
     output_module_names: Optional[List[str]] = Body(default=None),
     selected_operation: Optional[str] = Body(default=None),
+    enable_ui_form_controls: bool = Body(default=True),
     api_key: APIKey = Depends(auth.get_api_key),
 ):
     function_provider_name = None
@@ -105,6 +106,7 @@ def plugin_execution_pipeline(
                 run_all_output_modules=run_all_output_modules,
                 conversation=conversation,
                 selected_operation=selected_operation,
+                enable_ui_form_controls=enable_ui_form_controls,
             )
         )
         status_code = 200

@@ -202,9 +202,9 @@ class FunctionProvider(BaseModel):
 
 class LLMBasedFunctionProvider(FunctionProvider):
     llm: FunctionLLM
-    system_prompt: str = """You are an expert tool user.
-
-    Use past tool usage as an example of how to correctly use the tools."""
+    system_prompt: str = (
+        """You are an expert tool user. Never hallucinate or make up information on parameters. Extract values from the given context. Always provide accurate and relevant information."""
+    )
 
     def run(
         self,

@@ -295,8 +295,14 @@ class OperationExecutionWithImprompt(OperationExecution):
         if missing_parameters and len(missing_parameters) > 0:
             is_a_clarifying_question = True
             start_time = time.time()
-            missing_param_str = ", ".join(missing_parameters)
-            clarifying_response = f"[CLARIFYING_QUESTION] Please provide the following missing parameters: {missing_param_str}"
+            if self.params.enable_ui_form_controls:
+                clarifying_response = missing_parameters
+            else:
+                missing_param_str = ", ".join(
+                    [item["name"] for item in missing_parameters]
+                )
+                clarifying_response = f"[CLARIFYING_QUESTION] Please provide the following missing parameters: {missing_param_str}"
+
             clarifying_question_status_code = "200"
             clarifying_question_response_seconds = time.time() - start_time
 
@@ -483,7 +489,16 @@ class OperationExecutionWithImprompt(OperationExecution):
                 if op_property.get("parameters"):
                     for prop in op_property.get("parameters", []):
                         if prop.get("required"):
-                            required_parameters.append(prop.get("name"))
+                            obj = {
+                                "name": prop.get("name"),
+                                "type": prop.get("schema", {}).get("type"),
+                                "format": prop.get("schema", {}).get("format"),
+                                "description": prop.get("description"),
+                                "title": prop.get("schema", {}).get("title"),
+                            }
+                            if prop.get("schema", {}).get("enum"):
+                                obj["enum"] = prop.get("schema", {}).get("enum")
+                            required_parameters.append(obj)
                 if op_property.get("requestBody"):
                     body_properties = (
                         op_property.get("requestBody", {})
@@ -492,14 +507,39 @@ class OperationExecutionWithImprompt(OperationExecution):
                         .get("schema", {})
                         .get("properties")
                     )
+                    required = (
+                        op_property.get("requestBody", {})
+                        .get("content", {})
+                        .get("application/json", {})
+                        .get("schema", {})
+                        .get("required")
+                    )
                     for prop in body_properties.keys():
-                        if body_properties[prop].get("required"):
-                            required_parameters.append(prop)
+                        pval = body_properties[prop]
+                        if pval.get("required"):
+                            required_parameters.append(
+                                {
+                                    "name": prop,
+                                    "type": pval.get("type"),
+                                    "description": pval.get("description"),
+                                    "title": pval.get("title"),
+                                    "format": pval.get("format"),
+                                }
+                            )
+                        elif required and prop in required:
+                            required_parameters.append(
+                                {
+                                    "name": prop,
+                                    "type": pval.get("type"),
+                                    "description": pval.get("description"),
+                                    "title": pval.get("title"),
+                                    "format": pval.get("format"),
+                                }
+                            )
+
         except Exception as e:
             logger.error(f"Error: {e}")
             logger.error(f"Error: {traceback.format_exc()}")
-
-        required_parameters.append("aa")
 
         qp = {}
         if self.params.query_params:
@@ -507,11 +547,15 @@ class OperationExecutionWithImprompt(OperationExecution):
         bp = {}
         if self.params.body:
             bp = self.params.body
+
         combined_parameters = {**qp, **bp}
-        # Find missing parameters
-        missing_parameters = [
-            param
-            for param in required_parameters
-            if param not in combined_parameters
-        ]
+
+        missing_parameters = []
+        for param in required_parameters:
+            pn = param.get("name")
+            if pn not in combined_parameters:
+                missing_parameters.append(param)
+            elif not combined_parameters.get(pn):
+                missing_parameters.append(param)
+
         return missing_parameters
