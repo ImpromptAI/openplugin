@@ -472,7 +472,11 @@ class PluginExecutionPipeline(BaseModel):
             status_code = 500
             if response.run_completed:
                 status_code = 200
-            output_port_text = f"api_called={ops[0].api_called}, method={ops[0].method}, mapped_operation_parameters={ops[0].mapped_operation_parameters}"
+            output_port_json = {
+                "api_called": ops[0].api_called,
+                "method": ops[0].method,
+                "mapped_operation_parameters": ops[0].mapped_operation_parameters,
+            }
             val = {
                 "api_called": ops[0].api_called,
                 "method": ops[0].method,
@@ -483,7 +487,7 @@ class PluginExecutionPipeline(BaseModel):
                     "llm_api_cost": response.llm_api_cost,
                     "status_code": status_code,
                     "input_text": response.modified_input_prompt,
-                    "output_text": str(output_port_text),
+                    "output_text": output_port_json,
                     "intermediate_fc_request": response.function_request_json,
                     "intermediate_fc_response": response.function_response_json,
                     "x_dep_tracing": response.x_dep_tracing,
@@ -538,7 +542,6 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be JSON.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        input_port_text = None
         try:
             api_called = input.value.get("api_called")
             method = input.value.get("method")
@@ -558,8 +561,11 @@ class PluginExecutionPipeline(BaseModel):
                     # remove matched path parameters from query_params
                     del query_params[param_name]
 
-            input_port_text = f"api_called={api_called}, method={method}, mapped_operation_parameters={query_params}"
-
+            input_port_json = {
+                "api_called": api_called,
+                "method": method,
+                "mapped_operation_parameters": query_params,
+            }
             logger.info(
                 f"\n[RUNNING_PLUGIN_EXECUTION] url={api_called}, method={method}"
             )
@@ -592,7 +598,7 @@ class PluginExecutionPipeline(BaseModel):
                 metadata={
                     PortMetadata.PROCESSING_TIME_SECONDS: response.api_call_response_seconds,
                     PortMetadata.STATUS_CODE: response.api_call_status_code,
-                    PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                    PortMetadata.LOG_INPUT_TEXT: input_port_json,
                     PortMetadata.LOG_OUTPUT_TEXT: output_text,
                     PortMetadata.X_LOOKUP: response.x_lookup_tracing,
                     PortMetadata.MISSING_REQUIRED_PARAMS: response.missing_params,
@@ -608,7 +614,7 @@ class PluginExecutionPipeline(BaseModel):
                     metadata={
                         PortMetadata.PROCESSING_TIME_SECONDS: response.clarifying_question_response_seconds,
                         PortMetadata.STATUS_CODE: response.clarifying_question_status_code,
-                        PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                        PortMetadata.LOG_INPUT_TEXT: input_port_json,
                         PortMetadata.LOG_OUTPUT_TEXT: str(
                             response.original_response
                         ),
@@ -631,7 +637,7 @@ class PluginExecutionPipeline(BaseModel):
                     metadata={
                         PortMetadata.PROCESSING_TIME_SECONDS: None,
                         PortMetadata.STATUS_CODE: 500,
-                        PortMetadata.LOG_INPUT_TEXT: str(input_port_text),
+                        PortMetadata.LOG_INPUT_TEXT: input_port_json,
                         PortMetadata.LOG_OUTPUT_TEXT: None,
                     },
                 ),
