@@ -59,6 +59,7 @@ class PluginExecutionPipelineError(Exception):
 class PluginExecutionResponse(BaseModel):
     input_modules: List[Port]
     api_and_signature_detection_step: dict
+    session_variables: str
     api_execution_step: APIExecutionStepResponse
     output_module_map: Dict[str, Port]
     default_output_module: Optional[str]
@@ -82,6 +83,7 @@ class PluginExecutionPipeline(BaseModel):
         conversation: Optional[List] = [],
         selected_operation: Optional[str] = None,
         enable_ui_form_controls: bool = True,
+        session_variables: Optional[str] = None,
     ) -> PluginExecutionResponse:
         if not run_all_output_modules and (
             output_module_names is None or len(output_module_names) == 0
@@ -93,6 +95,16 @@ class PluginExecutionPipeline(BaseModel):
         input_modules: List[Port] = []
         flow_port = await self._input_module_processing(input, config)
         input_modules.append(flow_port)
+
+        if session_variables:
+            if not conversation:
+                conversation = []
+            conversation.append(
+                {
+                    "role": "user",
+                    "content": session_variables,
+                }
+            )
         # API SIGNATURE DETECTION
         api_signature_port = self._run_plugin_signature_selector(
             input=flow_port,
@@ -131,12 +143,19 @@ class PluginExecutionPipeline(BaseModel):
                 output_module_names,
             )
         )
+
+        extracted_parameters = {}
+        if api_signature_port.value:
+            extracted_parameters = api_signature_port.value.get(
+                "mapped_operation_parameters"
+            )
         return PluginExecutionResponse(
             input_modules=input_modules,
             output_module_map=output_module_map,
             api_execution_step=api_execution_step,
             api_and_signature_detection_step=api_signature_port.value,
             default_output_module=default_output_module,
+            session_variables=json.dumps(extracted_parameters),
         )
 
     async def _run_filter_module(
