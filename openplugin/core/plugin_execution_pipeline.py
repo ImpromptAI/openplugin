@@ -95,16 +95,16 @@ class PluginExecutionPipeline(BaseModel):
         input_modules: List[Port] = []
         flow_port = await self._input_module_processing(input, config)
         input_modules.append(flow_port)
-
         if session_variables:
             if not conversation:
                 conversation = []
             conversation.append(
                 {
-                    "role": "user",
-                    "content": session_variables,
+                    "role": "system",
+                    "content": f"These are system variables: {session_variables}",
                 }
             )
+
         # API SIGNATURE DETECTION
         api_signature_port = self._run_plugin_signature_selector(
             input=flow_port,

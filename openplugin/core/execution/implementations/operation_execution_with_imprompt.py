@@ -498,7 +498,10 @@ class OperationExecutionWithImprompt(OperationExecution):
                             }
                             if prop.get("schema", {}).get("enum"):
                                 obj["enum"] = prop.get("schema", {}).get("enum")
+                            if prop.get("label"):
+                                obj["label"] = prop.get("label")
                             required_parameters.append(obj)
+
                 if op_property.get("requestBody"):
                     body_properties = (
                         op_property.get("requestBody", {})
@@ -517,26 +520,31 @@ class OperationExecutionWithImprompt(OperationExecution):
                     for prop in body_properties.keys():
                         pval = body_properties[prop]
                         if pval.get("required"):
-                            required_parameters.append(
-                                {
-                                    "name": prop,
-                                    "type": pval.get("type"),
-                                    "description": pval.get("description"),
-                                    "title": pval.get("title"),
-                                    "format": pval.get("format"),
-                                }
-                            )
+                            obj = {
+                                "name": prop,
+                                "type": pval.get("type"),
+                                "description": pval.get("description"),
+                                "title": pval.get("title"),
+                                "format": pval.get("format"),
+                            }
+                            if pval.get("label"):
+                                obj["label"] = pval.get("label")
+                            if pval.get("enum"):
+                                obj["enum"] = pval.get("enum")
+                            required_parameters.append(obj)
                         elif required and prop in required:
-                            required_parameters.append(
-                                {
-                                    "name": prop,
-                                    "type": pval.get("type"),
-                                    "description": pval.get("description"),
-                                    "title": pval.get("title"),
-                                    "format": pval.get("format"),
-                                }
-                            )
-
+                            obj = {
+                                "name": prop,
+                                "type": pval.get("type"),
+                                "description": pval.get("description"),
+                                "title": pval.get("title"),
+                                "format": pval.get("format"),
+                            }
+                            if pval.get("label"):
+                                obj["label"] = pval.get("label")
+                            if pval.get("enum"):
+                                obj["enum"] = pval.get("enum")
+                            required_parameters.append(obj)
         except Exception as e:
             logger.error(f"Error: {e}")
             logger.error(f"Error: {traceback.format_exc()}")
