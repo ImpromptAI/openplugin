@@ -1,0 +1,1301 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "OpenPlugin",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/plugin-selector": {
+            "post": {
+                "summary": "Plugin Selector",
+                "operationId": "plugin_selector_api_plugin_selector_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_plugin_selector_api_plugin_selector_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/api/operation-signature-builder": {
+            "post": {
+                "summary": "Operation Signature Builder",
+                "operationId": "operation_signature_builder_api_operation_signature_builder_post",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "pipeline_name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "pipeline_name",
+                            "title": "Pipeline Name"
+                        },
+                        "description": "pipeline_name"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperationSignatureParam"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/operation-execution": {
+            "post": {
+                "summary": "Operation Execution",
+                "operationId": "operation_execution_api_operation_execution_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperationExecutionParams"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/api/info": {
+            "get": {
+                "summary": "Info",
+                "operationId": "info_api_info_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/": {
+            "get": {
+                "summary": "Version",
+                "operationId": "version_api__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/plugin-execution-pipeline": {
+            "post": {
+                "summary": "Plugin Execution Pipeline",
+                "operationId": "plugin_execution_pipeline_api_plugin_execution_pipeline_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_plugin_execution_pipeline_api_plugin_execution_pipeline_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/api/processors": {
+            "get": {
+                "summary": "Processors",
+                "operationId": "processors_api_processors_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                }
+            }
+        },
+        "/api/function-providers": {
+            "get": {
+                "summary": "Get Function Providers",
+                "operationId": "get_function_providers_api_function_providers_get",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "all",
+                            "title": "Type"
+                        }
+                    },
+                    {
+                        "name": "openai_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Openai Api Key"
+                        }
+                    },
+                    {
+                        "name": "anthropic_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Anthropic Api Key"
+                        }
+                    },
+                    {
+                        "name": "gemini_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Gemini Api Key"
+                        }
+                    },
+                    {
+                        "name": "cohere_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Cohere Api Key"
+                        }
+                    },
+                    {
+                        "name": "fireworks_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Fireworks Api Key"
+                        }
+                    },
+                    {
+                        "name": "mistral_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Mistral Api Key"
+                        }
+                    },
+                    {
+                        "name": "together_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Together Api Key"
+                        }
+                    },
+                    {
+                        "name": "groq_api_key",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Groq Api Key"
+                        }
+                    },
+                    {
+                        "name": "openplugin_manifest_url",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Openplugin Manifest Url"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/function-provider-request": {
+            "get": {
+                "summary": "Get Function Provider Request",
+                "operationId": "get_function_provider_request_api_function_provider_request_get",
+                "parameters": [
+                    {
+                        "name": "function_provider_name",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Function Provider Name"
+                        }
+                    },
+                    {
+                        "name": "openplugin_manifest_url",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Openplugin Manifest Url"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/run-function-provider": {
+            "post": {
+                "summary": "Run Function Provider",
+                "operationId": "run_function_provider_api_run_function_provider_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RunFunctionInput"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plugin-validator": {
+            "post": {
+                "summary": "Plugin Execution Pipeline",
+                "operationId": "plugin_execution_pipeline_api_plugin_validator_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "title": "Openplugin Manifest Obj"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/api/openapi-parser": {
+            "get": {
+                "summary": "Openapi Parser",
+                "operationId": "openapi_parser_api_openapi_parser_get",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "title": "Openplugin Manifest Obj"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/api/openapi-param-parser": {
+            "get": {
+                "summary": "Openapi Param Parser",
+                "operationId": "openapi_param_parser_api_openapi_param_parser_get",
+                "parameters": [
+                    {
+                        "name": "openapi_doc_url",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Openapi Doc Url"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_plugin_execution_pipeline_api_plugin_execution_pipeline_post": {
+                "properties": {
+                    "openplugin_manifest_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Openplugin Manifest Url"
+                    },
+                    "openplugin_manifest_obj": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Openplugin Manifest Obj"
+                    },
+                    "prompt": {
+                        "type": "string",
+                        "title": "Prompt"
+                    },
+                    "header": {
+                        "type": "object",
+                        "title": "Header"
+                    },
+                    "function_provider_input": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/FunctionProviderInput"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "conversation": {
+                        "items": {},
+                        "type": "array",
+                        "title": "Conversation"
+                    },
+                    "auth_query_param": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Auth Query Param"
+                    },
+                    "config": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Config"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "run_all_output_modules": {
+                        "type": "boolean",
+                        "title": "Run All Output Modules",
+                        "default": false
+                    },
+                    "output_module_names": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Output Module Names"
+                    },
+                    "selected_operation": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Selected Operation"
+                    },
+                    "enable_ui_form_controls": {
+                        "type": "boolean",
+                        "title": "Enable Ui Form Controls",
+                        "default": true
+                    },
+                    "session_variables": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Session Variables"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "prompt",
+                    "header",
+                    "conversation"
+                ],
+                "title": "Body_plugin_execution_pipeline_api_plugin_execution_pipeline_post"
+            },
+            "Body_plugin_selector_api_plugin_selector_post": {
+                "properties": {
+                    "messages": {
+                        "items": {
+                            "$ref": "#/components/schemas/Message"
+                        },
+                        "type": "array",
+                        "title": "Messages"
+                    },
+                    "openplugin_manifest_urls": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Openplugin Manifest Urls"
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "pipeline_name": {
+                        "type": "string",
+                        "title": "Pipeline Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "messages",
+                    "openplugin_manifest_urls",
+                    "config",
+                    "pipeline_name"
+                ],
+                "title": "Body_plugin_selector_api_plugin_selector_post"
+            },
+            "Config": {
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "title": "Provider",
+                        "default": "openai"
+                    },
+                    "openai_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Openai Api Key"
+                    },
+                    "cohere_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cohere Api Key"
+                    },
+                    "mistral_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mistral Api Key"
+                    },
+                    "fireworks_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Fireworks Api Key"
+                    },
+                    "google_palm_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Google Palm Key"
+                    },
+                    "gemini_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Gemini Api Key"
+                    },
+                    "anthropic_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Anthropic Api Key"
+                    },
+                    "together_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Together Api Key"
+                    },
+                    "aws_access_key_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Aws Access Key Id"
+                    },
+                    "aws_secret_access_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Aws Secret Access Key"
+                    },
+                    "aws_region_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Aws Region Name"
+                    },
+                    "azure_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Azure Api Key"
+                    },
+                    "groq_api_key": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Groq Api Key"
+                    }
+                },
+                "type": "object",
+                "title": "Config",
+                "description": "Represents the API configuration for a plugin."
+            },
+            "FunctionProvider": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "required_auth_keys": {
+                        "items": {},
+                        "type": "array",
+                        "uniqueItems": true,
+                        "title": "Required Auth Keys"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "is_supported": {
+                        "type": "boolean",
+                        "title": "Is Supported",
+                        "default": false
+                    },
+                    "is_default": {
+                        "type": "boolean",
+                        "title": "Is Default",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "required_auth_keys",
+                    "type"
+                ],
+                "title": "FunctionProvider"
+            },
+            "FunctionProviderInput": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "FunctionProviderInput"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "Message": {
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "message_type": {
+                        "$ref": "#/components/schemas/MessageType"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "content",
+                    "message_type"
+                ],
+                "title": "Message",
+                "description": "Represents a prompt to be executed."
+            },
+            "MessageType": {
+                "type": "string",
+                "enum": [
+                    "HumanMessage",
+                    "AIMessage",
+                    "SystemMessage",
+                    "FunctionMessage"
+                ],
+                "title": "MessageType"
+            },
+            "OperationExecutionParams": {
+                "properties": {
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "api": {
+                        "type": "string",
+                        "title": "Api"
+                    },
+                    "path": {
+                        "type": "string",
+                        "title": "Path"
+                    },
+                    "method": {
+                        "type": "string",
+                        "title": "Method"
+                    },
+                    "query_params": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Query Params"
+                    },
+                    "body": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Body"
+                    },
+                    "header": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Header"
+                    },
+                    "response_obj_200": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Response Obj 200"
+                    },
+                    "function_provider": {
+                        "$ref": "#/components/schemas/FunctionProvider"
+                    },
+                    "plugin_op_property_map": {
+                        "anyOf": [
+                            {
+                                "additionalProperties": {
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    },
+                                    "type": "object"
+                                },
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Plugin Op Property Map"
+                    },
+                    "enable_ui_form_controls": {
+                        "type": "boolean",
+                        "title": "Enable Ui Form Controls",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "config",
+                    "api",
+                    "path",
+                    "method",
+                    "query_params",
+                    "body",
+                    "header",
+                    "response_obj_200",
+                    "function_provider",
+                    "plugin_op_property_map"
+                ],
+                "title": "OperationExecutionParams"
+            },
+            "OperationSignatureParam": {
+                "properties": {
+                    "messages": {
+                        "items": {
+                            "$ref": "#/components/schemas/Message"
+                        },
+                        "type": "array",
+                        "title": "Messages"
+                    },
+                    "plugin_manifest_url": {
+                        "type": "string",
+                        "title": "Plugin Manifest Url"
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "function_provider": {
+                        "$ref": "#/components/schemas/FunctionProvider"
+                    },
+                    "selected_operation": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Selected Operation"
+                    },
+                    "pre_prompts": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "$ref": "#/components/schemas/Message"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Pre Prompts"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "messages",
+                    "plugin_manifest_url",
+                    "config",
+                    "function_provider"
+                ],
+                "title": "OperationSignatureParam"
+            },
+            "RunFunctionInput": {
+                "properties": {
+                    "prompt": {
+                        "type": "string",
+                        "title": "Prompt"
+                    },
+                    "function_provider_name": {
+                        "type": "string",
+                        "title": "Function Provider Name"
+                    },
+                    "openplugin_manifest_url": {
+                        "type": "string",
+                        "title": "Openplugin Manifest Url"
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/Config"
+                    },
+                    "function_json": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Function Json"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "prompt",
+                    "function_provider_name",
+                    "openplugin_manifest_url",
+                    "config"
+                ],
+                "title": "RunFunctionInput"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        },
+        "securitySchemes": {
+            "APIKeyHeader": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-api-key"
+            }
+        }
+    }
+}

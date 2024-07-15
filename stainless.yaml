@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://app.stainlessapi.com/config.schema.json
+
+organization:
+  name: openplugin
+  docs: https://openplugin.com/
+  contact: shrikant@imprompt.ai
+resources:
+  api:
+    methods:
+      list: get /api/
+    subresources:
+      plugin_selectors:
+        methods:
+          create: post /api/plugin-selector
+      operation_signature_builders:
+        methods:
+          create: post /api/operation-signature-builder
+      operation_executions:
+        methods:
+          create: post /api/operation-execution
+      info:
+        methods:
+          retrieve: get /api/info
+      plugin_execution_pipelines:
+        methods:
+          create: post /api/plugin-execution-pipeline
+      processors:
+        methods:
+          list: get /api/processors
+      function_providers:
+        methods:
+          list: get /api/function-providers
+      function_provider_requests:
+        methods:
+          retrieve: get /api/function-provider-request
+      run_function_providers:
+        methods:
+          create: post /api/run-function-provider
+  plugin_validators:
+    methods:
+      create: post /api/plugin-validator
+  openapi_parsers:
+    methods:
+      retrieve: get /api/openapi-parser
+  openapi_param_parsers:
+    methods:
+      retrieve: get /api/openapi-param-parser
+targets:
+  node:
+    package_name: openplugin
+    production_repo: null
+    publish:
+      npm: false
+  python:
+    package_name: openplugin
+    production_repo: ImpromptAI/openplugin-python-sdk
+    publish:
+      pypi:
+        package_name: openplugin-sdk
+settings:
+  license: Apache-2.0
+client_settings:
+  api_key:
+    type: string
+    auth:
+      security_scheme: APIKeyHeader
+environments:
+  production: https://localhost:8080/test-api
+query_settings:
+  nested_format: brackets
+  array_format: comma
+readme:
+  example_requests:
+    default:
+      type: request
+      endpoint: post /api/plugin-selector
+      params: &ref_0 {}
+    headline:
+      type: request
+      endpoint: post /api/plugin-selector
+      params: *ref_0
+    pagination:
+      type: request
+      endpoint: get /api/
+      params: {}
