@@ -26,9 +26,6 @@ resources:
   plugin_validators:
     methods:
       create: post /api/plugin-validator
-  openapi_parsers:
-    methods:
-      retrieve: get /api/openapi-parser
   openapi_param_parsers:
     methods:
       retrieve: get /api/openapi-param-parser
