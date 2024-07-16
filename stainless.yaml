@@ -9,15 +9,6 @@ resources:
     methods:
       list: get /api/
     subresources:
-      plugin_selectors:
-        methods:
-          create: post /api/plugin-selector
-      operation_signature_builders:
-        methods:
-          create: post /api/operation-signature-builder
-      operation_executions:
-        methods:
-          create: post /api/operation-execution
       info:
         methods:
           retrieve: get /api/info
@@ -60,12 +51,13 @@ targets:
 settings:
   license: Apache-2.0
 client_settings:
-  api_key:
-    type: string
-    auth:
-      security_scheme: APIKeyHeader
+  opts:
+    x_api_key:
+      type: string
+      read_env: OPENPLUGIN_API_KEY
+      auth: { security_scheme: APIKeyHeader }
 environments:
-  production: https://localhost:8080/test-api
+  production: http://localhost:8003
 query_settings:
   nested_format: brackets
   array_format: comma
