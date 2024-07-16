@@ -9,15 +9,6 @@ resources:
     methods:
       list: get /api/
     subresources:
-      plugin_selectors:
-        methods:
-          create: post /api/plugin-selector
-      operation_signature_builders:
-        methods:
-          create: post /api/operation-signature-builder
-      operation_executions:
-        methods:
-          create: post /api/operation-execution
       info:
         methods:
           retrieve: get /api/info
@@ -36,15 +27,15 @@ resources:
       run_function_providers:
         methods:
           create: post /api/run-function-provider
-  plugin_validators:
-    methods:
-      create: post /api/plugin-validator
-  openapi_parsers:
-    methods:
-      retrieve: get /api/openapi-parser
-  openapi_param_parsers:
-    methods:
-      retrieve: get /api/openapi-param-parser
+      plugin_validators:
+        methods:
+          create: post /api/plugin-validator
+      openapi_parsers:
+        methods:
+          retrieve: get /api/openapi-parser
+      openapi_param_parsers:
+        methods:
+          retrieve: get /api/openapi-param-parser
 targets:
   node:
     package_name: openplugin
