@@ -56,4 +56,9 @@ environments:
 query_settings:
   nested_format: brackets
   array_format: comma
-
+readme:
+  example_requests:
+    default:
+      type: request
+      endpoint: get /api/processors
+      params: {}
