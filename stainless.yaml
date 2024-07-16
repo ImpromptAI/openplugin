@@ -4,6 +4,7 @@ organization:
   name: openplugin
   docs: https://openplugin.com/
   contact: shrikant@imprompt.ai
+
 resources:
   info:
     methods:
@@ -55,17 +56,4 @@ environments:
 query_settings:
   nested_format: brackets
   array_format: comma
-readme:
-  example_requests:
-    default:
-      type: request
-      endpoint: post /api/plugin-selector
-      params: &ref_0 {}
-    headline:
-      type: request
-      endpoint: post /api/plugin-selector
-      params: *ref_0
-    pagination:
-      type: request
-      endpoint: get /api/
-      params: {}
+
