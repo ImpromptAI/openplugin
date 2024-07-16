@@ -60,5 +60,13 @@ readme:
   example_requests:
     default:
       type: request
-      endpoint: get /api/processors
+      endpoint: get /api/info
+      params: {}
+    headline:
+      type: request
+      endpoint: get /api/info
+      params: {}
+    pagination:
+      type: request
+      endpoint: get /api/info
       params: {}
