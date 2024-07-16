@@ -1,12 +1,11 @@
 import os
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
 from httpx import request
 from pydantic import BaseModel
 
-from openplugin.core import FunctionProviders
+from openplugin.core import FunctionProvider, FunctionProviders
 from openplugin.core.config import Config
 from openplugin.core.functions import Functions
 from openplugin.core.plugin import PluginBuilder
@@ -26,7 +25,12 @@ def is_llm_supported(required_auth_keys, user_key_map):
     return True
 
 
-@router.get("/function-providers")
+@router.get(
+    "/function-providers",
+    tags=["function-providers"],
+    description="Enpoint to retrieve list of available function providers",
+    response_model=List[FunctionProvider],
+)
 def get_function_providers(
     type: str = "all",
     openai_api_key: Optional[str] = None,
@@ -74,12 +78,19 @@ def get_function_providers(
                 provider.is_default = True
         return providers
     else:
-        return JSONResponse(
-            status_code=400, content={"message": "incorrect type parameter"}
-        )
+        raise HTTPException(status_code=404, detail="Function provider not found.")
 
 
-@router.get("/function-provider-request")
+class FunctionProviderResponse(BaseModel):
+    fc_request_json: List[Dict]
+
+
+@router.get(
+    "/function-provider-request",
+    tags=["function-provider-request"],
+    description="Enpoint to retrieve function provider request JSON",
+    response_model=FunctionProviderResponse,
+)
 def get_function_provider_request(
     function_provider_name: str, openplugin_manifest_url: str
 ):
@@ -89,11 +100,9 @@ def get_function_provider_request(
         plugin = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
         functions.add_from_plugin(plugin)
         function_json = functions.get_json()
-        return JSONResponse(
-            status_code=200, content={"fc_request_json": function_json}
-        )
+        return FunctionProviderResponse(fc_request_json=function_json)
     except Exception as e:
-        return JSONResponse(status_code=500, content={"message": f"Failed: {e}"})
+        raise HTTPException(status_code=500, detail=f"Failed: {e}")
 
 
 class RunFunctionInput(BaseModel):
@@ -104,7 +113,16 @@ class RunFunctionInput(BaseModel):
     function_json: Optional[Dict] = None
 
 
-@router.post("/run-function-provider")
+class FunctionProviderRunResponse(BaseModel):
+    fc_response_json: dict
+
+
+@router.post(
+    "/run-function-provider",
+    tags=["run-function-provider"],
+    description="Enpoint to run a function provider",
+    response_model=FunctionProviderRunResponse,
+)
 def run_function_provider(run_function_input: RunFunctionInput):
     try:
         function_provider = function_providers.get_by_name(
@@ -123,6 +141,6 @@ def run_function_provider(run_function_input: RunFunctionInput):
         response = func_response.dict()
         response["detected_operation"] = ""
         response["detected_method"] = "get"
-        return JSONResponse(status_code=200, content={"fc_response_json": response})
+        return FunctionProviderRunResponse(fc_response_json=response)
     except Exception as e:
-        return JSONResponse(status_code=500, content={"message": f"Failed: {e}"})
+        raise HTTPException(status_code=500, detail=f"Failed: {e}")

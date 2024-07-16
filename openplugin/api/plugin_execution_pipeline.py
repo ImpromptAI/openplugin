@@ -1,13 +1,13 @@
 import asyncio
-import datetime
 import os
 import traceback
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from openplugin.api import auth
 from openplugin.core.config import Config
@@ -33,8 +33,31 @@ class FunctionProviderInput(BaseModel):
 function_providers = FunctionProviders.build()
 
 
+class MetaDataResponse(BaseModel):
+    start_time: datetime = Field(default_factory=datetime.now)
+    end_time: datetime = Field(default_factory=datetime.now)
+    total_time_taken_seconds: float
+    total_time_taken_ms: int
+    function_provider_name: str
+    output_module_names: str
+    total_tokens_used: Optional[int] = None
+    cost: Optional[float] = None
+
+
+class PluginExecutionResponse(BaseModel):
+    metadata: MetaDataResponse
+    response: dict = {}
+    error: Any
+    trace: Any
+
+
 # Define a POST endpoint for plugin-pipeline API
-@router.post("/plugin-execution-pipeline")
+@router.post(
+    "/plugin-execution-pipeline",
+    tags=["plugin-execution-pipeline"],
+    description="Enpoint to run a plugin pipeline",
+    response_model=PluginExecutionResponse,
+)
 def plugin_execution_pipeline(
     openplugin_manifest_url: Optional[str] = Body(None),
     openplugin_manifest_obj: Optional[dict] = Body(None),
@@ -56,7 +79,7 @@ def plugin_execution_pipeline(
     function_provider_name = None
     if function_provider_input:
         function_provider_name = function_provider_input.name
-    start = datetime.datetime.now()
+    start = datetime.now()
     try:
         pipeline = None
         input = Port(data_type=PortType.TEXT, value=prompt)
@@ -111,12 +134,11 @@ def plugin_execution_pipeline(
                 session_variables=session_variables,
             )
         )
-        status_code = 200
         json_data = response_obj.model_dump(
             exclude={"output_ports__type_object", "output_ports__value"}
         )
         trace = {"steps": pipeline.tracing_steps}
-        end = datetime.datetime.now()
+        end = datetime.now()
         elapsed_time = end - start
         response = {
             "metadata": {
@@ -135,11 +157,9 @@ def plugin_execution_pipeline(
         }
         return response
     except PluginExecutionPipelineError as e:
-        status_code = 500
         traceback.print_exc()
         error = {"message": e.message}
     except Exception as e:
-        status_code = 500
         traceback.print_exc()
         error = {"message": f"Failed to run plugin. {e}"}
 
@@ -150,7 +170,7 @@ def plugin_execution_pipeline(
     except Exception as e:
         print(e)
 
-    end = datetime.datetime.now()
+    end = datetime.now()
     elapsed_time = end - start
     response = {
         "metadata": {

@@ -9,10 +9,7 @@ from openplugin.api import (
     function_providers,
     helpers,
     info,
-    operation_execution,
-    operation_signature_builder,
     plugin_execution_pipeline,
-    plugin_selector,
     processors,
 )
 
@@ -28,6 +25,7 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
     API_PREFIX = "/api"
     if root_path:
         API_PREFIX = f"/{root_path}{API_PREFIX}"
+
     app = FastAPI(
         title="OpenPlugin",
         openapi_url=f"{API_PREFIX}/openapi.json",
@@ -58,15 +56,14 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
 
     # Create an APIRouter instance to manage routes
     router = APIRouter()
-    router.include_router(plugin_selector.router)
-    router.include_router(operation_signature_builder.router)
-    router.include_router(operation_execution.router)
+    # router.include_router(plugin_selector.router)
+    # router.include_router(operation_signature_builder.router)
+    # router.include_router(operation_execution.router)
     router.include_router(info.router)
     router.include_router(plugin_execution_pipeline.router)
     router.include_router(processors.router)
     router.include_router(function_providers.router)
     router.include_router(helpers.router)
-
     app.include_router(router, prefix=API_PREFIX)
 
     return app

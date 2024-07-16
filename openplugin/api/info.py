@@ -2,7 +2,7 @@ import datetime
 
 import toml
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 # Create a FastAPI router instance
 router = APIRouter(
@@ -16,33 +16,34 @@ def get_project_version():
     return pyproject_data["tool"]["poetry"]["version"]
 
 
-@router.get("/info")
+class InfoResponse(BaseModel):
+    """Response schema for Info endpoint"""
+
+    version: str
+    message: str
+    start_time: str
+    end_time: str
+    time_taken_seconds: int
+    time_taken_ms: int
+
+
+@router.get(
+    "/info",
+    tags=["info"],
+    description="Enpoint to retrieve openplugin server information",
+    response_model=InfoResponse,
+)
 def info():
     # time taken to run this function
     start = datetime.datetime.now()
-    JSONResponse(
-        status_code=200,
-        content={"message": "OpenPlugin API"},
-    )
     end = datetime.datetime.now()
     elapsed_time = end - start
 
-    return JSONResponse(
-        status_code=200,
-        content={
-            "version": get_project_version(),
-            "message": "OpenPlugin API",
-            "start_time": start.strftime("%Y-%m-%d %H:%M:%S"),
-            "end_time": end.strftime("%Y-%m-%d %H:%M:%S"),
-            "time_taken_seconds": elapsed_time.seconds,
-            "time_taken_ms": elapsed_time.microseconds,
-        },
-    )
-
-
-@router.get("/")
-def version():
-    return JSONResponse(
-        status_code=200,
-        content={"message": "OpenPlugin API"},
+    return InfoResponse(
+        version=get_project_version(),
+        message="OpenPlugin API",
+        start_time=start.strftime("%Y-%m-%d %H:%M:%S"),
+        end_time=end.strftime("%Y-%m-%d %H:%M:%S"),
+        time_taken_seconds=elapsed_time.seconds,
+        time_taken_ms=elapsed_time.microseconds,
     )

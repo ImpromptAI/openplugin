@@ -7,14 +7,20 @@
     "paths": {
         "/api/info": {
             "get": {
+                "tags": [
+                    "info"
+                ],
                 "summary": "Info",
+                "description": "Enpoint to retrieve openplugin server information",
                 "operationId": "info_api_info_get",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/InfoResponse"
+                                }
                             }
                         }
                     },
@@ -26,7 +32,11 @@
         },
         "/api/plugin-execution-pipeline": {
             "post": {
+                "tags": [
+                    "plugin-execution-pipeline"
+                ],
                 "summary": "Plugin Execution Pipeline",
+                "description": "Enpoint to run a plugin pipeline",
                 "operationId": "plugin_execution_pipeline_api_plugin_execution_pipeline_post",
                 "requestBody": {
                     "content": {
@@ -43,7 +53,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/PluginExecutionResponse"
+                                }
                             }
                         }
                     },
@@ -70,14 +82,24 @@
         },
         "/api/processors": {
             "get": {
+                "tags": [
+                    "processors"
+                ],
                 "summary": "Processors",
+                "description": "Enpoint to retrieve list of available processors",
                 "operationId": "processors_api_processors_get",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProcessorResponse"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Processors Api Processors Get"
+                                }
                             }
                         }
                     },
@@ -89,7 +111,11 @@
         },
         "/api/function-providers": {
             "get": {
+                "tags": [
+                    "function-providers"
+                ],
                 "summary": "Get Function Providers",
+                "description": "Enpoint to retrieve list of available function providers",
                 "operationId": "get_function_providers_api_function_providers_get",
                 "parameters": [
                     {
@@ -252,7 +278,13 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/FunctionProvider"
+                                    },
+                                    "title": "Response Get Function Providers Api Function Providers Get"
+                                }
                             }
                         }
                     },
@@ -274,7 +306,11 @@
         },
         "/api/function-provider-request": {
             "get": {
+                "tags": [
+                    "function-provider-request"
+                ],
                 "summary": "Get Function Provider Request",
+                "description": "Enpoint to retrieve function provider request JSON",
                 "operationId": "get_function_provider_request_api_function_provider_request_get",
                 "parameters": [
                     {
@@ -301,7 +337,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/FunctionProviderResponse"
+                                }
                             }
                         }
                     },
@@ -323,7 +361,11 @@
         },
         "/api/run-function-provider": {
             "post": {
+                "tags": [
+                    "run-function-provider"
+                ],
                 "summary": "Run Function Provider",
+                "description": "Enpoint to run a function provider",
                 "operationId": "run_function_provider_api_run_function_provider_post",
                 "requestBody": {
                     "content": {
@@ -340,7 +382,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/FunctionProviderRunResponse"
+                                }
                             }
                         }
                     },
@@ -362,7 +406,11 @@
         },
         "/api/plugin-validator": {
             "post": {
+                "tags": [
+                    "plugin-validator"
+                ],
                 "summary": "Plugin Execution Pipeline",
+                "description": "Enpoint to validate a plugin manifest",
                 "operationId": "plugin_execution_pipeline_api_plugin_validator_post",
                 "requestBody": {
                     "content": {
@@ -379,51 +427,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not found"
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "$ref": "#/components/schemas/PluginValidationResponse"
                                 }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "APIKeyHeader": []
-                    }
-                ]
-            }
-        },
-        "/api/openapi-parser": {
-            "get": {
-                "summary": "Openapi Parser",
-                "operationId": "openapi_parser_api_openapi_parser_get",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "title": "Openplugin Manifest Obj"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Successful Response",
-                        "content": {
-                            "application/json": {
-                                "schema": {}
                             }
                         }
                     },
@@ -450,7 +456,11 @@
         },
         "/api/openapi-param-parser": {
             "get": {
+                "tags": [
+                    "openapi-param-parse"
+                ],
                 "summary": "Openapi Param Parser",
+                "description": "Enpoint to parse OpenAPI doc and extract functions",
                 "operationId": "openapi_param_parser_api_openapi_param_parser_get",
                 "parameters": [
                     {
@@ -468,7 +478,9 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/FunctionResponse"
+                                }
                             }
                         }
                     },
@@ -613,39 +625,6 @@
                     "conversation"
                 ],
                 "title": "Body_plugin_execution_pipeline_api_plugin_execution_pipeline_post"
-            },
-            "Body_plugin_selector_api_plugin_selector_post": {
-                "properties": {
-                    "messages": {
-                        "items": {
-                            "$ref": "#/components/schemas/Message"
-                        },
-                        "type": "array",
-                        "title": "Messages"
-                    },
-                    "openplugin_manifest_urls": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
-                        "title": "Openplugin Manifest Urls"
-                    },
-                    "config": {
-                        "$ref": "#/components/schemas/Config"
-                    },
-                    "pipeline_name": {
-                        "type": "string",
-                        "title": "Pipeline Name"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "messages",
-                    "openplugin_manifest_urls",
-                    "config",
-                    "pipeline_name"
-                ],
-                "title": "Body_plugin_selector_api_plugin_selector_post"
             },
             "Config": {
                 "properties": {
@@ -850,6 +829,53 @@
                 ],
                 "title": "FunctionProviderInput"
             },
+            "FunctionProviderResponse": {
+                "properties": {
+                    "fc_request_json": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Fc Request Json"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "fc_request_json"
+                ],
+                "title": "FunctionProviderResponse"
+            },
+            "FunctionProviderRunResponse": {
+                "properties": {
+                    "fc_response_json": {
+                        "type": "object",
+                        "title": "Fc Response Json"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "fc_response_json"
+                ],
+                "title": "FunctionProviderRunResponse"
+            },
+            "FunctionResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "functions": {
+                        "type": "object",
+                        "title": "Functions"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "functions"
+                ],
+                "title": "FunctionResponse"
+            },
             "HTTPValidationError": {
                 "properties": {
                     "detail": {
@@ -863,156 +889,142 @@
                 "type": "object",
                 "title": "HTTPValidationError"
             },
-            "Message": {
+            "ImplementationsResponse": {
                 "properties": {
-                    "content": {
+                    "processor_implementation_type": {
                         "type": "string",
-                        "title": "Content"
+                        "title": "Processor Implementation Type"
                     },
-                    "message_type": {
-                        "$ref": "#/components/schemas/MessageType"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "content",
-                    "message_type"
-                ],
-                "title": "Message",
-                "description": "Represents a prompt to be executed."
-            },
-            "MessageType": {
-                "type": "string",
-                "enum": [
-                    "HumanMessage",
-                    "AIMessage",
-                    "SystemMessage",
-                    "FunctionMessage"
-                ],
-                "title": "MessageType"
-            },
-            "OperationExecutionParams": {
-                "properties": {
-                    "config": {
-                        "$ref": "#/components/schemas/Config"
-                    },
-                    "api": {
+                    "name": {
                         "type": "string",
-                        "title": "Api"
+                        "title": "Name"
                     },
-                    "path": {
-                        "type": "string",
-                        "title": "Path"
-                    },
-                    "method": {
-                        "type": "string",
-                        "title": "Method"
-                    },
-                    "query_params": {
-                        "anyOf": [
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Query Params"
-                    },
-                    "body": {
-                        "anyOf": [
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Body"
-                    },
-                    "header": {
-                        "anyOf": [
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Header"
-                    },
-                    "response_obj_200": {
-                        "anyOf": [
-                            {
-                                "type": "object"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Response Obj 200"
-                    },
-                    "function_provider": {
-                        "$ref": "#/components/schemas/FunctionProvider"
-                    },
-                    "plugin_op_property_map": {
-                        "anyOf": [
-                            {
-                                "additionalProperties": {
-                                    "additionalProperties": {
-                                        "type": "object"
-                                    },
-                                    "type": "object"
-                                },
-                                "type": "object"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Plugin Op Property Map"
-                    },
-                    "enable_ui_form_controls": {
-                        "type": "boolean",
-                        "title": "Enable Ui Form Controls",
-                        "default": true
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "config",
-                    "api",
-                    "path",
-                    "method",
-                    "query_params",
-                    "body",
-                    "header",
-                    "response_obj_200",
-                    "function_provider",
-                    "plugin_op_property_map"
-                ],
-                "title": "OperationExecutionParams"
-            },
-            "OperationSignatureParam": {
-                "properties": {
-                    "messages": {
+                    "metadata": {
                         "items": {
-                            "$ref": "#/components/schemas/Message"
+                            "$ref": "#/components/schemas/MetadataResponse"
                         },
                         "type": "array",
-                        "title": "Messages"
-                    },
-                    "plugin_manifest_url": {
+                        "title": "Metadata"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "processor_implementation_type",
+                    "name",
+                    "metadata"
+                ],
+                "title": "ImplementationsResponse"
+            },
+            "InfoResponse": {
+                "properties": {
+                    "version": {
                         "type": "string",
-                        "title": "Plugin Manifest Url"
+                        "title": "Version"
                     },
-                    "config": {
-                        "$ref": "#/components/schemas/Config"
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
                     },
-                    "function_provider": {
-                        "$ref": "#/components/schemas/FunctionProvider"
+                    "start_time": {
+                        "type": "string",
+                        "title": "Start Time"
                     },
-                    "selected_operation": {
+                    "end_time": {
+                        "type": "string",
+                        "title": "End Time"
+                    },
+                    "time_taken_seconds": {
+                        "type": "integer",
+                        "title": "Time Taken Seconds"
+                    },
+                    "time_taken_ms": {
+                        "type": "integer",
+                        "title": "Time Taken Ms"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "version",
+                    "message",
+                    "start_time",
+                    "end_time",
+                    "time_taken_seconds",
+                    "time_taken_ms"
+                ],
+                "title": "InfoResponse",
+                "description": "Response schema for Info endpoint"
+            },
+            "MetaDataResponse": {
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Start Time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "End Time"
+                    },
+                    "total_time_taken_seconds": {
+                        "type": "number",
+                        "title": "Total Time Taken Seconds"
+                    },
+                    "total_time_taken_ms": {
+                        "type": "integer",
+                        "title": "Total Time Taken Ms"
+                    },
+                    "function_provider_name": {
+                        "type": "string",
+                        "title": "Function Provider Name"
+                    },
+                    "output_module_names": {
+                        "type": "string",
+                        "title": "Output Module Names"
+                    },
+                    "total_tokens_used": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Total Tokens Used"
+                    },
+                    "cost": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cost"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "total_time_taken_seconds",
+                    "total_time_taken_ms",
+                    "function_provider_name",
+                    "output_module_names"
+                ],
+                "title": "MetaDataResponse"
+            },
+            "MetadataResponse": {
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "title": "Key"
+                    },
+                    "required": {
+                        "type": "boolean",
+                        "title": "Required"
+                    },
+                    "default_value": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -1021,31 +1033,120 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Selected Operation"
+                        "title": "Default Value"
                     },
-                    "pre_prompts": {
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "long_form": {
+                        "type": "boolean",
+                        "title": "Long Form"
+                    },
+                    "is_user_provided": {
                         "anyOf": [
                             {
-                                "items": {
-                                    "$ref": "#/components/schemas/Message"
-                                },
-                                "type": "array"
+                                "type": "boolean"
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Pre Prompts"
+                        "title": "Is User Provided"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "messages",
-                    "plugin_manifest_url",
-                    "config",
-                    "function_provider"
+                    "key",
+                    "required",
+                    "type",
+                    "long_form"
                 ],
-                "title": "OperationSignatureParam"
+                "title": "MetadataResponse"
+            },
+            "PluginExecutionResponse": {
+                "properties": {
+                    "metadata": {
+                        "$ref": "#/components/schemas/MetaDataResponse"
+                    },
+                    "response": {
+                        "type": "object",
+                        "title": "Response",
+                        "default": {}
+                    },
+                    "error": {
+                        "title": "Error"
+                    },
+                    "trace": {
+                        "title": "Trace"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "metadata",
+                    "error",
+                    "trace"
+                ],
+                "title": "PluginExecutionResponse"
+            },
+            "PluginValidationResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "plugin_name": {
+                        "type": "string",
+                        "title": "Plugin Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "plugin_name"
+                ],
+                "title": "PluginValidationResponse"
+            },
+            "ProcessorResponse": {
+                "properties": {
+                    "processor_type": {
+                        "type": "string",
+                        "title": "Processor Type"
+                    },
+                    "processor_name": {
+                        "type": "string",
+                        "title": "Processor Name"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    },
+                    "input_port": {
+                        "type": "string",
+                        "title": "Input Port"
+                    },
+                    "output_port": {
+                        "type": "string",
+                        "title": "Output Port"
+                    },
+                    "implementations": {
+                        "items": {
+                            "$ref": "#/components/schemas/ImplementationsResponse"
+                        },
+                        "type": "array",
+                        "title": "Implementations"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "processor_type",
+                    "processor_name",
+                    "description",
+                    "input_port",
+                    "output_port",
+                    "implementations"
+                ],
+                "title": "ProcessorResponse"
             },
             "RunFunctionInput": {
                 "properties": {
