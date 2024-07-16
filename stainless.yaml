@@ -5,37 +5,34 @@ organization:
   docs: https://openplugin.com/
   contact: shrikant@imprompt.ai
 resources:
-  api:
+  info:
     methods:
-      list: get /api/
-    subresources:
-      info:
-        methods:
-          retrieve: get /api/info
-      plugin_execution_pipelines:
-        methods:
-          create: post /api/plugin-execution-pipeline
-      processors:
-        methods:
-          list: get /api/processors
-      function_providers:
-        methods:
-          list: get /api/function-providers
-      function_provider_requests:
-        methods:
-          retrieve: get /api/function-provider-request
-      run_function_providers:
-        methods:
-          create: post /api/run-function-provider
-      plugin_validators:
-        methods:
-          create: post /api/plugin-validator
-      openapi_parsers:
-        methods:
-          retrieve: get /api/openapi-parser
-      openapi_param_parsers:
-        methods:
-          retrieve: get /api/openapi-param-parser
+      retrieve: get /api/info
+  plugin_execution_pipelines:
+    methods:
+      create: post /api/plugin-execution-pipeline
+  processors:
+    methods:
+      list: get /api/processors
+  function_providers:
+    methods:
+      list: get /api/function-providers
+  function_provider_requests:
+    methods:
+      retrieve: get /api/function-provider-request
+  run_function_providers:
+    methods:
+      create: post /api/run-function-provider
+  plugin_validators:
+    methods:
+      create: post /api/plugin-validator
+  openapi_parsers:
+    methods:
+      retrieve: get /api/openapi-parser
+  openapi_param_parsers:
+    methods:
+      retrieve: get /api/openapi-param-parser
+
 targets:
   node:
     package_name: openplugin
