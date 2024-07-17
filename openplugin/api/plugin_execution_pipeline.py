@@ -56,7 +56,6 @@ class PluginExecutionResponse(BaseModel):
     "/plugin-execution-pipeline",
     tags=["plugin-execution-pipeline"],
     description="Enpoint to run a plugin pipeline",
-    response_model=PluginExecutionResponse,
 )
 def plugin_execution_pipeline(
     openplugin_manifest_url: Optional[str] = Body(None),
