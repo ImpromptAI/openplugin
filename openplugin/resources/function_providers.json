@@ -166,5 +166,33 @@
         "required_auth_keys": [
             "GROQ_API_KEY"
         ]
+    },
+    {
+        "name": "Groq [Llama3-groq-70b-8192-tool-use-preview]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Groq",
+            "model_name": "llama3-groq-70b-8192-tool-use-preview",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "GROQ_API_KEY"
+        ]
+    },
+    {
+        "name": "Groq [Llama3-groq-8b-8192-tool-use-preview]",
+        "type": "llm-based",
+        "llm": {
+            "provider": "Groq",
+            "model_name": "llama3-groq-8b-8192-tool-use-preview",
+            "configuration": {
+                "temperature": 0
+            }
+        },
+        "required_auth_keys": [
+            "GROQ_API_KEY"
+        ]
     }
 ]

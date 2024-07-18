@@ -365,7 +365,9 @@ class Functions(BaseModel):
     ):
         functions = []
         openapi_doc_json = requests.get(open_api_spec_url).json()
-        openapi_doc_json = jsonref.loads(json.dumps(openapi_doc_json))
+        openapi_doc_json = to_plain_dict(
+            jsonref.JsonRef.replace_refs(openapi_doc_json)
+        )
         if openapi_doc_json is None:
             raise ValueError("Could not fetch OpenAPI json from URL")
 
@@ -829,3 +831,12 @@ class Functions(BaseModel):
                 self.function_map[func.name] = func
                 functions.append(func)
         return functions
+
+
+def to_plain_dict(data):
+    if isinstance(data, dict):
+        return {key: to_plain_dict(value) for key, value in data.items()}
+    elif isinstance(data, list):
+        return [to_plain_dict(item) for item in data]
+    else:
+        return data

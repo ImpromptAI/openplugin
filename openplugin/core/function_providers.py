@@ -130,9 +130,7 @@ class FunctionLLM(BaseModel):
             else:
                 raise Exception("Groq API Key not found")
             return ChatGroq(
-                temperature=0,
-                groq_api_key=groq_api_key,
-                model_name="mixtral-8x7b-32768",
+                temperature=0, groq_api_key=groq_api_key, model_name=self.model_name
             )
         elif self.provider.lower() == "togetherai":
             from langchain_openai import ChatOpenAI
