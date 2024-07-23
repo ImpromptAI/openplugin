@@ -9,7 +9,6 @@ load_dotenv()
 
 
 def get_db_connection():
-
     environment = os.environ["ENVIRONMENT"]
 
     if environment == "production":
@@ -56,9 +55,7 @@ def start():
             openplugin_manifest_url = row["openplugin_manifest_url"]
             openplugin_manifest_json = requests.get(openplugin_manifest_url).json()
             openplugin_function_count = 0
-            plugin_operation_map = openplugin_manifest_json.get(
-                "plugin_operations", {}
-            )
+            plugin_operation_map = openplugin_manifest_json.get("plugin_operations", {})
             examples = []
             for path in plugin_operation_map.keys():
                 for method in plugin_operation_map[path].keys():
@@ -101,7 +98,7 @@ def start():
                     "openapi_function_count": openapi_function_count,
                 }
             )
-        except Exception as e:
+        except Exception:
             print("=-=-=-=-=-=")
             print(f"FAILED FOR: {row['name']}")
             print("=-=-=-=-=-=")

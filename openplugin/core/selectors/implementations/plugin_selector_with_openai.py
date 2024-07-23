@@ -89,6 +89,7 @@ class OpenAIPluginSelector(PluginSelector):
                 plugin=detected_plugin,
                 api_called=detected_function.get_api_url(),
                 method=detected_function.get_api_method(),
+                path=detected_function.get_api_path(),
             )
             detected_plugins.append(detected_plugin.manifest_url)
             f_messages.append(message)

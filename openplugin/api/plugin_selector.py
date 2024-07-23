@@ -10,9 +10,6 @@ from openplugin.core.config import Config
 from openplugin.core.function_providers import FunctionProviders
 from openplugin.core.messages import Message
 from openplugin.core.plugin import Plugin, PluginBuilder
-from openplugin.core.selectors.implementations.plugin_selector_with_imprompt import (
-    ImpromptPluginSelector,
-)
 from openplugin.core.selectors.implementations.plugin_selector_with_openai import (
     OpenAIPluginSelector,
 )
@@ -28,7 +25,7 @@ router = APIRouter(
 @router.post("/plugin-selector")
 def plugin_selector(
     messages: List[Message] = Body(...),
-    openplugin_manifest_urls: List[str] = Body(...),
+    openapi_doc_urls: List[str] = Body(...),
     config: Config = Body(...),
     pipeline_name: str = Body(...),
     api_key: APIKey = Depends(auth.get_api_key),
@@ -37,23 +34,11 @@ def plugin_selector(
         # Based on the provider specified in tool_selector_config, create the
         # appropriate plugin selector
         plugins: List[Plugin] = []
-        for openplugin_manifest_url in openplugin_manifest_urls:
-            if openplugin_manifest_url.startswith("http"):
-                plugin_obj = PluginBuilder.build_from_manifest_url(
-                    openplugin_manifest_url
-                )
-            else:
-                plugin_obj = PluginBuilder.build_from_manifest_file(
-                    openplugin_manifest_url
-                )
+        for openapi_doc_url in openapi_doc_urls:
+            plugin_obj = PluginBuilder.build_from_openapi_doc_url(openapi_doc_url)
             plugins.append(plugin_obj)
         function_provider = FunctionProviders.build().get_default_provider()
-        if pipeline_name.lower() == ImpromptPluginSelector.get_pipeline_name().lower():
-            imprompt_selector = ImpromptPluginSelector(
-                plugins, config, function_provider
-            )
-            return imprompt_selector.run(messages)
-        elif pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
+        if pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
             openai_selector = OpenAIPluginSelector(plugins, config, function_provider)
             return openai_selector.run(messages)
         else:

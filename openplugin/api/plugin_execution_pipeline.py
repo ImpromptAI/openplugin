@@ -58,8 +58,8 @@ class PluginExecutionResponse(BaseModel):
     description="Enpoint to run a plugin pipeline",
 )
 def plugin_execution_pipeline(
-    openplugin_manifest_url: Optional[str] = Body(None),
-    openplugin_manifest_obj: Optional[dict] = Body(None),
+    openapi_doc_url: Optional[str] = Body(None),
+    openapi_doc_obj: Optional[dict] = Body(None),
     prompt: str = Body(...),
     header: dict = Body(...),
     function_provider_input: Optional[FunctionProviderInput] = Body(
@@ -82,24 +82,18 @@ def plugin_execution_pipeline(
     try:
         pipeline = None
         input = Port(data_type=PortType.TEXT, value=prompt)
-        if openplugin_manifest_obj is not None:
-            plugin_obj = PluginBuilder.build_from_manifest_obj(
-                openplugin_manifest_obj
-            )
-        elif openplugin_manifest_url is not None:
-            if openplugin_manifest_url.startswith("http"):
-                plugin_obj = PluginBuilder.build_from_manifest_url(
-                    openplugin_manifest_url
-                )
+        if openapi_doc_obj is not None:
+            plugin_obj = PluginBuilder.build_from_openapi_doc_obj(openapi_doc_obj)
+        elif openapi_doc_url is not None:
+            if openapi_doc_url.startswith("http"):
+                plugin_obj = PluginBuilder.build_from_openapi_doc_url(openapi_doc_url)
             else:
-                plugin_obj = PluginBuilder.build_from_manifest_file(
-                    openplugin_manifest_url
-                )
+                plugin_obj = PluginBuilder.build_from_openapi_doc_file(openapi_doc_url)
         else:
             return JSONResponse(
                 status_code=400,
                 content={
-                    "message": "Either manifest URL or manifest object is required"
+                    "message": "Either openapi_doc_url URL or openapi_doc_obj is required"
                 },
             )
 

@@ -47,9 +47,7 @@ class ProcessorNode(BaseModel):
             implementation_type=values["processor_implementation_type"],
             metadata=values["metadata"],
         )
-        values["log_title"] = (
-            f"[PROCESSING-FINISHED] name={values['processor_type']}"
-        )
+        values["log_title"] = f"[PROCESSING-FINISHED] name={values['processor_type']}"
         return values
 
     @time_taken
@@ -70,13 +68,9 @@ class FlowPath(BaseModel):
     @root_validator(pre=True)
     def setup(cls, values):
         assert "initial_input_port" in values
-        values["initial_input_port"] = convert_str_to_port(
-            values["initial_input_port"]
-        )
+        values["initial_input_port"] = convert_str_to_port(values["initial_input_port"])
         assert "finish_output_port" in values
-        values["finish_output_port"] = convert_str_to_port(
-            values["finish_output_port"]
-        )
+        values["finish_output_port"] = convert_str_to_port(values["finish_output_port"])
         values["log_title"] = f"[MODULE-PROCESSING-FINISHED] name={values['name']}"
         return values
 

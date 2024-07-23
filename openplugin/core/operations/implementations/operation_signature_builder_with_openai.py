@@ -159,9 +159,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             and isinstance(message_json, dict)
             and message_json.get("function_call")
         ):
-            function_name = build_function_name(
-                message_json["function_call"]["name"]
-            )
+            function_name = build_function_name(message_json["function_call"]["name"])
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             arguments = json.loads(message_json["function_call"]["arguments"])
@@ -170,6 +168,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
                 api_called=detected_function.get_api_url(),
                 method=detected_function.get_api_method(),
                 mapped_operation_parameters=arguments,
+                path=detected_function.get_api_path(),
             )
             detected_plugin_operations.append(p_detected)
             f_messages.append(message_json)

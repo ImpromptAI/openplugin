@@ -13,9 +13,7 @@ class LLMEngineWithOpenAI(LLMEngine):
     model_name: str = "gpt-3.5-turbo"
     pre_prompt: Optional[str] = None
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         if self.pre_prompt:

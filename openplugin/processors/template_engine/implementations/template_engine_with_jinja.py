@@ -14,9 +14,7 @@ class TemplateEngineWithJinja(TemplateEngine):
     mime_type: Optional[str] = None
     output_port: PortType = Field(PortType.TEXT)
 
-    async def process_input(
-        self, input: Port, config: Optional[Config] = None
-    ) -> Port:
+    async def process_input(self, input: Port, config: Optional[Config] = None) -> Port:
         if input.value is None:
             raise PortValueError("Input value cannot be None")
         if self.mime_type and "json" in self.mime_type:

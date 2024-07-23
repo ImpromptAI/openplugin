@@ -132,15 +132,14 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
             if tool_calls and len(tool_calls) > 0:
                 function_name = tool_calls[0].function.name
                 detected_plugin = functions.get_plugin_from_func_name(function_name)
-                detected_function = functions.get_function_from_func_name(
-                    function_name
-                )
+                detected_function = functions.get_function_from_func_name(function_name)
                 mapped_parameters = json.loads(tool_calls[0].function.arguments)
                 p_detected = PluginDetectedParams(
                     plugin=detected_plugin,
                     api_called=detected_function.get_api_url(),
                     method=detected_function.get_api_method(),
                     mapped_operation_parameters=mapped_parameters,
+                    path=None,
                 )
                 detected_plugin_operations.append(p_detected)
                 final_text_response = ""

@@ -1,3 +1,4 @@
+"""
 import traceback
 from typing import Annotated, List, Optional, Union
 
@@ -36,7 +37,6 @@ class OperationSignatureParam(BaseModel):
 
     @root_validator(pre=True)
     def _set_fields(cls, values: dict) -> dict:
-        """This is a validator that sets the field values based on the manifest_url"""
         values["plugin_manifest_url"] = values.get("plugin", {}).get("manifest_url")
         return values
 
@@ -66,8 +66,10 @@ def operation_signature_builder(
             )
             return openai_selector.run(input.messages)
         if (
-            pipeline_name.lower() == "LLM Passthrough (OpenPlugin and Swagger)".lower()
-            or pipeline_name.lower() == "LLM Passthrough (OpenPlugin + Swagger)".lower()
+            pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin and Swagger)".lower()
+            or pipeline_name.lower()
+            == "LLM Passthrough (OpenPlugin + Swagger)".lower()
         ):
             imprompt_selector = ImpromptOperationSignatureBuilder(
                 plugin,
@@ -125,3 +127,4 @@ def operation_signature_builder(
         return JSONResponse(
             status_code=500, content={"message": "Failed to run plugin"}
         )
+"""

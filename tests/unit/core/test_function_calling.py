@@ -37,9 +37,7 @@ def json_params():
     "openplugin_manifest_url, request_prompt, method, path",
     load_json_params(),
 )
-def test_function_calling_gpt4(
-    openplugin_manifest_url, request_prompt, method, path
-):
+def test_function_calling_gpt4(openplugin_manifest_url, request_prompt, method, path):
     """This method tests the function calling for GPT-4 plugin."""
     functions = Functions()
     functions.add_from_manifest(manifest_url=openplugin_manifest_url, plugin=None)

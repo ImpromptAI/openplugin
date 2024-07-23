@@ -1,3 +1,4 @@
+"""
 import json
 import re
 import time
@@ -7,6 +8,7 @@ from urllib.parse import parse_qs, urlparse
 from loguru import logger
 
 from openplugin.utils import get_llm_response_from_messages
+
 
 from ...config import Config
 from ...function_providers import FunctionProvider
@@ -18,7 +20,7 @@ from ..operation_signature_builder import (
 )
 
 DEBUG = False
-plugin_operation_prompt = """
+plugin_operation_prompt = '''
 You are an AI assistant.
 Here is a tool you can use, named {name_for_model}.
 
@@ -37,7 +39,7 @@ The Plugin rules:
 The openapi spec file = {openapi_spec}
 
 The instructions are: {prompt}
-"""  # noqa: E501
+'''  # noqa: E501
 
 
 def _extract_urls(text):
@@ -116,10 +118,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
         urls = _extract_urls(response.get("response"))
         for url in urls:
             formatted_url = url.split("?")[0].strip()
-            if (
-                self.plugin.api_endpoints
-                and formatted_url in self.plugin.api_endpoints
-            ):
+            if self.plugin.api_endpoints and formatted_url in self.plugin.api_endpoints:
                 api_called = formatted_url
                 query_dict = parse_qs(urlparse(url).query)
                 mapped_operation_parameters = {
@@ -133,6 +132,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
                 api_called=api_called,
                 method=method,
                 mapped_operation_parameters=mapped_operation_parameters,
+                path=None,
             )
         )
         response = SelectedApiSignatureResponse(
@@ -162,9 +162,7 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
                 msgs.append(pre_prompt.get_openai_message())
         msgs.append({"role": "user", "content": prompt})
         if DEBUG:
-            logger.info(
-                f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.function_provider}"
-            )
+            logger.info(f"=-=-=-=-=-= LLM -=--=-=-=-=-=--=\n{self.function_provider}")
             logger.info(f"\n=-=-=-=-=-=- PROMPT =--=-=-=-=-=--=\n{prompt}")
         response = get_llm_response_from_messages(
             msgs=msgs,
@@ -185,3 +183,4 @@ class ImpromptOperationSignatureBuilder(OperationSignatureBuilder):
     @classmethod
     def get_pipeline_name(cls) -> str:
         return "imprompt basic"
+"""

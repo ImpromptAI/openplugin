@@ -1,10 +1,8 @@
-from typing import Any, Dict
+from typing import Dict
 
-import requests
+from openplugin.core.plugin import PluginOperation
 
-from openplugin.core.plugin import Plugin, PluginOperation
-
-
+"""
 # Function to retrieve OpenPlugin manifest from an OpenAI manifest URL
 def get_openplugin_manifest_from_openai_manifest(
     openai_manifest_url: str,
@@ -68,6 +66,7 @@ def get_openplugin_manifest_from_openai_manifest(
         plugin_operations=plugin_operations,
     )
     return plugin_obj
+"""
 
 
 # Function to create an OpenPlugin manifest from OpenAPI documentation and other details

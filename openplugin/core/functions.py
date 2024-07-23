@@ -1,4 +1,3 @@
-import json
 import re
 import traceback
 from typing import Any, Dict, List, Optional
@@ -8,7 +7,7 @@ import requests
 from openapi_parser import parse
 from pydantic import BaseModel
 
-from .plugin import Plugin
+from .plugin import Plugin, PluginOperation
 
 
 class API(BaseModel):
@@ -234,54 +233,29 @@ class Functions(BaseModel):
     def get_function_from_func_name(self, function_name):
         return self.function_map.get(function_name)
 
-    def add_from_plugin(
-        self, plugin: Plugin, selected_operation: Optional[str] = None
-    ):
-        self.add_from_manifest(plugin.manifest_url, plugin, selected_operation)
-
-    def add_from_manifest(
-        self,
-        manifest_url: Optional[str],
-        plugin: Optional[Plugin],
-        selected_operation: Optional[str] = None,
-    ):
-        if manifest_url:
-            if manifest_url.startswith("http"):
-                manifest_obj = requests.get(manifest_url).json()
-            else:
-                with open(manifest_url, "r") as file:
-                    data = file.read()
-                    manifest_obj = json.loads(data)
-        elif plugin and plugin.manifest_object:
-            manifest_obj = plugin.manifest_object
-        else:
-            raise ValueError(
-                "Manifest URL or Plugin object with manifest object is required"
-            )
-
-        open_api_spec_url = manifest_obj.get("openapi_doc_url")
+    def add_from_plugin(self, plugin: Plugin, selected_operation: Optional[str] = None):
         valid_operations = []
-
         selected_op_key = None
         if selected_operation and "_" in selected_operation:
             selected_operation_path = selected_operation.split("<PATH>")[1]
             selected_operation_method = selected_operation.split("<PATH>")[0]
-            selected_op_key = (
-                f"{selected_operation_path}_{selected_operation_method}"
-            )
-        for key in manifest_obj.get("plugin_operations"):
-            methods = manifest_obj.get("plugin_operations").get(key).keys()
-            for method in methods:
-                if selected_op_key:
-                    if selected_op_key.lower() == f"{key}_{method}".lower():
-                        valid_operations.append(selected_op_key)
-                else:
-                    valid_operations.append(key + "_" + method)
+            selected_op_key = f"{selected_operation_path}_{selected_operation_method}"
+
+        if plugin.plugin_operations:
+            for key in plugin.plugin_operations.keys():
+                method_obj = plugin.plugin_operations.get(key)
+                if method_obj:
+                    for method in method_obj.keys():
+                        if selected_op_key:
+                            if selected_op_key.lower() == f"{key}_{method}".lower():
+                                valid_operations.append(selected_op_key)
+                        else:
+                            valid_operations.append(key + "_" + method)
 
         self.add_from_openapi_spec(
-            open_api_spec_url,
+            plugin.openapi_doc_obj,
             plugin=plugin,
-            plugin_operations_map=manifest_obj.get("plugin_operations"),
+            plugin_operations_map=plugin.plugin_operations,
             valid_operations=valid_operations,
             header=None,
         )
@@ -321,10 +295,10 @@ class Functions(BaseModel):
 
     def add_from_openapi_spec(
         self,
-        open_api_spec_url: str,
+        openapi_doc_obj: dict = {},
         plugin: Optional[Plugin] = None,
         header: Optional[dict] = None,
-        plugin_operations_map: Optional[dict] = None,
+        plugin_operations_map: Optional[Dict[str, Dict[str, PluginOperation]]] = None,
         valid_operations: Optional[List[str]] = None,
     ):
         """
@@ -343,7 +317,7 @@ class Functions(BaseModel):
         """
         try:
             functions = self._add_from_openapi_spec_custom(
-                open_api_spec_url,
+                openapi_doc_obj,
                 plugin,
                 header,
                 plugin_operations_map,
@@ -357,17 +331,14 @@ class Functions(BaseModel):
 
     def _add_from_openapi_spec_custom(
         self,
-        open_api_spec_url: str,
+        openapi_doc_obj: Dict,
         plugin: Optional[Plugin],
         header: Optional[dict],
         plugin_operations_map: Optional[dict],
         valid_operations: Optional[List[str]],
     ):
         functions = []
-        openapi_doc_json = requests.get(open_api_spec_url).json()
-        openapi_doc_json = to_plain_dict(
-            jsonref.JsonRef.replace_refs(openapi_doc_json)
-        )
+        openapi_doc_json = to_plain_dict(jsonref.JsonRef.replace_refs(openapi_doc_obj))
         if openapi_doc_json is None:
             raise ValueError("Could not fetch OpenAPI json from URL")
 
@@ -413,24 +384,19 @@ class Functions(BaseModel):
                 # add human usage examples
                 human_usage_examples = []
                 if plugin_operations_map is not None:
-                    human_usage_examples = (
-                        plugin_operations_map.get(path, {})
-                        .get(method, {})
-                        .get("human_usage_examples", [])
-                    )
+                    op_obj = plugin_operations_map.get(path, {}).get(method)
+                    if op_obj:
+                        human_usage_examples = op_obj.human_usage_examples
                 function_values["human_usage_examples"] = human_usage_examples
 
                 # add plugin signature helpers
                 plugin_signature_helpers = []
                 if plugin_operations_map is not None:
-                    plugin_signature_helpers = (
-                        plugin_operations_map.get(path, {})
-                        .get(method, {})
-                        .get("plugin_signature_helpers", [])
-                    )
-                function_values["plugin_signature_helpers"] = (
-                    plugin_signature_helpers
-                )
+                    op_obj = plugin_operations_map.get(path, {}).get(method)
+                    if op_obj:
+                        plugin_signature_helpers = op_obj.plugin_signature_helpers
+
+                function_values["plugin_signature_helpers"] = plugin_signature_helpers
                 function_values["path"] = path
                 function_values["method"] = method
                 response_obj_200 = (
@@ -534,9 +500,7 @@ class Functions(BaseModel):
             op_property["maximum"] = param_obj.get("maximum")
 
         if param_obj.get("additionalProperties"):
-            op_property["additionalProperties"] = param_obj.get(
-                "additionalProperties"
-            )
+            op_property["additionalProperties"] = param_obj.get("additionalProperties")
 
         if param_obj.get("readOnly"):
             op_property["readOnly"] = param_obj.get("readOnly")
@@ -555,7 +519,6 @@ class Functions(BaseModel):
         method: str,
         reference_map: dict,
     ):
-
         # print(json.dumps(operation_obj, indent=2))
         function_values: Dict[str, Any] = {}
         if server_url.endswith("/") and path.startswith("/"):
@@ -582,10 +545,7 @@ class Functions(BaseModel):
                 and helper.strip().lower() == path_description.strip().lower()
             ):
                 continue
-            if (
-                path_summary
-                and helper.strip().lower() == path_summary.strip().lower()
-            ):
+            if path_summary and helper.strip().lower() == path_summary.strip().lower():
                 continue
             function_description += f"{helper}\n"
         function_values["description"] = function_description
@@ -600,9 +560,7 @@ class Functions(BaseModel):
 
         # parse request object
         if operation_obj.get("requestBody"):
-            param_description = operation_obj.get("requestBody", {}).get(
-                "description"
-            )
+            param_description = operation_obj.get("requestBody", {}).get("description")
             content = operation_obj.get("requestBody", {}).get("content")
             if content is None:
                 if "$ref" in operation_obj.get("requestBody", {}):
@@ -641,9 +599,7 @@ class Functions(BaseModel):
                 # required_params = body_content.get("required", {})
             elif "$ref" in body_content:
                 if body_content.get("$ref") not in reference_map:
-                    raise Exception(
-                        f"Reference not found: {body_content.get('$ref')}"
-                    )
+                    raise Exception(f"Reference not found: {body_content.get('$ref')}")
                 ref_obj = reference_map.get(body_content.get("$ref"), {})
                 params = []
                 if "properties" in ref_obj:
@@ -722,7 +678,6 @@ class Functions(BaseModel):
                     g_properties = []
                     # for param in details.get("parameters"):
                     for parameter in content_operation.parameters:
-
                         properties_values: Dict = {}
                         properties_values["name"] = parameter.name
                         properties_values["type"] = parameter.schema.type.value
@@ -806,9 +761,7 @@ class Functions(BaseModel):
                         .get(method, {})
                         .get("plugin_signature_helpers", [])
                     )
-                function_values["plugin_signature_helpers"] = (
-                    plugin_signature_helpers
-                )
+                function_values["plugin_signature_helpers"] = plugin_signature_helpers
 
                 if content_operation.extensions:
                     helpers = content_operation.extensions.get("helpers", [])

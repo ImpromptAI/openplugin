@@ -1,3 +1,4 @@
+"""
 import re
 import time
 from typing import List, Optional
@@ -12,14 +13,14 @@ from ...plugin import Plugin
 from ...plugin_detected import SelectedPluginsResponse
 from ..plugin_selector import PluginSelector
 
-plugin_prompt = """
+plugin_prompt = '''
 {name_for_model}: Call this tool to get the OpenAPI spec (and usage guide) for interacting with the {name_for_model} API. 
 You should only call this ONCE! 
 
 What is the {name_for_model} API useful for? {description_for_model}.
-"""  # noqa: E501
+''' # noqa: E501
 
-plugin_identify_prompt = """
+plugin_identify_prompt = '''
 Answer the following questions as best you can. You have access to the following tools:
 {all_plugin_info_prompt}
 Use the following format. Only reply with the action you want to take.:
@@ -28,9 +29,9 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of {all_plugin_names}, None if you don't want to use any tool
 Begin!
 Question: {prompt}
-"""  # noqa: E501
+'''  # noqa: E501
 
-plugin_operation_prompt = """
+plugin_operation_prompt = '''
 // You are an AI assistant.
 // Here is a tool you can use, named {name_for_model}. The description for this plugin is: {description_for_model}.
 // The Plugin rules:
@@ -47,7 +48,7 @@ plugin_operation_prompt = """
 
 The openapi spec file = {openapi_spec}
 The instructions are: {prompt}
-"""  # noqa: E501
+''' # noqa: E501
 
 
 # Function to extract URLs from text using regular expressions
@@ -128,7 +129,8 @@ class ImpromptPluginSelector(PluginSelector):
                             f_manifest_url = self.get_plugin_manifest_by_name(val)
                             if f_manifest_url:
                                 found_plugins.append(f_manifest_url)
-        """
+
+        
         # NO need to map to operations
         detected_plugins = []
         for plugin in found_plugins:
@@ -165,7 +167,6 @@ class ImpromptPluginSelector(PluginSelector):
                     method=method,
                 )
             )
-        """
         return found_plugins
 
     def run_llm_prompt(self, prompt):
@@ -233,3 +234,4 @@ class ImpromptPluginSelector(PluginSelector):
     @classmethod
     def get_pipeline_name(cls) -> str:
         return "imprompt basic"
+"""

@@ -1,3 +1,4 @@
+"""
 import os
 
 from dotenv import load_dotenv
@@ -41,3 +42,4 @@ def test_klarna_plugins():
     ]
     assert response.run_completed
     assert "Klarna Shopping" in detected_plugin_names
+"""

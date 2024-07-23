@@ -1,5 +1,6 @@
 import traceback
 
+import requests
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security.api_key import APIKey
 from pydantic import BaseModel
@@ -26,14 +27,12 @@ class PluginValidationResponse(BaseModel):
     description="Enpoint to validate a plugin manifest",
     response_model=PluginValidationResponse,
 )
-def plugin_execution_pipeline(
-    openplugin_manifest_obj: dict = Body(None),
+def plugin_validator(
+    openapi_doc_url: dict = Body(None),
     api_key: APIKey = Depends(auth.get_api_key),
 ):
-    plugin = PluginBuilder.build_from_manifest_obj(openplugin_manifest_obj)
-    return PluginValidationResponse(
-        message="Plugin is valid.", plugin_name=plugin.name
-    )
+    plugin = PluginBuilder.build_from_openapi_doc_obj(openapi_doc_url)
+    return PluginValidationResponse(message="Plugin is valid.", plugin_name=plugin.name)
 
 
 class FunctionResponse(BaseModel):
@@ -50,7 +49,8 @@ class FunctionResponse(BaseModel):
 def openapi_param_parser(openapi_doc_url: str):
     try:
         functions = Functions()
-        functions.add_from_openapi_spec(open_api_spec_url=openapi_doc_url)
+        openapi_doc_obj = requests.get(openapi_doc_url).json()
+        functions.add_from_openapi_spec(openapi_doc_obj=openapi_doc_obj)
         function_json = functions.get_expanded_json()
         return FunctionResponse(
             message="OpenAPI doc parsed successfully.", functions=function_json

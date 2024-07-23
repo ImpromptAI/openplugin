@@ -91,13 +91,11 @@ class FunctionProviderResponse(BaseModel):
     description="Enpoint to retrieve function provider request JSON",
     response_model=FunctionProviderResponse,
 )
-def get_function_provider_request(
-    function_provider_name: str, openplugin_manifest_url: str
-):
+def get_function_provider_request(function_provider_name: str, openapi_doc_url: str):
     try:
         function_providers.get_by_name(function_provider_name)
         functions = Functions()
-        plugin = PluginBuilder.build_from_manifest_url(openplugin_manifest_url)
+        plugin = PluginBuilder.build_from_openapi_doc_url(openapi_doc_url)
         functions.add_from_plugin(plugin)
         function_json = functions.get_json()
         return FunctionProviderResponse(fc_request_json=function_json)
@@ -108,7 +106,7 @@ def get_function_provider_request(
 class RunFunctionInput(BaseModel):
     prompt: str
     function_provider_name: str
-    openplugin_manifest_url: str
+    openapi_doc_url: str
     config: Config
     function_json: Optional[Dict] = None
 
@@ -130,8 +128,8 @@ def run_function_provider(run_function_input: RunFunctionInput):
         )
         if run_function_input.function_json is None:
             functions = Functions()
-            plugin = PluginBuilder.build_from_manifest_url(
-                run_function_input.openplugin_manifest_url
+            plugin = PluginBuilder.build_from_openapi_doc_url(
+                run_function_input.openapi_doc_url
             )
             functions.add_from_plugin(plugin)
             function_json = functions.get_json()

@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Set
 import jsonref
 import requests
 import yaml
-from pydantic import AnyHttpUrl, BaseModel, Field, ValidationError, root_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, ValidationError
 
 from .flow_path import FlowPath
 
@@ -37,18 +37,14 @@ class Plugin(BaseModel):
     """
 
     schema_version: str
-    # TODO: make it required
-    openplugin_manifest_version: Optional[str] = None
-    manifest_url: Optional[str] = None
-    manifest_object: Optional[dict] = None
+    openapi_doc_obj: Dict
     name: str
     contact_email: Optional[str] = None
     description: Optional[str] = None
-    openapi_doc_url: Optional[AnyHttpUrl] = None
     logo_url: Optional[str] = None
     legal_info_url: Optional[str] = None
     permutate_doc_url: Optional[AnyHttpUrl] = None
-    permutation_test_urls: Optional[AnyHttpUrl] = None
+    permutation_test_url: Optional[AnyHttpUrl] = None
     auth: Optional[PluginAuth] = None
     input_modules: Optional[List[FlowPath]] = []
     output_modules: Optional[List[FlowPath]] = []
@@ -57,43 +53,6 @@ class Plugin(BaseModel):
     # first str is the path, second str is the method
     plugin_operations: Optional[Dict[str, Dict[str, PluginOperation]]] = None
     plugin_op_property_map: Optional[Dict[str, Dict[str, Dict]]] = None
-
-    @root_validator(pre=True)
-    def _set_fields(cls, values: dict) -> dict:
-        """This is a validator that sets the field values based on the manifest_url"""
-        openapi_doc_url = str(values.get("openapi_doc_url", ""))
-        r = requests.get(openapi_doc_url)
-        if r.status_code != 200:
-            raise ValueError("Invalid openapi_doc_url.")
-        openapi_doc_json = r.json()
-
-        if values.get("schema_version") is not None and isinstance(
-            values.get("schema_version"), int
-        ):
-            values["schema_version"] = str(values.get("schema_version"))
-        if openapi_doc_json:
-            server_url = openapi_doc_json.get("servers")[0].get("url")
-            api_endpoints: set = set()
-            paths = openapi_doc_json.get("paths")
-            for key in paths:
-                api_endpoints.add(f"{server_url}{key}")
-            values["api_endpoints"] = api_endpoints
-        else:
-            raise ValueError("Incompatible manifest.")
-
-        plugin_op_property_map = {}
-        if openapi_doc_json:
-            openapi_doc_json = jsonref.loads(json.dumps(openapi_doc_json))
-            for path in openapi_doc_json.get("paths", {}).keys():
-                path_obj = openapi_doc_json.get("paths", {}).get(path, {})
-                method_props = {}
-                for method in path_obj.keys():
-                    method_obj = path_obj.get(method, {})
-                    method_props[method] = method_obj
-                plugin_op_property_map[path] = method_props
-
-        values["plugin_op_property_map"] = plugin_op_property_map
-        return values
 
     def get_openapi_doc_json(self):
         return requests.get(self.openapi_doc_url).json()
@@ -207,47 +166,105 @@ class Plugin(BaseModel):
 
 class PluginBuilder:
     @staticmethod
-    def build_from_manifest_obj(manifest_obj: dict):
-        if manifest_obj and manifest_obj.get("auth"):
+    def build_from_openapi_doc_url(openapi_doc_url: str):
+        openapi_doc_obj = requests.get(openapi_doc_url).json()
+        return PluginBuilder.build_from_openapi_doc_obj(openapi_doc_obj)
+
+    @staticmethod
+    def build_from_openapi_doc_file(openapi_doc_file: str):
+        with open(openapi_doc_file, "r") as file:
+            data = file.read()
+            openapi_doc_json = json.loads(data)
+            return PluginBuilder.build_from_openapi_doc_obj(openapi_doc_json)
+
+    @staticmethod
+    def build_from_openapi_doc_obj(openapi_doc_obj: dict):
+        if openapi_doc_obj and openapi_doc_obj.get("x-plugin-auth"):
             if (
-                manifest_obj.get("auth", {}).get("type")
-                and manifest_obj.get("auth", {}).get("type") == "none"
+                openapi_doc_obj.get("x-plugin-auth", {}).get("type")
+                and openapi_doc_obj.get("x-plugin-auth", {}).get("type") == "none"
             ):
-                manifest_obj["auth"] = None
+                openapi_doc_obj["x-plugin-auth"] = None
         try:
-            openapi_doc_url = manifest_obj.get("openapi_doc_url")
-            if openapi_doc_url is None or openapi_doc_url.strip() == "":
-                raise ValueError("openapi_doc_url is missing in the manifest.")
-            plugin = Plugin(**manifest_obj)
+            x_openplugin = openapi_doc_obj.get("x-openplugin")
+            if x_openplugin is None:
+                raise Exception("Invalid openapi_doc. x-openplugin is missing.")
+
+            # directly accessing the values from the openapi doc object
+            schema_version = x_openplugin.get("schemaVersion")
+            name = x_openplugin.get("name")
+            description = x_openplugin.get("description")
+            contact_email = x_openplugin.get("contactEmail")
+            logo_url = x_openplugin.get("logoUrl")
+            legal_info_url = x_openplugin.get("legalInfoUrl")
+            permutate_doc_url = x_openplugin.get("permutateDocUrl")
+            permutation_test_url = x_openplugin.get("permutationTestUrl")
+
+            auth = openapi_doc_obj.get("x-plugin-auth")
+            input_modules = openapi_doc_obj.get("x-input-modules", [])
+            output_modules = openapi_doc_obj.get("x-output-modules", [])
+
+            plugin_operations: Dict[str, Dict[str, PluginOperation]] = {}
+            for path, path_obj in openapi_doc_obj.get("paths", {}).items():
+                method_props = {}
+                for method, method_obj in path_obj.items():
+                    method_props[method] = PluginOperation(
+                        human_usage_examples=method_obj.get(
+                            "x-human-usage-examples", []
+                        ),
+                        plugin_signature_helpers=method_obj.get(
+                            "x-plugin-signature-helpers", []
+                        ),
+                        output_modules=method_obj.get("x-output-modules", []),
+                        filter=method_obj.get("x-filter"),
+                    )
+                plugin_operations[path] = method_props
+
+            api_endpoints: set = set()
+            server_url = openapi_doc_obj.get("servers", [])[0].get("url")
+            for key in openapi_doc_obj.get("paths", {}).keys():
+                api_endpoints.add(f"{server_url}{key}")
+
+            plugin_op_property_map: Dict[str, Dict[str, Dict]] = {}
+            if openapi_doc_obj:
+                openapi_doc_json = to_plain_dict(
+                    jsonref.JsonRef.replace_refs(openapi_doc_obj)
+                )
+                for path in openapi_doc_json.get("paths", {}).keys():
+                    path_obj = openapi_doc_json.get("paths", {}).get(path, {})
+                    method_properties: Dict[str, Dict] = {}
+                    for method in path_obj.keys():
+                        method_obj = path_obj.get(method, {})
+                        method_props[method] = method_obj
+                    plugin_op_property_map[path] = method_properties
+
+            plugin = Plugin(
+                schema_version=schema_version,
+                name=name,
+                contact_email=contact_email,
+                description=description,
+                openapi_doc_obj=openapi_doc_obj,
+                logo_url=logo_url,
+                legal_info_url=legal_info_url,
+                permutate_doc_url=permutate_doc_url,
+                permutation_test_url=permutation_test_url,
+                auth=auth,
+                input_modules=input_modules,
+                output_modules=output_modules,
+                api_endpoints=api_endpoints,
+                plugin_operations=plugin_operations,
+                plugin_op_property_map=plugin_op_property_map,
+            )
         except ValidationError as e:
             print(e.errors())
-            print(e.json(indent=4))
-            raise Exception(f"Invalid manifest. {str(e)}")
-        plugin.manifest_object = manifest_obj
+            raise Exception(f"Invalid openplugin openapi doc. {str(e)}")
         return plugin
 
-    @staticmethod
-    def build_from_manifest_url(manifest_url: str):
-        manifest_obj = requests.get(manifest_url).json()
-        manifest_obj["manifest_url"] = manifest_url
-        if manifest_obj.get("auth"):
-            if (
-                manifest_obj.get("auth").get("type")
-                and manifest_obj.get("auth").get("type") == "none"
-            ):
-                manifest_obj["auth"] = None
-        return Plugin(**manifest_obj)
 
-    @staticmethod
-    def build_from_manifest_file(openplugin_manifest_file: str):
-        with open(openplugin_manifest_file, "r") as file:
-            data = file.read()
-            openplugin_manifest_json = json.loads(data)
-            openplugin_manifest_json["manifest_url"] = openplugin_manifest_file
-            if openplugin_manifest_json.get("auth"):
-                if (
-                    openplugin_manifest_json.get("auth").get("type")
-                    and openplugin_manifest_json.get("auth").get("type") == "none"
-                ):
-                    openplugin_manifest_json["auth"] = None
-            return Plugin(**openplugin_manifest_json)
+def to_plain_dict(data):
+    if isinstance(data, dict):
+        return {key: to_plain_dict(value) for key, value in data.items()}
+    elif isinstance(data, list):
+        return [to_plain_dict(item) for item in data]
+    else:
+        return data

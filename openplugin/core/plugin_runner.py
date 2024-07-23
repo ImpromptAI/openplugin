@@ -17,7 +17,7 @@ load_dotenv()
 
 @time_taken
 async def run_prompt_on_plugin(
-    openplugin_manifest: str,
+    openapi_doc_url: str,
     prompt: str,
     config: Optional[Config] = None,
     output_port_types: Optional[List[PortType]] = None,
@@ -36,14 +36,10 @@ async def run_prompt_on_plugin(
     if log_level:
         logger.add(sys.stderr, level=log_level.upper())
 
-    logger.info(f"\n[INPUT_MANIFEST_FILE_LOCATION] {openplugin_manifest}")
+    logger.info(f"\n[INPUT_MANIFEST_FILE_LOCATION] {openapi_doc_url}")
     logger.info(f"\n[INPUT_PROMPT] {prompt}")
     logger.log("FLOW", "[PLUGIN-PIPELINE-STARTED]")
-    if openplugin_manifest.startswith("http"):
-        plugin_obj = PluginBuilder.build_from_manifest_url(openplugin_manifest)
-    else:
-        plugin_obj = PluginBuilder.build_from_manifest_file(openplugin_manifest)
-
+    plugin_obj = PluginBuilder.build_from_openapi_doc_url(openapi_doc_url)
     logger.info(f"\n[OPENPLUGIN_OBJ] {plugin_obj}")
 
     if prompt.startswith("http"):

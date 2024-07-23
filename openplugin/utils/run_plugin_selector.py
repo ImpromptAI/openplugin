@@ -3,16 +3,7 @@ import json
 from openplugin.core.config import Config
 from openplugin.core.function_providers import FunctionProviders
 from openplugin.core.messages import Message
-from openplugin.core.operations.implementations.operation_signature_builder_with_imprompt import (
-    ImpromptOperationSignatureBuilder,
-)
-from openplugin.core.operations.implementations.operation_signature_builder_with_openai import (
-    OpenAIOperationSignatureBuilder,
-)
 from openplugin.core.plugin import Plugin
-from openplugin.core.selectors.implementations.plugin_selector_with_imprompt import (
-    ImpromptPluginSelector,
-)
 from openplugin.core.selectors.implementations.plugin_selector_with_openai import (
     OpenAIPluginSelector,
 )
@@ -32,13 +23,7 @@ def run_plugin_selector(inp_json):
     # Check the provider specified in tool_selector_config and select the
     # appropriate plugin selector
     function_provider = FunctionProviders.build().get_default_provider
-    if pipeline_name.lower() == ImpromptPluginSelector.get_pipeline_name().lower():
-        selector = ImpromptPluginSelector(
-            plugins=plugins, config=config, function_provider=function_provider
-        )
-        response = selector.run(messages)
-        return response.dict()
-    elif pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
+    if pipeline_name.lower() == OpenAIPluginSelector.get_pipeline_name().lower():
         selector = OpenAIPluginSelector(
             plugins=plugins, config=config, function_provider=function_provider
         )
@@ -46,6 +31,8 @@ def run_plugin_selector(inp_json):
         return response.dict()
     raise Exception("Unknown tool selector provider")
 
+
+"""
 
 # Function to run an API signature selector based on input JSON
 def run_api_signature_selector(inp_json):
@@ -95,7 +82,9 @@ def run_api_signature_selector(inp_json):
         pipeline_name.lower()
         == ImpromptOperationSignatureBuilder.get_pipeline_name().lower()
     ):
-        selector = ImpromptOperationSignatureBuilder(plugin, config, function_provider)
+        selector = ImpromptOperationSignatureBuilder(
+            plugin, config, function_provider
+        )
         response = selector.run(messages)
         return response.dict()
     elif (
@@ -106,3 +95,4 @@ def run_api_signature_selector(inp_json):
         response = selector.run(messages)
         return response.dict()
     raise Exception("Unknown tool selector provider")
+"""

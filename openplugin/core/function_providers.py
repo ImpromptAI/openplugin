@@ -200,9 +200,7 @@ class FunctionProvider(BaseModel):
 
 class LLMBasedFunctionProvider(FunctionProvider):
     llm: FunctionLLM
-    system_prompt: str = (
-        """You are an expert tool user. Never hallucinate or make up information on parameters. Extract values from the given context. Always provide accurate and relevant information."""
-    )
+    system_prompt: str = """You are an expert tool user. Never hallucinate or make up information on parameters. Extract values from the given context. Always provide accurate and relevant information."""
 
     def run(
         self,
@@ -216,10 +214,8 @@ class LLMBasedFunctionProvider(FunctionProvider):
             start_time = time.time()
             llm_model = self.llm.convert_to_langchain_llm_model(config)
 
-            examples_and_conversation = (
-                self.build_few_shot_examples_and_conversation(
-                    x_few_shot_examples, conversation=conversation
-                )
+            examples_and_conversation = self.build_few_shot_examples_and_conversation(
+                x_few_shot_examples, conversation=conversation
             )
             few_shot_prompt = ChatPromptTemplate.from_messages(
                 [
@@ -242,9 +238,7 @@ class LLMBasedFunctionProvider(FunctionProvider):
             else:
                 llm_with_tools = llm_model.bind_tools(function_json)
                 chain = (
-                    {"query": RunnablePassthrough()}
-                    | few_shot_prompt
-                    | llm_with_tools
+                    {"query": RunnablePassthrough()} | few_shot_prompt | llm_with_tools
                 )
                 response = chain.invoke(request_prompt)
                 llm_api_cost = 0
