@@ -9,7 +9,7 @@ Extensions
 
 x-openplugin
 ------------------------
-This extension contains metadata for OpenPlugin. x-openplugin includes fields such as marketplace data, contact information, test document urls, etc.
+OpenPlugin is an extension to hold metadata such as marketplace data, contact information, test document urls, etc.
 
 Example:
 
@@ -27,7 +27,7 @@ Example:
 
 x-plugin-auth
 ------------------------
-This extension contains information to with the plugin for operation calls. Accompaning data for the appropriate authentication type (oauth, bearer, basic, etc.) is included in the extension.
+Plugin auth contains information to with the plugin for operation calls. Accompaning data for the appropriate authentication type (oauth, bearer, basic, etc.) is included in the extension.
 
 **1. No Auth:**
 
@@ -94,7 +94,7 @@ Human usage examples are examples of how a human would use the operation. This i
 
 x-helpers
 ------------------------
-This extension contains useful information for the LLM to understand the operation or parameters within an operation. This can include information such a descriptions, suggested values, and hints at both an operation and parameter level.
+Helpers is an extention that contains useful information for the LLM to understand the operation or parameters within an operation. This can include information such a descriptions, suggested values, and hints at both an operation and parameter level.
 
 .. code-block:: json
 
@@ -122,7 +122,7 @@ Bootstrap is a flag to indicate that the operation is a bootstrap operation. Thi
 
 x-filter
 ------------------------
-This extension allows an operation response to be filtered to only the most meaningful data. This is useful to reduce the size of the context window, or to prevent irrelevant information from being displayed or interpreted by the LLM.
+Filter allows an operation response to cleansed to only the most meaningful data. This is useful to reduce the size of the context window, or to prevent irrelevant information from being displayed or interpreted by the LLM.
 
 Example:
 
