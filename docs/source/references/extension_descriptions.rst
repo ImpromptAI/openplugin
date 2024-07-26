@@ -2,7 +2,9 @@
 OpenAPI Extensions for LLMs
 ========================================
 
-Extensions are added to the OpenAPI document to provide additional information for OpenPlugin to improve the success of tools used by the LLM. Below you can fix details on the extensions that are supported by OpenPlugin.
+Extensions are added to the OpenAPI document to provide additional information for OpenPlugin to improve the success of tools used by the LLM. 
+
+Here are the details about the extensions OpenPlugin supports.
 
 Extensions
 =============
@@ -222,5 +224,40 @@ Example:
           }
         }
       ]
+    }
+  ]
+
+
+x-few-shot-examples
+------------------------
+Few shot examples allow the plugin developer to provides a way to define examples for a specific operation in your API. These examples are attached at the operation level, giving developers a way to demonstrate how their API should be used.
+
+The prompt and parameter_mapping are two key elements within the x-few-shot-example.
+
+Prompt
+
+The prompt is a string that represents a natural language question or command that a user might ask. It is designed to trigger the specific operation that the example is attached to. The prompt should be written in a way that it clearly indicates the intent of the operation.
+
+Parameter Mapping
+
+The parameter mapping is a dictionary that maps the parameters in the prompt to their corresponding values. This is useful for the AI to understand which parts of the user's input correspond to the parameters defined in the API.
+
+
+Example:
+
+.. code-block:: json
+
+  "x-few-shot-examples": [
+    {
+      "prompt": "Find city_id for the Austin.",
+      "parameter_mapping": {
+        "city": "Austin"
+      }
+    },
+    {
+      "prompt": "What is the identifier for the city known as Buenos Aires?",
+      "parameter_mapping": {
+        "city": "Buenos Aires"
+      }
     }
   ]
