@@ -2,7 +2,7 @@
 OpenAPI Extensions for LLMs
 ========================================
 
-Extensions are added to the OpenAPI document to provide additional information for OpenPlugin to improve the success of tools used by the LLM. 
+Extensions are added to the OpenAPI document to provide additional information for OpenPlugin to improve the success of tools used by the LLM.
 
 Here are the details about the extensions OpenPlugin supports.
 
@@ -230,7 +230,7 @@ Example:
 
 x-few-shot-examples
 ------------------------
-Few shot examples allow the plugin developer to provides a way to define examples for a specific operation in your API. These examples are attached at the operation level, giving developers a way to demonstrate how their API should be used.
+Few-shot examples enable plugin developers to define prompts and parameter slot filling for specific operations. By providing these examples, developers can inform the LLM, thereby enhancing its accuracy and understanding of the operation.
 
 The prompt and parameter_mapping are two key elements within the x-few-shot-example.
 
