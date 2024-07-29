@@ -1,6 +1,7 @@
 import time
 from typing import List, Optional
 
+
 from ...config import Config
 from ...execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
@@ -103,6 +104,22 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         detected_plugin_operations: list[PluginDetectedParams] = []
         func_response_metadata_json = None
         try:
+            # add x-helpers as conversation
+            if conversation:
+
+                for func in functions.functions:
+                    x_helper_prompt = ""
+                    if func.x_helpers and len(func.x_helpers) > 0:
+                        x_helper_prompt += f"For API Path={func.path} and method={func.method}, \n#HELPERS={func.x_helpers}"
+                    if func.param_properties:
+                        for prop in func.param_properties:
+                            if prop.x_helpers and len(prop.x_helpers) > 0:
+                                x_helper_prompt += f"\nFor property: {prop.name}, #HELPERS={prop.x_helpers}"
+                    if x_helper_prompt and len(x_helper_prompt) > 0:
+                        conversation.append(
+                            {"role": "system", "content": x_helper_prompt.strip()}
+                        )
+
             func_response: FunctionResponse = self.function_provider.run(
                 request_prompt,
                 function_json,
@@ -252,7 +269,9 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                                 # update the mapped_parameters with the response
                                 if response and response.original_response:
                                     api_response = response.original_response
-                                    x_params_map[prop.name] = response.original_response
+                                    x_params_map[prop.name] = (
+                                        response.original_response
+                                    )
                                     api_parameter_mapping = (
                                         func_response.detected_function_arguments
                                     )
@@ -284,9 +303,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
 
             if x_params_map and len(x_params_map) > 0:
                 start_time2 = time.time()
-                prompt = (
-                    f"Use these values: {x_params_map}, Rerun {request_prompt}".strip()
-                )
+                prompt = f"Use these values: {x_params_map}, Rerun {request_prompt}".strip()
                 # run function calling with function json and
                 f_response: FunctionResponse = self.function_provider.run(
                     prompt,

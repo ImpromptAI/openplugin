@@ -100,11 +100,10 @@ class Function(BaseModel):
             description = ""
             if param_property.description:
                 description = param_property.description
-
             # appending x helper to description
-            for helper in param_property.x_helpers:
-                if helper.strip().lower() != description.strip().lower():
-                    description = f"{description}\n {helper}"
+            # for helper in param_property.x_helpers:
+            #    if helper.strip().lower() != description.strip().lower():
+            #        description = f"{description}\n {helper}"
 
             obj = {
                 "type": param_property.type,
@@ -153,10 +152,11 @@ class Function(BaseModel):
         if self.description:
             description = self.description
 
+        # adding as a message
         # appending x helper to description
-        for helper in self.x_helpers:
-            if helper.strip().lower() != description.strip().lower():
-                description = f"{description}\n {helper}"
+        # for helper in self.x_helpers:
+        #    if helper.strip().lower() != description.strip().lower():
+        #        description = f"{description}\n {helper}"
 
         json = {
             "name": validated_name,
@@ -179,9 +179,9 @@ class Function(BaseModel):
             description = self.description
 
         # appending x helper to description
-        for helper in self.x_helpers:
-            if helper.strip().lower() != description.strip().lower():
-                description = f"{description}\n {helper}"
+        # for helper in self.x_helpers:
+        #    if helper.strip().lower() != description.strip().lower():
+        #        description = f"{description}\n {helper}"
 
         json = {
             "name": validated_name,
@@ -233,13 +233,17 @@ class Functions(BaseModel):
     def get_function_from_func_name(self, function_name):
         return self.function_map.get(function_name)
 
-    def add_from_plugin(self, plugin: Plugin, selected_operation: Optional[str] = None):
+    def add_from_plugin(
+        self, plugin: Plugin, selected_operation: Optional[str] = None
+    ):
         valid_operations = []
         selected_op_key = None
         if selected_operation and "_" in selected_operation:
             selected_operation_path = selected_operation.split("<PATH>")[1]
             selected_operation_method = selected_operation.split("<PATH>")[0]
-            selected_op_key = f"{selected_operation_path}_{selected_operation_method}"
+            selected_op_key = (
+                f"{selected_operation_path}_{selected_operation_method}"
+            )
 
         if plugin.plugin_operations:
             for key in plugin.plugin_operations.keys():
@@ -298,7 +302,9 @@ class Functions(BaseModel):
         openapi_doc_obj: dict = {},
         plugin: Optional[Plugin] = None,
         header: Optional[dict] = None,
-        plugin_operations_map: Optional[Dict[str, Dict[str, PluginOperation]]] = None,
+        plugin_operations_map: Optional[
+            Dict[str, Dict[str, PluginOperation]]
+        ] = None,
         valid_operations: Optional[List[str]] = None,
     ):
         """
@@ -338,7 +344,9 @@ class Functions(BaseModel):
         valid_operations: Optional[List[str]],
     ):
         functions = []
-        openapi_doc_json = to_plain_dict(jsonref.JsonRef.replace_refs(openapi_doc_obj))
+        openapi_doc_json = to_plain_dict(
+            jsonref.JsonRef.replace_refs(openapi_doc_obj)
+        )
         if openapi_doc_json is None:
             raise ValueError("Could not fetch OpenAPI json from URL")
 
@@ -396,7 +404,9 @@ class Functions(BaseModel):
                     if op_obj:
                         plugin_signature_helpers = op_obj.plugin_signature_helpers
 
-                function_values["plugin_signature_helpers"] = plugin_signature_helpers
+                function_values["plugin_signature_helpers"] = (
+                    plugin_signature_helpers
+                )
                 function_values["path"] = path
                 function_values["method"] = method
                 response_obj_200 = (
@@ -416,7 +426,6 @@ class Functions(BaseModel):
                 if plugin:
                     self.plugin_map[func.name] = plugin
                 self.function_map[func.name] = func
-
                 functions.append(func)
         return functions
 
@@ -453,6 +462,9 @@ class Functions(BaseModel):
         param_description = param_obj.get("description")
         if param_description:
             description += f"{param_description}\n"
+
+        op_property["x_helpers"] = param_obj.get("x-helpers", [])
+        """
         for helper in param_obj.get("x-helpers", []):
             if (
                 param_description
@@ -460,6 +472,7 @@ class Functions(BaseModel):
             ):
                 continue
             description += f"{helper}\n"
+        """
         op_property["description"] = description
         if param_obj.get("required") is True:
             op_property["is_required"] = True
@@ -500,7 +513,9 @@ class Functions(BaseModel):
             op_property["maximum"] = param_obj.get("maximum")
 
         if param_obj.get("additionalProperties"):
-            op_property["additionalProperties"] = param_obj.get("additionalProperties")
+            op_property["additionalProperties"] = param_obj.get(
+                "additionalProperties"
+            )
 
         if param_obj.get("readOnly"):
             op_property["readOnly"] = param_obj.get("readOnly")
@@ -539,15 +554,22 @@ class Functions(BaseModel):
             function_description += f"{path_description}\n"
         if path_summary:
             function_description += f"{path_summary}\n"
+
+        function_values["x_helpers"] = operation_obj.get("x-helpers", [])
+        """
         for helper in operation_obj.get("x-helpers", []):
             if (
                 path_description
                 and helper.strip().lower() == path_description.strip().lower()
             ):
                 continue
-            if path_summary and helper.strip().lower() == path_summary.strip().lower():
+            if (
+                path_summary
+                and helper.strip().lower() == path_summary.strip().lower()
+            ):
                 continue
             function_description += f"{helper}\n"
+        """
         function_values["description"] = function_description
         function_values["param_type"] = "object"
         op_properties = []
@@ -560,7 +582,9 @@ class Functions(BaseModel):
 
         # parse request object
         if operation_obj.get("requestBody"):
-            param_description = operation_obj.get("requestBody", {}).get("description")
+            param_description = operation_obj.get("requestBody", {}).get(
+                "description"
+            )
             content = operation_obj.get("requestBody", {}).get("content")
             if content is None:
                 if "$ref" in operation_obj.get("requestBody", {}):
@@ -599,7 +623,9 @@ class Functions(BaseModel):
                 # required_params = body_content.get("required", {})
             elif "$ref" in body_content:
                 if body_content.get("$ref") not in reference_map:
-                    raise Exception(f"Reference not found: {body_content.get('$ref')}")
+                    raise Exception(
+                        f"Reference not found: {body_content.get('$ref')}"
+                    )
                 ref_obj = reference_map.get(body_content.get("$ref"), {})
                 params = []
                 if "properties" in ref_obj:
@@ -761,7 +787,9 @@ class Functions(BaseModel):
                         .get(method, {})
                         .get("plugin_signature_helpers", [])
                     )
-                function_values["plugin_signature_helpers"] = plugin_signature_helpers
+                function_values["plugin_signature_helpers"] = (
+                    plugin_signature_helpers
+                )
 
                 if content_operation.extensions:
                     helpers = content_operation.extensions.get("helpers", [])
