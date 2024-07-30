@@ -278,10 +278,12 @@ Few-shot examples enable plugin developers to define prompts and parameter slot 
 The prompt and parameter_mapping are two key elements within the x-few-shot-example.
 
 Prompt
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The prompt is a string that represents a natural language question or command that a user might ask. It is designed to trigger the specific operation that the example is attached to. The prompt should be written in a way that it clearly indicates the intent of the operation.
 
 Parameter Mapping
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The parameter mapping is a dictionary that maps the parameters in the prompt to their corresponding values. This is useful for the AI to understand which parts of the user's input correspond to the parameters defined in the API.
 
