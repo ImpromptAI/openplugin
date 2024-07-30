@@ -7,10 +7,14 @@
 
 .leapix-logo {
     content: url("../_static/leapix_light.png");
+    width: auto;
+    height: 50px;
 }
 
 @media (prefers-color-scheme: dark) {
     .leapix-logo {
         content: url("../_static/leapix_dark.png");
+        width: auto;
+        height: 50px;
     }
 }

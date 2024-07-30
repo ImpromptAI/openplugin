@@ -1,6 +1,6 @@
-.. image:: /_images/openplugin_hero_header.png
-   :alt: leapix
-   :class: leapix-logo
+.. image:: /_images/leapix_light.png
+    :class: leapix-logo
+    :alt: leapix
 
 ========================================
 Language Enabled API eXtensions
