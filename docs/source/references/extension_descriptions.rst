@@ -117,10 +117,53 @@ Helpers is an extention that contains useful information for the LLM to understa
 
 x-bootstrap
 ------------------------
-Bootstrap is a flag to indicate that the operation is a bootstrap operation. This is useful for the LLM to understand that the operation is a special operation that is used to bootstrap a session when the plugin is used.
+The bootstrap flag indicates that an operation is a bootstrap operation. This is useful for bringing broadly applicable data into the session when the plugin is used. For instance, if other plugin operations require a user or organization ID, bootstrapping the operation to obtain this ID can be beneficial. The data provided by the bootstrap operation will be included in the LLM context window.
 
 .. note::
-    Bootstrap operations must have their parameters provided through the x-bootstrap-value extension. All required parameters must have a value provided.
+  Bootstrap operations must have their parameters provided through the x-bootstrap-value extension. This is necessary because bootstrap operations do not rely on the LLM to construct the call. Therefore, all required parameters must have values explicitly provided.
+
+  You may access auth token or auth response values as seen in these examples:
+  - {{ auth.token }}
+  - {{ auth.data.access_token }} // auth.data is the response object
+  - {{ auth.data.user_id }}
+
+
+.. code-block:: json
+
+  "/oauth/v1/access-tokens/{token}": {
+      "get": {
+          "operationId": "get-/oauth/v1/access-tokens/{token}_get",
+          "parameters": [
+              {
+                  "name": "token",
+                  "in": "path",
+                  "required": true,
+                  "style": "simple",
+                  "explode": false,
+                  "schema": {
+                      "type": "string"
+                  },
+                  "x-bootstrap-value": "{{ auth.data.access_token }}"
+              }
+          ],
+          "responses": {
+              "200": {
+                  "description": "successful operation",
+                  "content": {
+                      "application/json": {
+                          "schema": {
+                              "$ref": "#/components/schemas/AccessTokenInfoResponse"
+                          }
+                      }
+                  }
+              },
+              "default": {
+                  "$ref": "#/components/responses/Error"
+              }
+          },
+          "x-bootstrap": true,
+      }
+  }
 
 x-filter
 ------------------------
