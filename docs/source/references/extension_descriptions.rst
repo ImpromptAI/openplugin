@@ -1,4 +1,4 @@
-.. image:: /_images/leapix_light.png
+.. image:: ../_images/leapix_light.png
     :class: leapix-logo
     :alt: leapix
 
