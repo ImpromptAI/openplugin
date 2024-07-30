@@ -167,7 +167,7 @@ The bootstrap flag indicates that an operation is a bootstrap operation. This is
 
 x-filter
 ------------------------
-Filter allows an operation response to cleansed to only the most meaningful data. This is useful to reduce the size of the context window, or to prevent irrelevant information from being displayed or interpreted by the LLM.
+The filter refines an operation's response by extracting only the most meaningful data. This process is beneficial for reducing the size of the context window and preventing irrelevant information from being displayed or interpreted by the language model.
 
 Example:
 
@@ -244,7 +244,7 @@ Example:
 
 x-output-modules
 ------------------------
-Output modules allow the plugin developer to transform an operation response into a desirable output for the user. Output modules satisfy tasks such as: summarize a JSON response into natural language, filter data, or return beautiful UI displays through JSX/Jinja templating.
+Output modules enable plugin developers to transform an operation's response into a desirable format for the user. These modules can perform tasks such as summarizing a JSON response into natural language or generating visually appealing UI displays using JSX or Jinja templating.
 
 Example:
 
