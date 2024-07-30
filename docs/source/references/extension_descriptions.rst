@@ -27,9 +27,8 @@ Example:
         "schemaVersion": "0.0.1",
     }
 
-schemaVersion
-~~~~~~~~~~~~~~~~~~~~~~~~
-The schema version is a string that denotes the version of OpenPlugin, indicating its feature set capabilities. It follows the major.minor.patch format for versioning.
+.. note::
+  The schema version is a string that denotes the version of OpenPlugin, indicating its feature set capabilities. It follows the major.minor.patch format for versioning.
 
 
 x-plugin-auth
