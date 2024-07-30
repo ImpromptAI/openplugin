@@ -1,5 +1,9 @@
+.. image:: /_images/openplugin_hero_header.png
+   :alt: leapix
+   :class: leapix-logo
+
 ========================================
-OpenAPI Extensions for LLMs
+Language Enabled API eXtensions
 ========================================
 
 Extensions are added to the OpenAPI document to provide additional information for OpenPlugin to improve the success of tools used by the LLM.

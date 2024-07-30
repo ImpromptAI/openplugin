@@ -4,3 +4,13 @@
     width: 200px;
     height: 50px;
 }
+
+.leapix-logo {
+    content: url("../_static/leapix_light.png");
+}
+
+@media (prefers-color-scheme: dark) {
+    .leapix-logo {
+        content: url("../_static/leapix_dark.png");
+    }
+}
