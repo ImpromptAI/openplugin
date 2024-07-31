@@ -6,15 +6,6 @@
 }
 
 .leapix-logo {
-    content: url("../_images/leapix_light.png");
     width: auto;
     height: 100px;
-}
-
-@media (prefers-color-scheme: dark) {
-    .leapix-logo {
-        content: url("../_images/leapix_dark.png");
-        width: auto;
-        height: 100px;
-    }
 }
