@@ -1,0 +1,1219 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>OpenPlugin Manifest &#8212; openplugin 0.1.8 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/tabs.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'build_plugins/openplugin_manifest';</script>
+    <link rel="icon" href="../_static/favicon.jpg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="OpenPlugin Manifest Repository" href="openplugin_manifest_repository.html" />
+    <link rel="prev" title="Creating Your First Plugin" href="getting_started.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Build Plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Creating Your First Plugin</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">OpenPlugin Manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openplugin_manifest_repository.html">OpenPlugin Manifest Repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using_the_openapi_document.html">Using the OpenAPI Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operation_signature_builder.html">Operation Signature Builder</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="processors/index.html">Processors</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="processors/audio_to_text.html">Audio To Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/file_to_cloud.html">File To Cloud</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/file_to_text.html">File To Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/html_to_text.html">HTML to Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/llm_engine.html">LLM Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/template_engine.html">Template Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/text_to_audio.html">Text to Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/text_to_file.html">Text to File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="processors/url_to_html.html">URL to HTML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/index.html">Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../call_plugins/index.html">Call Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../call_plugins/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../call_plugins/about_openplugin_sdk.html">About Openplugin SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/simple_demo.html">Simple Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/user_auth_demo.html">User Auth Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/advanced_demo.html">Advanced Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/select_a_plugin_demo.html">Select a plugin Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/openplugin_manifests_klarna.html">Klarna Openplugin Demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../run_openplugin_server/index.html">Run an OpenPlugin Server</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../run_openplugin_server/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../run_openplugin_server/plugin_selector_api.html">Plugin Selector API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../run_openplugin_server/run_plugin_api.html">Run Plugin API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../find_plugins/index.html">Find Plugins</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">References</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../references/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/extension_descriptions.html">Language Enabled API eXtensions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ImpromptAI/openplugin">GitHub Repo</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/build_plugins/openplugin_manifest.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>OpenPlugin Manifest</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-authentication">Plugin Authentication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-operations">Plugin Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#human-usage-examples">Human Usage Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-signature-helpers">Prompt Signature Helpers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-modules">Input Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output-modules">Output Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#processor">Processor:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-openplugin-manifest">Sample OpenPlugin Manifest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-manifest-fields">OpenPlugin Manifest Fields</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-operations">OpenPlugin Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Input Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Output Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Processor:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#approach">Approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm">LLM</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="openplugin-manifest">
+<span id="id1"></span><h1>OpenPlugin Manifest<a class="headerlink" href="#openplugin-manifest" title="Permalink to this heading">#</a></h1>
+<p>The OpenPlugin Manifest is a YAML/JSON file that contains information about the plugin. It is used to both discover the plugin in a marketplace, as well as links information on how to run the plugin.</p>
+<section id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this heading">#</a></h2>
+<section id="plugin-authentication">
+<h3>Plugin Authentication<a class="headerlink" href="#plugin-authentication" title="Permalink to this heading">#</a></h3>
+<p>You can provide authentication information for your plugin in the auth section of the OpenPlugin Manifest.</p>
+<p>Types of auth types:</p>
+<p><strong>1. No Auth:</strong></p>
+<p>The plugin does not require any authentication and can be used by any user without providing any authentication.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>2. OAuth:</strong></p>
+<p>The plugin uses OAuth to authenticate with the user’s account. The plugin will redirect the user to the OAuth provider’s login page and then redirect the user back to the plugin with an access token.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;authorization_content_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;application/x-www-form-urlencoded&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;authorization_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://oauth2.googleapis.com/token&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;client_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.googleapis.com/auth/drive.file&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token_validation_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.googleapis.com/oauth2/v1/tokeninfo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oauth&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>3. User Level:</strong></p>
+<p>This authentication type requires users to provide their own API key to the plugin. The plugin developer can provide a user level API key to Imprompt when the plugin is installed. Imprompt will use the user level API key to authenticate with the plugin.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_http&quot;</span><span class="p">,</span>
+<span class="w">   </span><span class="nt">&quot;authorization_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>4. Service Level:</strong></p>
+<p>The plugin developer can provide a service level API key to Imprompt when the plugin is registered. Imprompt will use the service level API key to authenticate with the plugin.</p>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;service_http&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;authorization_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bearer&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="plugin-operations">
+<h3>Plugin Operations<a class="headerlink" href="#plugin-operations" title="Permalink to this heading">#</a></h3>
+<p>Plugin operations are the operations that the plugin supports.  You can increase the accuracy of the plugin selector API by providing human usage examples, prompt signature helpers, and plugin cleanup helpers for each plugin operation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The operations listed in the plugin operations object of the OpenPlugin Manifest are only used in the Plugin.</p>
+</div>
+<p>Sample:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;plugin_operations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;/public/openai/v0/products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;get&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;human_usage_examples&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">        </span><span class="nt">&quot;prompt_signature_helpers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">        </span><span class="nt">&quot;output_modules&quot;</span><span class="p">:[]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="human-usage-examples">
+<h3>Human Usage Examples<a class="headerlink" href="#human-usage-examples" title="Permalink to this heading">#</a></h3>
+<p>Human usage examples are examples of how a human would use the plugin.</p>
+<p><strong>Example:</strong> For File Manager Plugin, the human usage examples are:</p>
+<ol class="arabic simple">
+<li><p>Save text to s3</p></li>
+<li><p>Save my article to the cloud</p></li>
+<li><p>Save this stuff to a file</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>They are used to improve the accuracy of the plugin selector API. The user can provide a human usage example to help the model understand the user’s intent. The model will then use the human usage example to predict the plugin that the user wants to use.</p>
+</div>
+</section>
+<section id="prompt-signature-helpers">
+<h3>Prompt Signature Helpers<a class="headerlink" href="#prompt-signature-helpers" title="Permalink to this heading">#</a></h3>
+<p>Prompt signature helpers are used to improve the accuracy of the api signature selector API. They are used to help to map the API parameters from the user’s input.</p>
+<p><strong>Example:</strong> For File Manager Plugin, the prompt signature helpers are:</p>
+<ol class="arabic simple">
+<li><p>If the content of the file is unclear, say “I’m sorry, I do not know what to put into the file.”</p></li>
+<li><p>If a file title is not provided, use a very short synopsis of the content</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Plugin developer can use prompt signature helpers to set default values for the API parameters.</p>
+</div>
+</section>
+<section id="input-modules">
+<h3>Input Modules:<a class="headerlink" href="#input-modules" title="Permalink to this heading">#</a></h3>
+<p>Input modules are the modules that the plugin supports. Each input module has an id, name, description, initial input port, finish output port, and processors.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;convert_file_to_text&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This will handle file coming to the plugin&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;initial_input_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;finish_output_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;processors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;input_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;output_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;processor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_to_text&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;processor_implementation_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_to_text_with_langchain&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">              </span><span class="p">}</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="output-modules">
+<h3>Output Modules:<a class="headerlink" href="#output-modules" title="Permalink to this heading">#</a></h3>
+<p>Output modules are the modules that the plugin supports. Each output module has a name, description, initial input port, finish output port, and processors.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_cleanup_response&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This module will convert the output to text&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;initial_input_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;finish_output_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;processors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;input_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;output_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;processor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_engine&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;processor_implementation_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_engine_with_jinja&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                  </span><span class="nt">&quot;template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{% for product in products %}\nName: {{ product[&#39;name&#39;] }}\nURL: {{ product[&#39;url&#39;] }}\nPrice: {{ product[&#39;price&#39;] }}\n\n{% endfor %}&quot;</span>
+<span class="w">              </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="processor">
+<h3>Processor:<a class="headerlink" href="#processor" title="Permalink to this heading">#</a></h3>
+<p>A processor is a function that takes an input and produces an output. It is used to transform the input data into the output data.</p>
+<p>List of supported processor types: audio_to_text</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;input_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;output_port&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;processor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_engine&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;processor_implementation_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_engine_with_jinja&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;template&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{% for product in products %}\nName: {{ product[&#39;name&#39;] }}\nURL: {{ product[&#39;url&#39;] }}\nPrice: {{ product[&#39;price&#39;] }}\n\n{% endfor %}&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>NOTE: Different supported processors and implementations</p>
+<ol class="arabic simple">
+<li><p>llm_engine=llm_engine_with_openai, llm_engine_with_openai_cohere</p></li>
+<li><p>text_to_audio=text_to_audio_with_azure</p></li>
+<li><p>audio_to_text=audio_to_text_with_whisper</p></li>
+<li><p>template_engine=template_engine_with_jinja, template_engine_with_jsx</p></li>
+<li><p>text_to_file=text_to_file_with_default</p></li>
+<li><p>file_to_text=file_to_text_with_langchain</p></li>
+<li><p>file_to_cloud=file_to_cloud_with_s3</p></li>
+<li><p>url_to_html=url_to_html_with_request</p></li>
+<li><p>html_to_text=html_to_text_with_bs</p></li>
+</ol>
+</section>
+</section>
+<section id="sample-openplugin-manifest">
+<h2>Sample OpenPlugin Manifest<a class="headerlink" href="#sample-openplugin-manifest" title="Permalink to this heading">#</a></h2>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">YAML</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">JSON</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.1</span>
+<span class="nt">openplugin_manifest_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.1</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Klarna Shopping</span>
+<span class="nt">contact_email</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shrikant@imprompt.ai</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Assistant uses the Klarna plugin to get relevant product suggestions</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">for any shopping or product discovery purpose.</span>
+<span class="nt">openapi_doc_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://www.klarna.com/us/shopping/public/openai/v0/api-docs/</span>
+<span class="nt">legal_info_url</span><span class="p">:</span>
+<span class="nt">logo_url</span><span class="p">:</span>
+<span class="nt">permutate_doc_url</span><span class="p">:</span>
+<span class="nt">permutation_test_urls</span><span class="p">:</span>
+<span class="nt">auth</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="nt">input_modules</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">convert_file_to_text</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">This will handle file coming to the plugin</span>
+<span class="w">  </span><span class="nt">initial_input_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">filepath</span>
+<span class="w">  </span><span class="nt">finish_output_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">  </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">input_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">filepath</span>
+<span class="w">    </span><span class="nt">output_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">    </span><span class="nt">processor_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file_to_text</span>
+<span class="w">    </span><span class="nt">processor_implementation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file_to_text_with_langchain</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">plugin_operations</span><span class="p">:</span>
+<span class="w">  </span><span class="s">&quot;/public/openai/v0/products&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">get</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">human_usage_examples</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show me some T Shirts.</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show me some pants .</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show me winter jackets for men.</span>
+<span class="w">      </span><span class="nt">plugin_signature_helpers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">if you can&#39;t find the user&#39;s clothes size, ask the user about the size.</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">If any error occurs, write an apologetic message to the user</span>
+<span class="w">      </span><span class="nt">output_modules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template_response</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">This will convert to template response</span>
+<span class="w">        </span><span class="nt">initial_input_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">        </span><span class="nt">finish_output_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">        </span><span class="nt">default_module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">input_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">          </span><span class="nt">output_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">          </span><span class="nt">processor_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template_engine</span>
+<span class="w">          </span><span class="nt">processor_implementation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template_engine_with_jsx</span>
+<span class="w">          </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">pre_prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get only product names, prices and urls</span>
+<span class="w">            </span><span class="nt">mime_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text/jsx</span>
+<span class="w">            </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">              </span><span class="no">&lt;div className=&quot;container&quot;&gt;</span>
+<span class="w">                </span><span class="no">&lt;div className=&quot;row&quot;&gt;</span>
+<span class="w">                  </span><span class="no">{response.products.map((product, index) =&gt; (</span>
+<span class="w">                    </span><span class="no">&lt;div key={index} className=&quot;col-md-4 mb-4&quot;&gt;</span>
+<span class="w">                      </span><span class="no">&lt;div className=&quot;card h-100&quot;&gt;</span>
+<span class="w">                        </span><span class="no">&lt;div className=&quot;card-header&quot;&gt;</span>
+<span class="w">                          </span><span class="no">{product.name}</span>
+<span class="w">                        </span><span class="no">&lt;/div&gt;</span>
+<span class="w">                        </span><span class="no">&lt;div className=&quot;card-body&quot;&gt;</span>
+<span class="w">                          </span><span class="no">&lt;h5 className=&quot;card-title&quot;&gt;{product.price}&lt;/h5&gt;</span>
+<span class="w">                          </span><span class="no">&lt;a href={product.url} className=&quot;btn btn-primary&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;Buy Now&lt;/a&gt;</span>
+<span class="w">                        </span><span class="no">&lt;/div&gt;</span>
+<span class="w">                      </span><span class="no">&lt;/div&gt;</span>
+<span class="w">                    </span><span class="no">&lt;/div&gt;</span>
+<span class="w">                  </span><span class="no">))}</span>
+<span class="w">                </span><span class="no">&lt;/div&gt;</span>
+<span class="w">              </span><span class="no">&lt;/div&gt;</span>
+<span class="w">            </span><span class="nt">template_prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Wrap the items in a card, using the product name in the</span>
+<span class="w">              </span><span class="l l-Scalar l-Scalar-Plain">card header and the details and links in the card body. Allow for 3</span>
+<span class="w">              </span><span class="l l-Scalar l-Scalar-Plain">products per row</span>
+<span class="nt">output_modules</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default_cleanup_response</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">This module will convert the output to text</span>
+<span class="w">  </span><span class="nt">initial_input_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">  </span><span class="nt">finish_output_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">  </span><span class="nt">processors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">input_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="w">    </span><span class="nt">output_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text</span>
+<span class="w">    </span><span class="nt">processor_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template_engine</span>
+<span class="w">    </span><span class="nt">processor_implementation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">template_engine_with_jinja</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">template</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">        </span><span class="no">{% for product in products %}</span>
+<span class="w">        </span><span class="no">Name: {{ product[&#39;name&#39;] }}</span>
+<span class="w">        </span><span class="no">URL: {{ product[&#39;url&#39;] }}</span>
+<span class="w">        </span><span class="no">Price: {{ product[&#39;price&#39;] }}</span>
+
+<span class="w">        </span><span class="no">{% endfor %}</span>
+<span class="nt">preferred_approaches</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">base_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oai functions</span>
+<span class="w">  </span><span class="nt">llm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">frequency_penalty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2048</span>
+<span class="w">    </span><span class="nt">model_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-3.5-turbo-0613</span>
+<span class="w">    </span><span class="nt">presence_penalty</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OpenAI</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OAI functions-OpenAI</span>
+<span class="w">  </span><span class="nt">pre_prompt</span><span class="p">:</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;openplugin_manifest_version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Klarna Shopping&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;contact_email&quot;</span><span class="p">:</span> <span class="s2">&quot;shrikant@imprompt.ai&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Assistant uses the Klarna plugin to get relevant product suggestions for any shopping or product discovery purpose.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;openapi_doc_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/api-docs/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;legal_info_url&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;logo_url&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;permutate_doc_url&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;permutation_test_urls&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+    <span class="s2">&quot;auth&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;input_modules&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;convert_file_to_text&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This will handle file coming to the plugin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;initial_input_port&quot;</span><span class="p">:</span> <span class="s2">&quot;filepath&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;finish_output_port&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;processors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;input_port&quot;</span><span class="p">:</span> <span class="s2">&quot;filepath&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;output_port&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;processor_type&quot;</span><span class="p">:</span> <span class="s2">&quot;file_to_text&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;processor_implementation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;file_to_text_with_langchain&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{}</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;plugin_operations&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;/public/openai/v0/products&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;get&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;human_usage_examples&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;Show me some T Shirts.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Show me some pants .&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Show me winter jackets for men.&quot;</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;plugin_signature_helpers&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;if you can&#39;t find the user&#39;s clothes size, ask the user about the size.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;If any error occurs, write an apologetic message to the user&quot;</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;output_modules&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;template_response&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This will convert to template response&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;initial_input_port&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;finish_output_port&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;default_module&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+                        <span class="s2">&quot;processors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;input_port&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;output_port&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;processor_type&quot;</span><span class="p">:</span> <span class="s2">&quot;template_engine&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;processor_implementation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;template_engine_with_jsx&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                    <span class="s2">&quot;pre_prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Get only product names, prices and urls&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;mime_type&quot;</span><span class="p">:</span> <span class="s2">&quot;text/jsx&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;div className=</span><span class="se">\&quot;</span><span class="s2">container</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">  &lt;div className=</span><span class="se">\&quot;</span><span class="s2">row</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">    {response.products.map((product, index) =&gt; (</span><span class="se">\n</span><span class="s2">      &lt;div key=</span><span class="si">{index}</span><span class="s2"> className=</span><span class="se">\&quot;</span><span class="s2">col-md-4 mb-4</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">        &lt;div className=</span><span class="se">\&quot;</span><span class="s2">card h-100</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">          &lt;div className=</span><span class="se">\&quot;</span><span class="s2">card-header</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">            </span><span class="si">{product.name}</span><span class="se">\n</span><span class="s2">          &lt;/div&gt;</span><span class="se">\n</span><span class="s2">          &lt;div className=</span><span class="se">\&quot;</span><span class="s2">card-body</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">            &lt;h5 className=</span><span class="se">\&quot;</span><span class="s2">card-title</span><span class="se">\&quot;</span><span class="s2">&gt;</span><span class="si">{product.price}</span><span class="s2">&lt;/h5&gt;</span><span class="se">\n</span><span class="s2">            &lt;a href=</span><span class="si">{product.url}</span><span class="s2"> className=</span><span class="se">\&quot;</span><span class="s2">btn btn-primary</span><span class="se">\&quot;</span><span class="s2"> target=</span><span class="se">\&quot;</span><span class="s2">_blank</span><span class="se">\&quot;</span><span class="s2"> rel=</span><span class="se">\&quot;</span><span class="s2">noopener noreferrer</span><span class="se">\&quot;</span><span class="s2">&gt;Buy Now&lt;/a&gt;</span><span class="se">\n</span><span class="s2">          &lt;/div&gt;</span><span class="se">\n</span><span class="s2">        &lt;/div&gt;</span><span class="se">\n</span><span class="s2">      &lt;/div&gt;</span><span class="se">\n</span><span class="s2">    ))}</span><span class="se">\n</span><span class="s2">  &lt;/div&gt;</span><span class="se">\n</span><span class="s2">&lt;/div&gt;&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;template_prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Wrap the items in a card, using the product name in the card header and the details and links in the card body. Allow for 3 products per row&quot;</span>
+                                <span class="p">}</span>
+                            <span class="p">}</span>
+                        <span class="p">]</span>
+                    <span class="p">}</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;output_modules&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;default_cleanup_response&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This module will convert the output to text&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;initial_input_port&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;finish_output_port&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;processors&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;input_port&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;output_port&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;processor_type&quot;</span><span class="p">:</span> <span class="s2">&quot;template_engine&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;processor_implementation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;template_engine_with_jinja&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;template&quot;</span><span class="p">:</span> <span class="s2">&quot;{</span><span class="si">% f</span><span class="s2">or product in products %}</span><span class="se">\n</span><span class="s2">Name: {{ product[&#39;name&#39;] }}</span><span class="se">\n</span><span class="s2">URL: {{ product[&#39;url&#39;] }}</span><span class="se">\n</span><span class="s2">Price: {{ product[&#39;price&#39;] }}</span><span class="se">\n\n</span><span class="s2">{</span><span class="si">% e</span><span class="s2">ndfor %}&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;preferred_approaches&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;base_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;oai functions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;frequency_penalty&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-3.5-turbo-0613&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;presence_penalty&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;OpenAI&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;top_p&quot;</span><span class="p">:</span> <span class="mi">1</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;OAI functions-OpenAI&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pre_prompt&quot;</span><span class="p">:</span> <span class="n">null</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div>
+<p>You can find more details on each of these fields below.</p>
+</section>
+<section id="openplugin-manifest-fields">
+<h2>OpenPlugin Manifest Fields<a class="headerlink" href="#openplugin-manifest-fields" title="Permalink to this heading">#</a></h2>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>schema_version</p></td>
+<td><p>string</p></td>
+<td><p>The version of the OpenPlugin manifest.</p></td>
+</tr>
+<tr class="row-odd"><td><p>openplugin_manifest_version</p></td>
+<td><p>string</p></td>
+<td><p>The version of the OpenPlugin manifest.</p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>description</p></td>
+<td><p>string</p></td>
+<td><p>This description of the plugin.</p></td>
+</tr>
+<tr class="row-even"><td><p>openapi_doc_url</p></td>
+<td><p>string</p></td>
+<td><p>The URL of the OpenAPI specification document of the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>auth</p></td>
+<td><p>object</p></td>
+<td><p>The authentication information for the plugin.</p></td>
+</tr>
+<tr class="row-even"><td><p>logo_url</p></td>
+<td><p>string</p></td>
+<td><p>The URL of the logo for the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>contact_email</p></td>
+<td><p>string</p></td>
+<td><p>The email address of the plugin developer.</p></td>
+</tr>
+<tr class="row-even"><td><p>legal_info_url</p></td>
+<td><p>string</p></td>
+<td><p>The URL of the legal information for the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>input_modules</p></td>
+<td><p>array</p></td>
+<td><p>The input modules for the plugin. Each input module has an id, name, description, initial input port, finish output port, and processors.</p></td>
+</tr>
+<tr class="row-even"><td><p>plugin_operations</p></td>
+<td><p>object</p></td>
+<td><p>This contains the operations defined in the OpenAPI document and extends to include useful examples and helpers for the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p>output_modules</p></td>
+<td><p>array</p></td>
+<td><p>The output modules for the plugin. Each output module has a name, description, initial input port, finish output port, and processors.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="openplugin-operations">
+<h3>OpenPlugin Operations<a class="headerlink" href="#openplugin-operations" title="Permalink to this heading">#</a></h3>
+<p>An OpenPlugin operation is an extension of plugin operation defined in the OpenAPI document. It is defined by a combination of a path and an HTTP method as shown in the example above. The user can attach extra details to each operation to improve LLM predictions and responses.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>human_usage_examples</p></td>
+<td><p>array</p></td>
+<td><p>Clear usage examples that a human can use to trigger the operation correctly.</p></td>
+</tr>
+<tr class="row-odd"><td><p>prompt_signature_helpers</p></td>
+<td><p>array</p></td>
+<td><p>Prompts to help fill in the parameters of the API operation from the user’s input.</p></td>
+</tr>
+<tr class="row-even"><td><p>output_modules</p></td>
+<td><p>array</p></td>
+<td><p>The output modules for the operation. Each output module has a name, description, initial input port, finish output port, and processors.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id2">
+<h3>Input Modules:<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<p>Input modules are the modules that the plugin supports. Each input module has an id, name, description, initial input port, finish output port, and processors.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>id</p></td>
+<td><p>string</p></td>
+<td><p>The id of the input module.</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the input module.</p></td>
+</tr>
+<tr class="row-even"><td><p>description</p></td>
+<td><p>string</p></td>
+<td><p>The description of the input module.</p></td>
+</tr>
+<tr class="row-odd"><td><p>initial_input_port</p></td>
+<td><p>string</p></td>
+<td><p>The initial input port of the input module.</p></td>
+</tr>
+<tr class="row-even"><td><p>finish_output_port</p></td>
+<td><p>string</p></td>
+<td><p>The finish output port of the input module.</p></td>
+</tr>
+<tr class="row-odd"><td><p>processors</p></td>
+<td><p>array</p></td>
+<td><p>The processors for the input module. Each processor has an input port, output port, processor type, processor implementation type, and metadata.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h3>Output Modules:<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<p>Output modules are the modules that the plugin supports. Each output module has a name, description, initial input port, finish output port, and processors.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the output module.</p></td>
+</tr>
+<tr class="row-odd"><td><p>description</p></td>
+<td><p>string</p></td>
+<td><p>The description of the output module.</p></td>
+</tr>
+<tr class="row-even"><td><p>initial_input_port</p></td>
+<td><p>string</p></td>
+<td><p>The initial input port of the output module.</p></td>
+</tr>
+<tr class="row-odd"><td><p>finish_output_port</p></td>
+<td><p>string</p></td>
+<td><p>The finish output port of the output module.</p></td>
+</tr>
+<tr class="row-even"><td><p>processors</p></td>
+<td><p>array</p></td>
+<td><p>The processors for the output module. Each processor has an input port, output port, processor type, processor implementation type, and metadata.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h3>Processor:<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<p>A processor is a function that takes an input and produces an output. It is used to transform the input data into the output data.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>input_port</p></td>
+<td><p>string</p></td>
+<td><p>The input port of the processor.</p></td>
+</tr>
+<tr class="row-odd"><td><p>output_port</p></td>
+<td><p>string</p></td>
+<td><p>The output port of the processor.</p></td>
+</tr>
+<tr class="row-even"><td><p>processor_type</p></td>
+<td><p>string</p></td>
+<td><p>The type of the processor.</p></td>
+</tr>
+<tr class="row-odd"><td><p>processor_implementation_type</p></td>
+<td><p>string</p></td>
+<td><p>The implementation type of the processor.</p></td>
+</tr>
+<tr class="row-even"><td><p>metadata</p></td>
+<td><p>object</p></td>
+<td><p>The metadata for the processor.</p></td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: metadata is different for different processor types.</p>
+</section>
+<section id="approach">
+<h3>Approach<a class="headerlink" href="#approach" title="Permalink to this heading">#</a></h3>
+<p>The tool selector config object represents the configurations for the tool selector. It has the following fields:</p>
+<table class="table">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 22%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>base_strategy</p></td>
+<td><p>string</p></td>
+<td><div class="line-block">
+<div class="line">The base_strategy to run the plugin.</div>
+<div class="line"><strong>Available options include:</strong> “LLM Passthrough (OpenPlugin and Swagger)”, “LLM Passthrough (Stuffed Swagger)”, “LLM Passthrough (Bare Swagger)”, “imprompt basic”, “oai functions”</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the approach.</p></td>
+</tr>
+<tr class="row-even"><td><p>pre_prompt</p></td>
+<td><p>string</p></td>
+<td><p>The pre_prompt for the LLM.</p></td>
+</tr>
+<tr class="row-odd"><td><p>llm</p></td>
+<td><p>object</p></td>
+<td><p>The LLM configuration for the plugin.</p></td>
+</tr>
+</tbody>
+</table>
+<ol class="arabic simple">
+<li><p><strong>Imprompt:</strong> Imprompt is a tool selector that uses a custom prompt with LLM to select the best tool for the given message.</p></li>
+<li><p><strong>OpenAI:</strong> OpenAI is a tool selector that uses OpenAI functions to select the best tool for the given prompt messages.</p></li>
+<li><p><strong>Langchain:</strong> Langchain is a tool selector that uses Langchain Agent to select the best tool for the given message.</p></li>
+</ol>
+</section>
+<section id="llm">
+<h3>LLM<a class="headerlink" href="#llm" title="Permalink to this heading">#</a></h3>
+<p>This contains the configurations for an LLM (Large Language Model) provider.</p>
+<table class="table">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 14%" />
+<col style="width: 52%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>provider</p></td>
+<td><p>LLMProvider</p></td>
+<td><div class="line-block">
+<div class="line">The provider for the LLM.</div>
+<div class="line"><strong>Available options include:</strong> OpenAI, OpenAIChat, GooglePalm, Cohere.</div>
+</div>
+</td>
+<td><p><strong>Required</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>model_name</p></td>
+<td><p>string</p></td>
+<td><div class="line-block">
+<div class="line">The name of the LLM model.</div>
+<div class="line"><strong>Available options include:</strong></div>
+<div class="line">For OpenAI, model_name=”text-davinci-003”</div>
+<div class="line">For OpenAIChat, model_name=”gpt-3.5-turbo, gpt-3.5-turbo-0613, gpt-4-0613, gpt-4”</div>
+<div class="line">For GooglePalm, model_name=”<a class="reference external" href="mailto:chat-bison&#37;&#52;&#48;001">chat-bison<span>&#64;</span>001</a>, text-bison-001”</div>
+<div class="line">For Cohere, model_name=”command, command-light, command-xlarge-nightly”</div>
+</div>
+</td>
+<td><p><strong>Required</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>temperature</p></td>
+<td><p>number</p></td>
+<td><p>The temperature parameter for generating output.</p></td>
+<td><p>0.7</p></td>
+</tr>
+<tr class="row-odd"><td><p>max_tokens</p></td>
+<td><p>integer</p></td>
+<td><p>The maximum number of tokens in the generated output.</p></td>
+<td><p>1024</p></td>
+</tr>
+<tr class="row-even"><td><p>top_p</p></td>
+<td><p>number</p></td>
+<td><p>The top-p parameter for generating output.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>frequency_penalty</p></td>
+<td><p>number</p></td>
+<td><p>The frequency penalty for generating output.</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>presence_penalty</p></td>
+<td><p>number</p></td>
+<td><p>The presence penalty for generating output.</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>n</p></td>
+<td><p>number</p></td>
+<td><p>The n parameter for generating output.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>best_of</p></td>
+<td><p>number</p></td>
+<td><p>The best-of parameter for generating output.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>max_retries</p></td>
+<td><p>integer</p></td>
+<td><p>The maximum number of retries for generating output.</p></td>
+<td><p>6</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="getting_started.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Creating Your First Plugin</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="openplugin_manifest_repository.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">OpenPlugin Manifest Repository</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definitions">Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-authentication">Plugin Authentication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plugin-operations">Plugin Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#human-usage-examples">Human Usage Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-signature-helpers">Prompt Signature Helpers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-modules">Input Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#output-modules">Output Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#processor">Processor:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-openplugin-manifest">Sample OpenPlugin Manifest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-manifest-fields">OpenPlugin Manifest Fields</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openplugin-operations">OpenPlugin Operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Input Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Output Modules:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Processor:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#approach">Approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm">LLM</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Shrikant M & Barrett J
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, Imprompt.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+/* Replace .logo with the appropriate class or ID selector for your logo element */
+.logo {
+    /* Set the desired width and height for your logo */
+    width: 200px;
+    height: 50px;
+}
+
+.leapix-logo {
+    width: auto;
+    height: 150px;
+}

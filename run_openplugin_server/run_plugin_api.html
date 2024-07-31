@@ -1,0 +1,994 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Run Plugin API &#8212; openplugin 0.1.8 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/tabs.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'run_openplugin_server/run_plugin_api';</script>
+    <link rel="icon" href="../_static/favicon.jpg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Find Plugins" href="../find_plugins/index.html" />
+    <link rel="prev" title="Plugin Selector API" href="plugin_selector_api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../build_plugins/index.html">Build Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/getting_started.html">Creating Your First Plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/openplugin_manifest.html">OpenPlugin Manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/openplugin_manifest_repository.html">OpenPlugin Manifest Repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/using_the_openapi_document.html">Using the OpenAPI Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/operation_signature_builder.html">Operation Signature Builder</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../build_plugins/processors/index.html">Processors</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/audio_to_text.html">Audio To Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/file_to_cloud.html">File To Cloud</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/file_to_text.html">File To Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/html_to_text.html">HTML to Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/llm_engine.html">LLM Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/template_engine.html">Template Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/text_to_audio.html">Text to Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/text_to_file.html">Text to File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/url_to_html.html">URL to HTML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/modules/index.html">Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../call_plugins/index.html">Call Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../call_plugins/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../call_plugins/about_openplugin_sdk.html">About Openplugin SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/simple_demo.html">Simple Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/user_auth_demo.html">User Auth Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/advanced_demo.html">Advanced Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/select_a_plugin_demo.html">Select a plugin Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/openplugin_manifests_klarna.html">Klarna Openplugin Demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Run an OpenPlugin Server</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_selector_api.html">Plugin Selector API</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Run Plugin API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../find_plugins/index.html">Find Plugins</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">References</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../references/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/extension_descriptions.html">Language Enabled API eXtensions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ImpromptAI/openplugin">GitHub Repo</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/run_openplugin_server/run_plugin_api.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Run Plugin API</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#request">Request</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#response">Response</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-body-parameters">API Body Parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conversation">Conversation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#config">Config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header">Header</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#approach">Approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm">LLM</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="run-plugin-api">
+<h1>Run Plugin API<a class="headerlink" href="#run-plugin-api" title="Permalink to this heading">#</a></h1>
+<section id="request">
+<h2>Request<a class="headerlink" href="#request" title="Permalink to this heading">#</a></h2>
+<p>The API endpoint: {{SERVER_ENDPOINT}}/api/plugin-execution-pipeline</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">curl</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">python</button><button aria-controls="panel-0-0-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-2" name="0-2" role="tab" tabindex="-1">REST</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-text notranslate"><div class="highlight"><pre><span></span>curl --location &#39;https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline&#39; \
+   --header &#39;Content-Type: application/json&#39; \
+   --header &#39;x-api-key: &#39;YOUR-API-KEY&#39; \
+   --data &#39;{
+    &quot;prompt&quot;: &quot;Show me some T Shirts.&quot;,
+    &quot;conversation&quot;: [],
+    &quot;openplugin_manifest_url&quot;: &quot;manifests/sample_klarna.json&quot;,
+    &quot;header&quot;:{},
+    &quot;config&quot;:{},
+    &quot;approach&quot;: {
+      &quot;base_strategy&quot;: &quot;oai functions&quot;,
+      &quot;llm&quot;: {
+        &quot;frequency_penalty&quot;: 0,
+        &quot;max_tokens&quot;: 2048,
+        &quot;model_name&quot;: &quot;gpt-3.5-turbo-0613&quot;,
+        &quot;presence_penalty&quot;: 0,
+        &quot;provider&quot;: &quot;OpenAI&quot;,
+        &quot;temperature&quot;: 0,
+        &quot;top_p&quot;: 1
+      },
+      &quot;name&quot;: &quot;OAI functions-OpenAI&quot;,
+      &quot;pre_prompt&quot;: &quot;&quot;
+    },
+    &quot;output_module_names&quot;:[&quot;default_cleanup_response&quot;]
+    }&#39;
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline&quot;</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;Show me some T Shirts.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;conversation&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;openplugin_manifest_url&quot;</span><span class="p">:</span> <span class="s2">&quot;manifests/sample_klarna.json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;header&quot;</span><span class="p">:{},</span>
+            <span class="s2">&quot;approach&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;base_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;oai functions&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;llm&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;frequency_penalty&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">2048</span><span class="p">,</span>
+                <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-3.5-turbo-0613&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;presence_penalty&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;provider&quot;</span><span class="p">:</span> <span class="s2">&quot;OpenAI&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;top_p&quot;</span><span class="p">:</span> <span class="mi">1</span>
+              <span class="p">},</span>
+              <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;OAI functions-OpenAI&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;pre_prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;output_module_names&quot;</span><span class="p">:[</span><span class="s2">&quot;default_cleanup_response&quot;</span><span class="p">,</span><span class="s2">&quot;summary_response&quot;</span><span class="p">,</span> <span class="s2">&quot;template_response&quot;</span><span class="p">]</span>
+          <span class="p">})</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;x-api-key&#39;</span><span class="p">:</span> <span class="s1">&#39;your-api-key&#39;</span>
+<span class="p">}</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-2" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-2" name="0-2" role="tabpanel" tabindex="0"><div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>API<span class="w"> </span>Endpoint:<span class="w"> </span>https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline
+
+Method:<span class="w"> </span>POST
+
+Headers:<span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="s1">&#39;x-api-key&#39;</span>:<span class="w"> </span><span class="s1">&#39;your-api-key&#39;</span>
+<span class="w">  </span><span class="s1">&#39;Content-Type&#39;</span>:<span class="w"> </span><span class="s1">&#39;application/json&#39;</span>
+<span class="o">}</span>
+
+Body:<span class="w"> </span><span class="o">{</span>
+<span class="w">        </span><span class="s2">&quot;prompt&quot;</span>:<span class="w"> </span><span class="s2">&quot;Show me some T Shirts.&quot;</span>,
+<span class="w">        </span><span class="s2">&quot;conversation&quot;</span>:<span class="w"> </span><span class="o">[]</span>,
+<span class="w">        </span><span class="s2">&quot;openplugin_manifest_url&quot;</span>:<span class="w"> </span><span class="s2">&quot;manifests/sample_klarna.json&quot;</span>,
+<span class="w">        </span><span class="s2">&quot;header&quot;</span>:<span class="o">{}</span>,
+<span class="w">        </span><span class="s2">&quot;approach&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">          </span><span class="s2">&quot;base_strategy&quot;</span>:<span class="w"> </span><span class="s2">&quot;oai functions&quot;</span>,
+<span class="w">          </span><span class="s2">&quot;llm&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">            </span><span class="s2">&quot;frequency_penalty&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">            </span><span class="s2">&quot;max_tokens&quot;</span>:<span class="w"> </span><span class="m">2048</span>,
+<span class="w">            </span><span class="s2">&quot;model_name&quot;</span>:<span class="w"> </span><span class="s2">&quot;gpt-3.5-turbo-0613&quot;</span>,
+<span class="w">            </span><span class="s2">&quot;presence_penalty&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">            </span><span class="s2">&quot;provider&quot;</span>:<span class="w"> </span><span class="s2">&quot;OpenAI&quot;</span>,
+<span class="w">            </span><span class="s2">&quot;temperature&quot;</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">            </span><span class="s2">&quot;top_p&quot;</span>:<span class="w"> </span><span class="m">1</span>
+<span class="w">          </span><span class="o">}</span>,
+<span class="w">          </span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;OAI functions-OpenAI&quot;</span>,
+<span class="w">          </span><span class="s2">&quot;pre_prompt&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">        </span><span class="o">}</span>,
+<span class="w">        </span><span class="s2">&quot;output_module_names&quot;</span>:<span class="o">[</span><span class="s2">&quot;default_cleanup_response&quot;</span>,<span class="s2">&quot;summary_response&quot;</span>,<span class="w"> </span><span class="s2">&quot;template_response&quot;</span><span class="o">]</span>
+<span class="w">      </span><span class="o">}</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="response">
+<h2>Response<a class="headerlink" href="#response" title="Permalink to this heading">#</a></h2>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-03-06 15:02:52.063296&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-03-06 15:02:55.929065&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;total_time_taken_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.865769</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;total_time_taken_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">865769</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;input_modules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_no_change_input&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;data_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TEXT&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;mime_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Show me some T Shirts.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;api_and_signature_detection_step&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;api_called&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/public/openai/v0/products&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.3412530422210693</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;tokens_used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">368</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;llm_api_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005665000000000001</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;mapped_operation_parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;q&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T Shirts&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;api_execution_step&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;original_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;original_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;data_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JSON&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;mime_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Lacoste Men&#39;s T-shirts 3-pack - Black&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/pl/cl10001/3202043025/Clothing/Lacoste-Men-s-T-shirts-3-pack-Black/?utm_source=openai&amp;ref-site=openai_plugin&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$27.19&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                                </span><span class="s2">&quot;Material:Jersey,Cotton&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Target Group:Man&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Color:Black&quot;</span>
+<span class="w">                            </span><span class="p">]</span>
+<span class="w">                        </span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Kenzo T Shirts&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/pl/cl10001/3208499396/Clothing/Kenzo-T-Shirts/?utm_source=openai&amp;ref-site=openai_plugin&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$89.99&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                                </span><span class="s2">&quot;Material:Cotton&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Target Group:Man&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Color:White&quot;</span>
+<span class="w">                            </span><span class="p">]</span>
+<span class="w">                        </span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Nike Shortsleeve Crewneck T-shirts 2-pack - Black/Black&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/pl/cl10001/3200175752/Clothing/Nike-Shortsleeve-Crewneck-T-shirts-2-pack-Black-Black/?utm_source=openai&amp;ref-site=openai_plugin&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$31.87&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                                </span><span class="s2">&quot;Material:Elastane/Lycra/Spandex,Cotton&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Target Group:Man&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Color:Black&quot;</span>
+<span class="w">                            </span><span class="p">]</span>
+<span class="w">                        </span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Diesel Diesel T-shirt con logo peekaboo T-Shirts Donna Nero Nero&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/pl/cl10001/3212894543/Clothing/Diesel-Diesel-T-shirt-con-logo-peekaboo-T-Shirts-Donna-Nero-Nero/?utm_source=openai&amp;ref-site=openai_plugin&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$99.76&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                                </span><span class="s2">&quot;Material:Cotton&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Color:Black&quot;</span>
+<span class="w">                            </span><span class="p">]</span>
+<span class="w">                        </span><span class="p">},</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hanes Boy&#39;s Ultimate Lightweight T-shirts 5-Pack - Assorted (BUBCR5)&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://www.klarna.com/us/shopping/pl/cl359/3201157848/Children-s-Clothing/Hanes-Boy-s-Ultimate-Lightweight-T-shirts-5-Pack-Assorted-%28BUBCR5%29/?utm_source=openai&amp;ref-site=openai_plugin&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$10.20&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                                </span><span class="s2">&quot;Color:White&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="s2">&quot;Target Group:Boy&quot;</span>
+<span class="w">                            </span><span class="p">]</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.195066</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;clarifying_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;output_module_map&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;default_cleanup_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_cleanup_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;data_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TEXT&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;mime_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;\nName: Lacoste Men&#39;s T-shirts 3-pack - Black\nURL: https://www.klarna.com/us/shopping/pl/cl10001/3202043025/Clothing/Lacoste-Men-s-T-shirts-3-pack-Black/?utm_source=openai&amp;ref-site=openai_plugin\nPrice: $27.19\n\n\nName: Kenzo T Shirts\nURL: https://www.klarna.com/us/shopping/pl/cl10001/3208499396/Clothing/Kenzo-T-Shirts/?utm_source=openai&amp;ref-site=openai_plugin\nPrice: $89.99\n\n\nName: Nike Shortsleeve Crewneck T-shirts 2-pack - Black/Black\nURL: https://www.klarna.com/us/shopping/pl/cl10001/3200175752/Clothing/Nike-Shortsleeve-Crewneck-T-shirts-2-pack-Black-Black/?utm_source=openai&amp;ref-site=openai_plugin\nPrice: $31.87\n\n\nName: Diesel Diesel T-shirt con logo peekaboo T-Shirts Donna Nero Nero\nURL: https://www.klarna.com/us/shopping/pl/cl10001/3212894543/Clothing/Diesel-Diesel-T-shirt-con-logo-peekaboo-T-Shirts-Donna-Nero-Nero/?utm_source=openai&amp;ref-site=openai_plugin\nPrice: $99.76\n\n\nName: Hanes Boy&#39;s Ultimate Lightweight T-shirts 5-Pack - Assorted (BUBCR5)\nURL: https://www.klarna.com/us/shopping/pl/cl359/3201157848/Children-s-Clothing/Hanes-Boy-s-Ultimate-Lightweight-T-shirts-5-Pack-Assorted-%28BUBCR5%29/?utm_source=openai&amp;ref-site=openai_plugin\nPrice: $10.20\n\n&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0059</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;summary_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;summary_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;data_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TEXT&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;mime_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The response includes a list of different clothing products for men and boys. The products range from Lacoste Men&#39;s T-shirts 3-pack in black for $27.19 to Hanes Boy&#39;s Ultimate Lightweight T-shirts 5-Pack in assorted colors for $10.20. Each product listing includes details such as the name, URL, price, material, target group, and color options. The products cater to different preferences and offer a variety of options for customers to choose from.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.8005</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;template_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;data_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TEXT&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;mime_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;text/jsx&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;div className=\&quot;container\&quot;&gt;\n  &lt;div className=\&quot;row\&quot;&gt;\n    {response.products.map((product, index) =&gt; (\n      &lt;div key={index} className=\&quot;col-md-4 mb-4\&quot;&gt;\n        &lt;div className=\&quot;card h-100\&quot;&gt;\n          &lt;div className=\&quot;card-header\&quot;&gt;\n            {product.name}\n          &lt;/div&gt;\n          &lt;div className=\&quot;card-body\&quot;&gt;\n            &lt;h5 className=\&quot;card-title\&quot;&gt;{product.price}&lt;/h5&gt;\n            &lt;a href={product.url} className=\&quot;btn btn-primary\&quot; target=\&quot;_blank\&quot; rel=\&quot;noopener noreferrer\&quot;&gt;Buy Now&lt;/a&gt;\n          &lt;/div&gt;\n        &lt;/div&gt;\n      &lt;/div&gt;\n    ))}\n  &lt;/div&gt;\n&lt;/div&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0001</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;default_output_module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_cleanup_response&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;performance_metrics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;input_module_step&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Input Module&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api_and_signature_detection_step&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Signature Creation (w/ LLM)&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.3412530422210693</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;api_execution_step&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API Execution&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.195066</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_cleanup_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Output Module [ default cleanup response ]&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;parallel&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0059</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;summary_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Output Module [ summary response ]&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;parallel&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.8005</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;template_response&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Output Module [ template response ]&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;parallel&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;processing_time_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0001</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;status_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="api-body-parameters">
+<h2>API Body Parameters<a class="headerlink" href="#api-body-parameters" title="Permalink to this heading">#</a></h2>
+<p>These parameters are used to configure the API request. The API request body is a JSON object with the following fields:</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>prompt</p></td>
+<td><p>string</p></td>
+<td><p>Prompt to the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>conversation</p></td>
+<td><p>array</p></td>
+<td><p>The list of messages to be processed by the LLM. This will include your plugin prompt as well as any context messages.</p></td>
+</tr>
+<tr class="row-even"><td><p>openplugin_manifest_url</p></td>
+<td><p>string</p></td>
+<td><p>The plugin manifest URL.</p></td>
+</tr>
+<tr class="row-odd"><td><p>header</p></td>
+<td><p>object</p></td>
+<td><p>The header information for the API request.</p></td>
+</tr>
+<tr class="row-even"><td><p>approach</p></td>
+<td><p>object</p></td>
+<td><p>The approach configuration for the plugin.</p></td>
+</tr>
+<tr class="row-odd"><td><p>output_module_names</p></td>
+<td><p>array</p></td>
+<td><p>List of output module names to be executed.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="conversation">
+<h3>Conversation<a class="headerlink" href="#conversation" title="Permalink to this heading">#</a></h3>
+<p>Conversation is an array of objects. Each object represents a message to be processed by the LLM. It has the following fields:</p>
+<table class="table">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>content</p></td>
+<td><p>string</p></td>
+<td><p>The content of the message.</p></td>
+</tr>
+<tr class="row-odd"><td><p>message_type</p></td>
+<td><p>string</p></td>
+<td><div class="line-block">
+<div class="line">The type of the message.</div>
+<div class="line"><strong>Available options include:</strong> HumanMessage, AIMessage, SystemMessage, FunctionMessage.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="config">
+<h3>Config<a class="headerlink" href="#config" title="Permalink to this heading">#</a></h3>
+<p>It has the following fields:</p>
+<table class="table">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 17%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>openai_api_key</p></td>
+<td><p>string</p></td>
+<td><p>The OpenAI API key. Required, if you are using the OpenAI tool selector.</p></td>
+</tr>
+<tr class="row-odd"><td><p>cohere_api_key</p></td>
+<td><p>string</p></td>
+<td><p>The Cohere API key. Required, if you are using the Cohere tool selector.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="header">
+<h3>Header<a class="headerlink" href="#header" title="Permalink to this heading">#</a></h3>
+<p>It has the following fields:</p>
+<table class="table">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 17%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>user-http-token</p></td>
+<td><p>string</p></td>
+<td><p>The API key for the plugin execution pipeline.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="approach">
+<h3>Approach<a class="headerlink" href="#approach" title="Permalink to this heading">#</a></h3>
+<p>The tool selector config object represents the configurations for the tool selector. It has the following fields:</p>
+<table class="table">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 22%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>base_strategy</p></td>
+<td><p>string</p></td>
+<td><div class="line-block">
+<div class="line">The base_strategy to run the plugin.</div>
+<div class="line"><strong>Available options include:</strong> “LLM Passthrough (OpenPlugin and Swagger)”, “LLM Passthrough (Stuffed Swagger)”, “LLM Passthrough (Bare Swagger)”, “imprompt basic”, “oai functions”</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>string</p></td>
+<td><p>The name of the approach.</p></td>
+</tr>
+<tr class="row-even"><td><p>pre_prompt</p></td>
+<td><p>string</p></td>
+<td><p>The pre_prompt for the LLM.</p></td>
+</tr>
+<tr class="row-odd"><td><p>llm</p></td>
+<td><p>object</p></td>
+<td><p>The LLM configuration for the plugin.</p></td>
+</tr>
+</tbody>
+</table>
+<ol class="arabic simple">
+<li><p><strong>Imprompt:</strong> Imprompt is a tool selector that uses a custom prompt with LLM to select the best tool for the given message.</p></li>
+<li><p><strong>OpenAI:</strong> OpenAI is a tool selector that uses OpenAI functions to select the best tool for the given prompt messages.</p></li>
+<li><p><strong>Langchain:</strong> Langchain is a tool selector that uses Langchain Agent to select the best tool for the given message.</p></li>
+</ol>
+</section>
+<section id="llm">
+<h3>LLM<a class="headerlink" href="#llm" title="Permalink to this heading">#</a></h3>
+<p>This contains the configurations for an LLM (Large Language Model) provider.</p>
+<table class="table">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 14%" />
+<col style="width: 52%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>provider</p></td>
+<td><p>LLMProvider</p></td>
+<td><div class="line-block">
+<div class="line">The provider for the LLM.</div>
+<div class="line"><strong>Available options include:</strong> OpenAI, OpenAIChat, GooglePalm, Cohere.</div>
+</div>
+</td>
+<td><p><strong>Required</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>model_name</p></td>
+<td><p>string</p></td>
+<td><div class="line-block">
+<div class="line">The name of the LLM model.</div>
+<div class="line"><strong>Available options include:</strong></div>
+<div class="line">For OpenAI, model_name=”text-davinci-003”</div>
+<div class="line">For OpenAIChat, model_name=”gpt-3.5-turbo, gpt-3.5-turbo-0613, gpt-4-0613, gpt-4”</div>
+<div class="line">For GooglePalm, model_name=”<a class="reference external" href="mailto:chat-bison&#37;&#52;&#48;001">chat-bison<span>&#64;</span>001</a>, text-bison-001”</div>
+<div class="line">For Cohere, model_name=”command, command-light, command-xlarge-nightly”</div>
+</div>
+</td>
+<td><p><strong>Required</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>temperature</p></td>
+<td><p>number</p></td>
+<td><p>The temperature parameter for generating output.</p></td>
+<td><p>0.7</p></td>
+</tr>
+<tr class="row-odd"><td><p>max_tokens</p></td>
+<td><p>integer</p></td>
+<td><p>The maximum number of tokens in the generated output.</p></td>
+<td><p>1024</p></td>
+</tr>
+<tr class="row-even"><td><p>top_p</p></td>
+<td><p>number</p></td>
+<td><p>The top-p parameter for generating output.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>frequency_penalty</p></td>
+<td><p>number</p></td>
+<td><p>The frequency penalty for generating output.</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>presence_penalty</p></td>
+<td><p>number</p></td>
+<td><p>The presence penalty for generating output.</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>n</p></td>
+<td><p>number</p></td>
+<td><p>The n parameter for generating output.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>best_of</p></td>
+<td><p>number</p></td>
+<td><p>The best-of parameter for generating output.</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>max_retries</p></td>
+<td><p>integer</p></td>
+<td><p>The maximum number of retries for generating output.</p></td>
+<td><p>6</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plugin_selector_api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Plugin Selector API</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../find_plugins/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Find Plugins</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#request">Request</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#response">Response</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-body-parameters">API Body Parameters</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conversation">Conversation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#config">Config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header">Header</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#approach">Approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm">LLM</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Shrikant M & Barrett J
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, Imprompt.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

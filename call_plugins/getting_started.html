@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Getting Started &#8212; openplugin 0.1.8 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../_static/favicon.jpg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="About Openplugin SDK" href="about_openplugin_sdk.html" />
+    <link rel="prev" title="Call Plugins" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/OpenPluginLogo_Horizontal_Transparent Background.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../build_plugins/index.html">Build Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/getting_started.html">Creating Your First Plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/openplugin_manifest.html">OpenPlugin Manifest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/openplugin_manifest_repository.html">OpenPlugin Manifest Repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/using_the_openapi_document.html">Using the OpenAPI Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/operation_signature_builder.html">Operation Signature Builder</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../build_plugins/processors/index.html">Processors</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/audio_to_text.html">Audio To Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/file_to_cloud.html">File To Cloud</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/file_to_text.html">File To Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/html_to_text.html">HTML to Text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/llm_engine.html">LLM Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/template_engine.html">Template Engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/text_to_audio.html">Text to Audio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/text_to_file.html">Text to File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../build_plugins/processors/url_to_html.html">URL to HTML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../build_plugins/modules/index.html">Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Call Plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="about_openplugin_sdk.html">About Openplugin SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/simple_demo.html">Simple Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/user_auth_demo.html">User Auth Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/advanced_demo.html">Advanced Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/select_a_plugin_demo.html">Select a plugin Demo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_notebooks/openplugin_manifests_klarna.html">Klarna Openplugin Demo</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../run_openplugin_server/index.html">Run an OpenPlugin Server</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../run_openplugin_server/getting_started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../run_openplugin_server/plugin_selector_api.html">Plugin Selector API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../run_openplugin_server/run_plugin_api.html">Run Plugin API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../find_plugins/index.html">Find Plugins</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../references/index.html">References</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../references/architecture.html">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../references/extension_descriptions.html">Language Enabled API eXtensions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ImpromptAI/openplugin">GitHub Repo</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/call_plugins/getting_started.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Getting Started</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#call-an-openplugin-via-the-sdk"><strong>Call an OpenPlugin via the SDK</strong></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#curl-example">**curl example **</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#call-an-openplugin-using-code"><strong>Call an OpenPlugin using code</strong></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#call-an-openplugin-using-pypi"><strong>Call an OpenPlugin using PyPI</strong></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="getting-started">
+<span id="call-plugins-getting-started"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
+<section id="call-an-openplugin-via-the-sdk">
+<h2><strong>Call an OpenPlugin via the SDK</strong><a class="headerlink" href="#call-an-openplugin-via-the-sdk" title="Permalink to this heading">#</a></h2>
+<p>This is the preferred way to call a plugin.</p>
+<p>Learn more about the SDK at: <a class="github reference external" href="https://github.com/ImpromptAI/openplugin-sdk">ImpromptAI/openplugin-sdk</a></p>
+<p><strong>Step 1:</strong> You need a link to your OpenPlugin manifest.
+For testing purposes, you can use the sample Klarna plugin manifest</p>
+<p><a class="reference external" href="https://raw.githubusercontent.com/ImpromptAI/openplugin-manifests/main/vendor-owned/unofficial/klarna/manifest.json">https://raw.githubusercontent.com/ImpromptAI/openplugin-manifests/main/vendor-owned/unofficial/klarna/manifest.json</a></p>
+<p><strong>Step 2:</strong> Start an OpenPlugin server. More information <a class="reference internal" href="../run_openplugin_server/getting_started.html#host-plugins-getting-started"><span class="std std-ref">Getting Started</span></a></p>
+<p><strong>Step 3:</strong> Install the openplugin-sdk</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>openplugin-sdk
+</pre></div>
+</div>
+<p><strong>Step 4:</strong> Run the plugin</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Call the OpenPlugin service with a remote server url</span>
+<span class="kn">from</span> <span class="nn">openplugin_sdk</span> <span class="kn">import</span> <span class="n">OpenpluginService</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">openplugin_server_endpoint</span> <span class="o">=</span> <span class="s2">&quot;...&quot;</span>
+<span class="n">openplugin_api_key</span> <span class="o">=</span> <span class="s2">&quot;...&quot;</span>
+
+<span class="n">svc</span> <span class="o">=</span> <span class="n">OpenpluginService</span><span class="p">(</span><span class="n">openplugin_server_endpoint</span><span class="o">=</span><span class="n">openplugin_server_endpoint</span><span class="p">,</span> <span class="n">openplugin_api_key</span><span class="o">=</span><span class="n">openplugin_api_key</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;openplugin_version: </span><span class="si">{</span><span class="n">svc</span><span class="o">.</span><span class="n">remote_server_version</span><span class="p">()</span><span class="si">}</span><span class="s2">, server_status=</span><span class="si">{</span><span class="n">svc</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">openplugin_manifest_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/ImpromptAI/openplugin-manifests/main/vendor-owned/unofficial/klarna/manifest.json&quot;</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Show me some T Shirts.&quot;</span>
+<span class="n">output_module_name</span> <span class="o">=</span> <span class="s2">&quot;default_cleanup_response&quot;</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">svc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="n">openplugin_manifest_url</span><span class="o">=</span><span class="n">openplugin_manifest_url</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+        <span class="n">output_module_names</span><span class="o">=</span><span class="p">[</span><span class="n">output_module_name</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="curl-example">
+<h2><a href="#id1"><span class="problematic" id="id2">**</span></a>curl example **<a class="headerlink" href="#curl-example" title="Permalink to this heading">#</a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>curl --location &#39;https://api.imprompt.ai/openplugin/api/plugin-execution-pipeline&#39; \
+       --header &#39;Content-Type: application/json&#39; \
+       --header &#39;x-api-key: &#39;YOUR-API-KEY&#39; \
+       --data &#39;{
+        &quot;prompt&quot;: &quot;USER_PROMPT&quot;,
+        &quot;conversation&quot;: [],
+        &quot;openplugin_manifest_url&quot;: &quot;MANIFEST_URL&quot;,
+        &quot;header&quot;:{},
+        &quot;approach&quot;: {
+          &quot;base_strategy&quot;: &quot;oai functions&quot;,
+          &quot;llm&quot;: {
+            &quot;frequency_penalty&quot;: 0,
+            &quot;max_tokens&quot;: 2048,
+            &quot;model_name&quot;: &quot;gpt-3.5-turbo-0613&quot;,
+            &quot;presence_penalty&quot;: 0,
+            &quot;provider&quot;: &quot;OpenAI&quot;,
+            &quot;temperature&quot;: 0,
+            &quot;top_p&quot;: 1
+          },
+          &quot;name&quot;: &quot;OAI functions-OpenAI&quot;,
+          &quot;pre_prompt&quot;: null
+        },
+        &quot;output_module_names&quot;:[&quot;default_cleanup_response&quot;]
+        }&#39;
+</pre></div>
+</div>
+</section>
+<section id="call-an-openplugin-using-code">
+<h2><strong>Call an OpenPlugin using code</strong><a class="headerlink" href="#call-an-openplugin-using-code" title="Permalink to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">openplugin</span>
+<span class="kn">from</span> <span class="nn">openplugin.core.plugin_runner</span> <span class="kn">import</span> <span class="n">run_prompt_on_plugin</span>
+<span class="n">openplugin</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span><span class="k">await</span> <span class="n">run_prompt_on_plugin</span><span class="p">(</span><span class="n">openplugin</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="call-an-openplugin-using-pypi">
+<h2><strong>Call an OpenPlugin using PyPI</strong><a class="headerlink" href="#call-an-openplugin-using-pypi" title="Permalink to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>openplugin
+openplugin<span class="w"> </span>--help
+<span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>&lt;your<span class="w"> </span>key&gt;
+openplugin<span class="w"> </span>start-servero
+openplugin<span class="w"> </span>run-plugin<span class="w"> </span>--openplugin<span class="w"> </span>manifests/sample_klarna.json<span class="w"> </span>--prompt<span class="w"> </span>sample_prompt.txt<span class="w"> </span>--log-level<span class="o">=</span><span class="s2">&quot;FLOW&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Call Plugins</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="about_openplugin_sdk.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">About Openplugin SDK</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#call-an-openplugin-via-the-sdk"><strong>Call an OpenPlugin via the SDK</strong></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#curl-example">**curl example **</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#call-an-openplugin-using-code"><strong>Call an OpenPlugin using code</strong></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#call-an-openplugin-using-pypi"><strong>Call an OpenPlugin using PyPI</strong></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Shrikant M & Barrett J
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, Imprompt.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
