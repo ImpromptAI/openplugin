@@ -238,7 +238,7 @@ class Functions(BaseModel):
     ):
         valid_operations = []
         selected_op_key = None
-        if selected_operation and "_" in selected_operation:
+        if selected_operation and "<PATH>" in selected_operation:
             selected_operation_path = selected_operation.split("<PATH>")[1]
             selected_operation_method = selected_operation.split("<PATH>")[0]
             selected_op_key = (
