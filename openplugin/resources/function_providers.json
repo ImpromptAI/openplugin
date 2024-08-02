@@ -1,6 +1,8 @@
 [
     {
         "name": "OpenAI [gpt-4]",
+        "provider": "openai",
+        "model": "gpt-4",
         "type": "llm-based",
         "llm": {
             "provider": "OpenAI",
@@ -15,6 +17,8 @@
     },
     {
         "name": "OpenAI [gpt-4o]",
+        "provider": "openai",
+        "model": "gpt-4o",
         "type": "llm-based",
         "llm": {
             "provider": "OpenAI",
@@ -29,6 +33,8 @@
     },
     {
         "name": "OpenAI [gpt-3.5-turbo-0613]",
+        "provider": "openai",
+        "model": "gpt-3.5-turbo-0613",
         "type": "llm-based",
         "llm": {
             "provider": "OpenAI",
@@ -43,6 +49,8 @@
     },
     {
         "name": "Anthropic [claude-3-sonnet-20240229]",
+        "provider": "anthropic",
+        "model": "claude-3-sonnet-20240229",
         "type": "llm-based",
         "llm": {
             "provider": "Anthropic",
@@ -57,6 +65,8 @@
     },
     {
         "name": "Google [gemini-pro]",
+        "provider": "google",
+        "model": "gemini-pro",
         "type": "llm-based",
         "llm": {
             "provider": "Google",
@@ -71,6 +81,8 @@
     },
     {
         "name": "Google [gemini-1.5-pro]",
+        "provider": "google",
+        "model": "gemini-1.5-pro",
         "type": "llm-based",
         "llm": {
             "provider": "Google",
@@ -85,6 +97,8 @@
     },
     {
         "name": "Cohere [command-r]",
+        "provider": "cohere",
+        "model": "command-r",
         "type": "llm-based",
         "llm": {
             "provider": "Cohere",
@@ -99,6 +113,8 @@
     },
     {
         "name": "Cohere [command-r-plus]",
+        "provider": "cohere",
+        "model": "command-r-plus",
         "type": "llm-based",
         "llm": {
             "provider": "Cohere",
@@ -113,6 +129,8 @@
     },
     {
         "name": "Fireworks [accounts/fireworks/models/firefunction-v1]",
+        "provider": "fireworks",
+        "model": "accounts/fireworks/models/firefunction-v1",
         "type": "llm-based",
         "llm": {
             "provider": "Fireworks",
@@ -127,6 +145,8 @@
     },
     {
         "name": "TogetherAI [mistralai/Mixtral-8x7B-Instruct-v0.1]",
+        "provider": "togetherai",
+        "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
         "type": "llm-based",
         "llm": {
             "provider": "TogetherAI",
@@ -141,6 +161,8 @@
     },
     {
         "name": "Groq [Llama3-8b-8192]",
+        "provider": "groq",
+        "model": "Llama3-8b-8192",
         "type": "llm-based",
         "llm": {
             "provider": "Groq",
@@ -155,6 +177,8 @@
     },
     {
         "name": "Groq [Llama3-70b-8192]",
+        "provider": "groq",
+        "model": "Llama3-70b-8192",
         "type": "llm-based",
         "llm": {
             "provider": "Groq",
@@ -169,6 +193,8 @@
     },
     {
         "name": "Groq [Llama3-groq-70b-8192-tool-use-preview]",
+        "provider": "groq",
+        "model": "Llama3-groq-70b-8192-tool-use-preview",
         "type": "llm-based",
         "llm": {
             "provider": "Groq",
@@ -183,6 +209,8 @@
     },
     {
         "name": "Groq [Llama3-groq-8b-8192-tool-use-preview]",
+        "provider": "groq",
+        "model": "Llama3-groq-8b-8192-tool-use-preview",
         "type": "llm-based",
         "llm": {
             "provider": "Groq",

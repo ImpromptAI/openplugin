@@ -152,6 +152,8 @@ class FunctionLLM(BaseModel):
 
 
 class FunctionProvider(BaseModel):
+    provider: str
+    model: str
     name: str
     required_auth_keys: set
     type: str
