@@ -234,25 +234,28 @@ class Functions(BaseModel):
         return self.function_map.get(function_name)
 
     def add_from_plugin(
-        self, plugin: Plugin, selected_operation: Optional[str] = None
+        self, plugin: Plugin, selected_operations: Optional[List[str]] = None
     ):
         valid_operations = []
-        selected_op_key = None
-        if selected_operation and "<PATH>" in selected_operation:
-            selected_operation_path = selected_operation.split("<PATH>")[1]
-            selected_operation_method = selected_operation.split("<PATH>")[0]
-            selected_op_key = (
-                f"{selected_operation_path}_{selected_operation_method}"
-            )
+        selected_op_key_set = set()
+        if selected_operations:
+            for selected_operation in selected_operations:
+                if "<PATH>" in selected_operation:
+                    selected_operation_path = selected_operation.split("<PATH>")[1]
+                    selected_operation_method = selected_operation.split("<PATH>")[0]
+                    selected_op_key_set.add(
+                        f"{selected_operation_path}_{selected_operation_method}"
+                    )
 
         if plugin.plugin_operations:
             for key in plugin.plugin_operations.keys():
                 method_obj = plugin.plugin_operations.get(key)
                 if method_obj:
                     for method in method_obj.keys():
-                        if selected_op_key:
-                            if selected_op_key.lower() == f"{key}_{method}".lower():
-                                valid_operations.append(selected_op_key)
+                        if selected_op_key_set:
+                            key_name = f"{key}_{method}".lower()
+                            if key_name in selected_op_key_set:
+                                valid_operations.append(key_name)
                         else:
                             valid_operations.append(key + "_" + method)
 

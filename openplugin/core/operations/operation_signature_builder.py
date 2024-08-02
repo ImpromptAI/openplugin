@@ -17,7 +17,7 @@ class OperationSignatureBuilder(ABC):
         function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
-        selected_operation: Optional[str] = None,
+        selected_operations: Optional[List[str]] = None,
         header: Optional[dict] = None,
     ):
         """
@@ -26,14 +26,14 @@ class OperationSignatureBuilder(ABC):
             plugin (Plugin): Plugin to be used by the plugin selector.
             config (Optional[Config]): Additional configuration for the plugin selector.
             llm (Optional[LLM]): Additional language model for the plugin selector.
-            selected_operation (Optional[str]): Name of the operation to be used by
+            selected_operations (Optional[List[str]]): Name of the operation to be used by
             the plugin selector.
         """
         self.plugin = plugin
         self.config = config
         self.function_provider = function_provider
         self.pre_prompts = pre_prompts
-        self.selected_operation = selected_operation
+        self.selected_operations = selected_operations
         self.header = header
 
     @abstractmethod

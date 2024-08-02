@@ -4,12 +4,8 @@ import traceback
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
-from fastapi.security.api_key import APIKey
-from pydantic import BaseModel, Field
 
-from openplugin.api import auth
 from openplugin.core.config import Config
 from openplugin.core.function_providers import FunctionProviders
 from openplugin.core.plugin import PluginBuilder
@@ -19,65 +15,24 @@ from openplugin.core.plugin_execution_pipeline import (
 )
 from openplugin.core.port import Port, PortType
 
-# Create a FastAPI router instance
-router = APIRouter(
-    dependencies=[],
-    responses={404: {"description": "Not found"}},
-)
-
-
-class FunctionProviderInput(BaseModel):
-    name: str
-
-
 function_providers = FunctionProviders.build()
 
 
-class MetaDataResponse(BaseModel):
-    start_time: datetime = Field(default_factory=datetime.now)
-    end_time: datetime = Field(default_factory=datetime.now)
-    total_time_taken_seconds: float
-    total_time_taken_ms: int
-    function_provider_name: str
-    output_module_names: str
-    total_tokens_used: Optional[int] = None
-    cost: Optional[float] = None
-
-
-class PluginExecutionResponse(BaseModel):
-    metadata: MetaDataResponse
-    response: dict = {}
-    error: Any
-    trace: Any
-
-
-# Define a POST endpoint for plugin-pipeline API
-@router.post(
-    "/plugin-execution-pipeline",
-    tags=["plugin-execution-pipeline"],
-    description="Enpoint to run a plugin pipeline",
-)
-def plugin_execution_pipeline(
-    openapi_doc_url: Optional[str] = Body(None),
-    openapi_doc_obj: Optional[dict] = Body(None),
-    prompt: str = Body(...),
-    header: dict = Body(...),
-    function_provider_input: Optional[FunctionProviderInput] = Body(
-        None, alias="function_provider"
-    ),
-    conversation: list = Body(...),
-    auth_query_param: Optional[dict] = Body(default=None),
-    config: Optional[Config] = Body(None),
-    run_all_output_modules: bool = Body(False),
-    output_module_names: Optional[List[str]] = Body(default=None),
-    selected_operations: Optional[List[str]] = Body(default=None),
-    enable_ui_form_controls: bool = Body(default=True),
-    session_variables: Optional[str] = Body(default=None),
-    api_key: APIKey = Depends(auth.get_api_key),
+def run_pipeline(
+    openapi_doc_url: Optional[str],
+    openapi_doc_obj: Optional[dict],
+    prompt: str,
+    header: dict,
+    function_provider_name: str,
+    conversation: list,
+    auth_query_param: Optional[dict],
+    config: Optional[Config],
+    run_all_output_modules: bool,
+    output_module_names: Optional[List[str]],
+    selected_operations: Optional[List[str]],
+    enable_ui_form_controls: bool,
+    session_variables: Optional[str],
 ):
-    function_provider_name = None
-    if function_provider_input:
-        function_provider_name = function_provider_input.name
     start = datetime.now()
     try:
         pipeline = None
@@ -108,8 +63,6 @@ def plugin_execution_pipeline(
                 config = Config()
 
         pipeline = PluginExecutionPipeline(plugin=plugin_obj)
-        if function_provider_input is None:
-            function_provider_input = function_providers.get_default_provider()
 
         json_data = {}
         error = None
@@ -119,7 +72,7 @@ def plugin_execution_pipeline(
                 input=input,
                 config=config,
                 function_provider=function_providers.get_by_name(
-                    function_provider_input.name
+                    function_provider_name
                 ),
                 header=header,
                 auth_query_param=auth_query_param,

@@ -23,7 +23,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
-        selected_operation: Optional[str] = None,
+        selected_operations: Optional[List[str]] = None,
     ):
         if pre_prompts is None:
             pre_prompts = []
@@ -36,7 +36,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         )
 
         super().__init__(
-            plugin, function_provider, config, pre_prompts, selected_operation
+            plugin, function_provider, config, pre_prompts, selected_operations
         )
         if config and config.openai_api_key:
             self.openai_api_key = config.openai_api_key
@@ -50,7 +50,7 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
         start_test_case_time = time.time()
 
         functions = Functions()
-        functions.add_from_plugin(self.plugin, self.selected_operation)
+        functions.add_from_plugin(self.plugin, self.selected_operations)
         llm_calls: list = []
         if len(functions.functions) == 0:
             return SelectedApiSignatureResponse(
@@ -159,7 +159,9 @@ class OpenAIOperationSignatureBuilder(OperationSignatureBuilder):
             and isinstance(message_json, dict)
             and message_json.get("function_call")
         ):
-            function_name = build_function_name(message_json["function_call"]["name"])
+            function_name = build_function_name(
+                message_json["function_call"]["name"]
+            )
             detected_plugin = functions.get_plugin_from_func_name(function_name)
             detected_function = functions.get_function_from_func_name(function_name)
             arguments = json.loads(message_json["function_call"]["arguments"])

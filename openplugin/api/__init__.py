@@ -6,6 +6,7 @@ from loguru import logger
 from starlette.middleware.cors import CORSMiddleware
 
 from openplugin.api import (
+    agent_execution_pipeline,
     function_providers,
     helpers,
     info,
@@ -37,10 +38,12 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
         response = await call_next(request)
         response.headers["Access-Control-Allow-Origin"] = "*"
         response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers[
-            "Access-Control-Allow-Methods"
-        ] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = (
+            "GET, POST, PUT, DELETE, OPTIONS"
+        )
+        response.headers["Access-Control-Allow-Headers"] = (
+            "Content-Type, Authorization"
+        )
         return response
 
     # Allow Cross-Origin Resource Sharing (CORS)
@@ -62,6 +65,7 @@ def create_app(root_path: Optional[str] = None) -> FastAPI:
     router.include_router(processors.router)
     router.include_router(function_providers.router)
     router.include_router(helpers.router)
+    router.include_router(agent_execution_pipeline.router)
     app.include_router(router, prefix=API_PREFIX)
 
     return app
