@@ -20,13 +20,14 @@ from .operation_signature_builder_with_langchain import (
 
 # Custom API Signature Selector for OpenAI
 class CustomOperationSignatureBuilder(OperationSignatureBuilder):
+
     def __init__(
         self,
         plugin: Plugin,
         function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
-        selected_operation: Optional[str] = None,
+        selected_operations: Optional[List[str]] = None,
         header: Optional[dict] = None,
     ):
         if pre_prompts is None:
@@ -44,7 +45,7 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
             function_provider,
             config,
             pre_prompts,
-            selected_operation,
+            selected_operations,
             header,
         )
         if config and config.openai_api_key:
@@ -58,7 +59,7 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
         if self.function_provider.get_provider_name().lower() in ["cohere"]:
             start_test_case_time = time.time()
             functions = Functions()
-            functions.add_from_plugin(self.plugin, self.selected_operation)
+            functions.add_from_plugin(self.plugin, self.selected_operations)
             # request_prompt = functions.get_x_helpers()
             request_prompt = ""
             for message in messages:
@@ -132,7 +133,9 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
             if tool_calls and len(tool_calls) > 0:
                 function_name = tool_calls[0].function.name
                 detected_plugin = functions.get_plugin_from_func_name(function_name)
-                detected_function = functions.get_function_from_func_name(function_name)
+                detected_function = functions.get_function_from_func_name(
+                    function_name
+                )
                 mapped_parameters = json.loads(tool_calls[0].function.arguments)
                 p_detected = PluginDetectedParams(
                     plugin=detected_plugin,
@@ -165,7 +168,7 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
                 plugin=self.plugin,
                 function_provider=self.function_provider,
                 config=self.config,
-                selected_operation=self.selected_operation,
+                selected_operations=self.selected_operations,
                 header=self.header,
             )
             response = oai_selector.run(messages, conversation)

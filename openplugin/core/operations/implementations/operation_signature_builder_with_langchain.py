@@ -1,7 +1,6 @@
 import time
 from typing import List, Optional
 
-
 from ...config import Config
 from ...execution.implementations.operation_execution_with_imprompt import (
     OperationExecutionParams,
@@ -25,7 +24,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
         function_provider: FunctionProvider,
         config: Optional[Config],
         pre_prompts: Optional[List[Message]] = None,
-        selected_operation: Optional[str] = None,
+        selected_operations: Optional[List[str]] = None,
         header: Optional[dict] = None,
     ):
         if pre_prompts is None:
@@ -43,7 +42,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
             function_provider,
             config,
             pre_prompts,
-            selected_operation,
+            selected_operations,
             header,
         )
         if config and config.openai_api_key:
@@ -59,7 +58,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
 
         start_test_case_time = time.time()
         functions = Functions()
-        functions.add_from_plugin(self.plugin, self.selected_operation)
+        functions.add_from_plugin(self.plugin, self.selected_operations)
         llm_calls: list = []
         # request_prompt = functions.get_x_helpers()
         request_prompt = ""
@@ -225,7 +224,7 @@ class LangchainOperationSignatureBuilder(OperationSignatureBuilder):
                             start_time1 = time.time()
                             functions = Functions()
                             path = f"{prop.x_dependent.get('method')}<PATH>{prop.x_dependent.get('path')}"
-                            functions.add_from_plugin(self.plugin, path)
+                            functions.add_from_plugin(self.plugin, [path])
                             function_json = functions.get_json()
                             prompt = f"Resolve this parameter:{prop.name}, I have already extracted these parameters: {mapped_parameters}, {request_prompt}".strip()
                             # run function calling with function json and
