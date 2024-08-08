@@ -134,14 +134,12 @@ class PluginExecutionPipeline(BaseModel):
             )
 
         # OUTPUT MODULE PROCESSING
-        output_module_map, default_output_module = (
-            await self._output_module_processing(
-                api_execution_step,
-                api_signature_port,
-                config,
-                run_all_output_modules,
-                output_module_names,
-            )
+        output_module_map, default_output_module = await self._output_module_processing(
+            api_execution_step,
+            api_signature_port,
+            config,
+            run_all_output_modules,
+            output_module_names,
         )
 
         extracted_parameters = {}
@@ -237,9 +235,9 @@ class PluginExecutionPipeline(BaseModel):
                 )
                 if run_all_output_modules and supported_output_modules:
                     for output_module in supported_output_modules:
-                        processor_metadata[output_module.name] = (
-                            output_module.get_processor_metadata()
-                        )
+                        processor_metadata[
+                            output_module.name
+                        ] = output_module.get_processor_metadata()
                         o_ports = await asyncio.gather(
                             *(
                                 run_module(output_module, flow_port, config)
@@ -252,9 +250,9 @@ class PluginExecutionPipeline(BaseModel):
                     selected_output_modules = []
                     for output_module in supported_output_modules:
                         if output_module.name in output_module_names:
-                            processor_metadata[output_module.name] = (
-                                output_module.get_processor_metadata()
-                            )
+                            processor_metadata[
+                                output_module.name
+                            ] = output_module.get_processor_metadata()
                             selected_output_modules.append(output_module)
                     o_ports = await asyncio.gather(
                         *(
@@ -267,31 +265,26 @@ class PluginExecutionPipeline(BaseModel):
             else:
                 is_clarifying_response = True
                 default_output_module = "clarifying_response"
-                output_module_map["clarifying_response"] = (
-                    api_execution_step.clarifying_response
-                )
+                output_module_map[
+                    "clarifying_response"
+                ] = api_execution_step.clarifying_response
 
             if not is_clarifying_response:
                 if response_output_ports:
                     for output_port in response_output_ports:
                         self.add_output_module_trace(output_port, processor_metadata)
                         output_module_map[output_port.name] = output_port
-                        if output_port.get_metadata(
-                            PortMetadata.DEFAULT_OUTPUT_MODULE
-                        ):
+                        if output_port.get_metadata(PortMetadata.DEFAULT_OUTPUT_MODULE):
                             default_output_module = output_port.name
 
                 # set the first one as default if not set in manifest
                 if default_output_module is None and response_output_ports:
                     default_output_module = response_output_ports[0].name
 
-                if (
-                    output_module_names
-                    and "original_response" in output_module_names
-                ):
-                    output_module_map["original_response"] = (
-                        api_execution_step.original_response
-                    )
+                if output_module_names and "original_response" in output_module_names:
+                    output_module_map[
+                        "original_response"
+                    ] = api_execution_step.original_response
                     default_output_module = "original_response"
 
             return output_module_map, default_output_module
@@ -319,10 +312,7 @@ class PluginExecutionPipeline(BaseModel):
             }
             if self.plugin.input_modules:
                 for input_module in self.plugin.input_modules:
-                    if (
-                        input_module.initial_input_port.data_type
-                        == flow_port.data_type
-                    ):
+                    if input_module.initial_input_port.data_type == flow_port.data_type:
                         logger.info(f"\n[RUNNING_INPUT_MODULE] {input_module}")
                         flow_port = await input_module.run(flow_port, config)
                         break
@@ -374,15 +364,13 @@ class PluginExecutionPipeline(BaseModel):
                 {
                     "name": "api_and_signature_detection_step",
                     "label": "Signature Creation (w/ LLM)",
-                    "processing_time_seconds": signature_port.get(
-                        "metadata", {}
-                    ).get("processing_time_seconds"),
+                    "processing_time_seconds": signature_port.get("metadata", {}).get(
+                        "processing_time_seconds"
+                    ),
                     "status_code": signature_port.get("metadata", {}).get(
                         "status_code"
                     ),
-                    "input_text": signature_port.get("metadata", {}).get(
-                        "input_text"
-                    ),
+                    "input_text": signature_port.get("metadata", {}).get("input_text"),
                     "system_prompt": signature_port.get("metadata", {}).get(
                         "system_prompt"
                     ),
@@ -472,9 +460,7 @@ class PluginExecutionPipeline(BaseModel):
             raise Exception("Input data type to plugin must be text.")
         if input.value is None:
             raise PortValueError("Input value cannot be None")
-        messages = [
-            Message(content=input.value, message_type=MessageType.HumanMessage)
-        ]
+        messages = [Message(content=input.value, message_type=MessageType.HumanMessage)]
         logger.info(f"\n[RUNNING_PLUGIN_SIGNATURE] provider]={function_provider}")
         # API signature selector
         oai_selector = CustomOperationSignatureBuilder(
@@ -634,9 +620,7 @@ class PluginExecutionPipeline(BaseModel):
                         PortMetadata.PROCESSING_TIME_SECONDS: response.clarifying_question_response_seconds,
                         PortMetadata.STATUS_CODE: response.clarifying_question_status_code,
                         PortMetadata.LOG_INPUT_TEXT: input_port_json,
-                        PortMetadata.LOG_OUTPUT_TEXT: str(
-                            response.original_response
-                        ),
+                        PortMetadata.LOG_OUTPUT_TEXT: str(response.original_response),
                         PortMetadata.MISSING_REQUIRED_PARAMS: response.missing_params,
                     },
                 )

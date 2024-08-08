@@ -37,7 +37,12 @@ class AgentImplementation(BaseModel):
 class ModelInput(BaseModel):
     provider: str = Field(description="Provider of the model")
     model: str = Field(description="Model name")
-    temperature: float = Field(description="Temperature of the model")
+    temperature: Optional[float] = Field(description="Temperature of the model")
+
+    def get_temperature(self):
+        if self.temperature:
+            return self.temperature
+        return 1.0
 
 
 class Secret(BaseModel):
@@ -47,19 +52,15 @@ class Secret(BaseModel):
     plugin_keys: Optional[Dict] = {}
 
 
-class AgentInput(BaseModel):
+class AgentManifest(BaseModel):
     agent_url: Optional[str] = None
     name: str
     instruction: str
-    model: ModelInput
     tools: List[ToolInput]
-    prompt: Optional[str] = Field(None, description="Prompt for the agent")
-    secrets: Secret = Field(..., alias="secrets")
-    agent_implementation: AgentImplementation = Field(..., alias="implementation")
 
     @model_validator(mode="before")
     @classmethod
-    def check_card_number_omitted(cls, data: Any) -> Any:
+    def check_agent_manifest_url(cls, data: Any) -> Any:
         if isinstance(data, dict):
             agent_url = data.get("agent_url")
             if agent_url:
@@ -121,3 +122,13 @@ class AgentInput(BaseModel):
             .replace("$REQUIRED_KEYS", required_keys)
         )
         return template
+
+
+class AgentRuntime(BaseModel):
+    secrets: Secret = Field(..., alias="secrets")
+    model: ModelInput = Field(..., alias="model")
+    implementation: AgentImplementation = Field(..., alias="implementation")
+
+
+class AgentPrompt(BaseModel):
+    prompt: str = Field(description="Prompt for the agent")

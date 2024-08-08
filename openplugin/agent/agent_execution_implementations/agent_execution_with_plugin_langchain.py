@@ -2,6 +2,7 @@ import json
 from typing import Dict, List, Optional, Tuple, Type
 
 import requests
+from fastapi import WebSocket
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.callbacks.manager import (
     AsyncCallbackManagerForToolRun,
@@ -12,7 +13,13 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
-from .agent_input import AgentInput
+from ..agent_actions import InpResponse
+from ..agent_execution import (
+    AgentExecution,
+    AgentExecutionResponse,
+    AgentInteractiveExecutionResponse,
+)
+from ..agent_input import AgentManifest, AgentPrompt, AgentRuntime
 
 
 def run_plugin(
@@ -28,8 +35,8 @@ def run_plugin(
     selected_operations=None,
     session_variables=None,
 ):
-    from ..core.config import Config
-    from ..utils.run_plugin_pipeline import run_pipeline
+    from ...core.config import Config
+    from ...utils.run_plugin_pipeline import run_pipeline
 
     if header is None:
         header = {}
@@ -242,55 +249,21 @@ class OpenpluginTool(BaseTool):
         raise NotImplementedError("Calculator does not support async")
 
 
-def run_agent(agent_executor, input_prompt):
-    print("----------------------------------------------------------------")
-    print("INPUT: {}".format(input_prompt))
-    print("----------------------------------------------------------------")
-    response = {}
-    tools_called = []
-    final_response = ""
-    for step in agent_executor.iter({"input": input_prompt}):
-        print("-------")
-        print("STEP: ", step)
-        print(type(step))
-        print("-------")
-        if output := step.get("intermediate_step"):
-            action, value = output[0]
-            print("\n======================STEP======================")
-            print(type(action))
-            print("\naction: ", action)
-            print(type(value))
-            print("\nvalue: ", value)
-            print(output)
-            tool_action_obj = {
-                "tool": action.tool,
-                "query": action.tool_input.get("query"),
-                "agent_log": action.log,
-                "plugin_response": value[1],
-            }
-            tools_called.append(tool_action_obj)
-        else:
-            final_response = step.get("output")
-    response["final_response"] = final_response
-    response["tools_called"] = tools_called
-    return response
-
-
-def setup_agent(agent_input: AgentInput):
+def get_langchain_agent(agent_manifest: AgentManifest, agent_runtime: AgentRuntime):
     # required environment variables
-    openplugin_api_key = agent_input.secrets.openplugin_api_key
-    openplugin_server_url = agent_input.secrets.openplugin_server_url
-    openai_api_key = agent_input.secrets.openai_api_key
+    openplugin_api_key = agent_runtime.secrets.openplugin_api_key
+    openplugin_server_url = agent_runtime.secrets.openplugin_server_url
+    openai_api_key = agent_runtime.secrets.openai_api_key
 
-    instruction = agent_input.prompt
+    instruction = agent_manifest.instruction
 
-    tools_input = agent_input.get_tools_json()
+    tools_input = agent_manifest.get_tools_json()
 
-    tool_key_map = agent_input.secrets.plugin_keys
+    tool_key_map = agent_runtime.secrets.plugin_keys
 
-    provider = agent_input.model.provider
-    model = agent_input.model.model
-    temperature = agent_input.model.temperature
+    provider = agent_runtime.model.provider
+    model = agent_runtime.model.model
+    temperature = agent_runtime.model.get_temperature()
 
     agent_executor = build_agent_executor(
         openai_api_key=openai_api_key,
@@ -304,3 +277,67 @@ def setup_agent(agent_input: AgentInput):
         openplugin_api_key=openplugin_api_key,
     )
     return agent_executor
+
+
+class AgentExecutionWithPluginLangchain(AgentExecution):
+
+    def __init__(
+        self,
+        agent_manifest: AgentManifest,
+        agent_runtime: AgentRuntime,
+        websocket: Optional[WebSocket] = None,
+    ):
+        tool_map: Dict = {}
+        super().__init__(agent_manifest, agent_runtime, tool_map)
+        self.agent = get_langchain_agent(self.agent_manifest, self.agent_runtime)
+        self.websocket = websocket
+
+    async def run_agent_batch(
+        self, agent_prompts: List[AgentPrompt]
+    ) -> AgentExecutionResponse:
+        input_prompt = agent_prompts[0].prompt
+        print("----------------------------------------------------------------")
+        print("INPUT: {}".format(input_prompt))
+        print("----------------------------------------------------------------")
+        tools_called = []
+        final_response = ""
+        for step in self.agent.iter({"input": input_prompt}):
+            print("-------")
+            print("STEP: ", step)
+            print(type(step))
+            print("-------")
+            if output := step.get("intermediate_step"):
+                action, value = output[0]
+                print("\n======================STEP======================")
+                print(type(action))
+                print("\naction: ", action)
+                print(type(value))
+                print("\nvalue: ", value)
+                print(output)
+                tool_action_obj = {
+                    "tool": action.tool,
+                    "query": action.tool_input.get("query"),
+                    "agent_log": action.log,
+                    "plugin_response": value[1],
+                }
+                await self.send_json_message(
+                    InpResponse.AGENT_JOB_STEP,
+                    self.websocket,
+                    tool_action_obj,
+                    "ran_plugin",
+                )
+                tools_called.append(tool_action_obj)
+            else:
+                final_response = step.get("output")
+        return AgentExecutionResponse(
+            final_response=final_response, tools_called=tools_called
+        )
+
+    def interactive_run(
+        self, agent_prompt: AgentPrompt
+    ) -> AgentInteractiveExecutionResponse:
+        raise NotImplementedError("Interactive run not supported")
+
+    def stop(self):
+        # Not able to find a way to stop the agent in langchain yet. There is a way to force stop base on time limit.
+        pass

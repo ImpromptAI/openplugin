@@ -305,9 +305,7 @@ class Functions(BaseModel):
         openapi_doc_obj: dict = {},
         plugin: Optional[Plugin] = None,
         header: Optional[dict] = None,
-        plugin_operations_map: Optional[
-            Dict[str, Dict[str, PluginOperation]]
-        ] = None,
+        plugin_operations_map: Optional[Dict[str, Dict[str, PluginOperation]]] = None,
         valid_operations: Optional[List[str]] = None,
     ):
         """
@@ -347,9 +345,7 @@ class Functions(BaseModel):
         valid_operations: Optional[List[str]],
     ):
         functions = []
-        openapi_doc_json = to_plain_dict(
-            jsonref.JsonRef.replace_refs(openapi_doc_obj)
-        )
+        openapi_doc_json = to_plain_dict(jsonref.JsonRef.replace_refs(openapi_doc_obj))
         if openapi_doc_json is None:
             raise ValueError("Could not fetch OpenAPI json from URL")
 
@@ -407,9 +403,7 @@ class Functions(BaseModel):
                     if op_obj:
                         plugin_signature_helpers = op_obj.plugin_signature_helpers
 
-                function_values["plugin_signature_helpers"] = (
-                    plugin_signature_helpers
-                )
+                function_values["plugin_signature_helpers"] = plugin_signature_helpers
                 function_values["path"] = path
                 function_values["method"] = method
                 response_obj_200 = (
@@ -516,9 +510,7 @@ class Functions(BaseModel):
             op_property["maximum"] = param_obj.get("maximum")
 
         if param_obj.get("additionalProperties"):
-            op_property["additionalProperties"] = param_obj.get(
-                "additionalProperties"
-            )
+            op_property["additionalProperties"] = param_obj.get("additionalProperties")
 
         if param_obj.get("readOnly"):
             op_property["readOnly"] = param_obj.get("readOnly")
@@ -585,9 +577,7 @@ class Functions(BaseModel):
 
         # parse request object
         if operation_obj.get("requestBody"):
-            param_description = operation_obj.get("requestBody", {}).get(
-                "description"
-            )
+            param_description = operation_obj.get("requestBody", {}).get("description")
             content = operation_obj.get("requestBody", {}).get("content")
             if content is None:
                 if "$ref" in operation_obj.get("requestBody", {}):
@@ -626,9 +616,7 @@ class Functions(BaseModel):
                 # required_params = body_content.get("required", {})
             elif "$ref" in body_content:
                 if body_content.get("$ref") not in reference_map:
-                    raise Exception(
-                        f"Reference not found: {body_content.get('$ref')}"
-                    )
+                    raise Exception(f"Reference not found: {body_content.get('$ref')}")
                 ref_obj = reference_map.get(body_content.get("$ref"), {})
                 params = []
                 if "properties" in ref_obj:
@@ -790,9 +778,7 @@ class Functions(BaseModel):
                         .get(method, {})
                         .get("plugin_signature_helpers", [])
                     )
-                function_values["plugin_signature_helpers"] = (
-                    plugin_signature_helpers
-                )
+                function_values["plugin_signature_helpers"] = plugin_signature_helpers
 
                 if content_operation.extensions:
                     helpers = content_operation.extensions.get("helpers", [])

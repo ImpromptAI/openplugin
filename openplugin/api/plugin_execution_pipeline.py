@@ -86,13 +86,9 @@ def plugin_execution_pipeline(
             plugin_obj = PluginBuilder.build_from_openapi_doc_obj(openapi_doc_obj)
         elif openapi_doc_url is not None:
             if openapi_doc_url.startswith("http"):
-                plugin_obj = PluginBuilder.build_from_openapi_doc_url(
-                    openapi_doc_url
-                )
+                plugin_obj = PluginBuilder.build_from_openapi_doc_url(openapi_doc_url)
             else:
-                plugin_obj = PluginBuilder.build_from_openapi_doc_file(
-                    openapi_doc_url
-                )
+                plugin_obj = PluginBuilder.build_from_openapi_doc_file(openapi_doc_url)
         else:
             return JSONResponse(
                 status_code=400,

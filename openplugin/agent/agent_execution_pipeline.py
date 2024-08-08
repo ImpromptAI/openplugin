@@ -1,10 +1,14 @@
+import base64
+import secrets
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
+from fastapi import WebSocket
 from pydantic import BaseModel
 
-from .agent_input import AgentInput
-from .langchain_agent_execution_with_plugin import run_agent, setup_agent
+from .agent_actions import InpResponse
+from .agent_execution import AgentExecution, AgentExecutionResponse
+from .agent_input import AgentManifest, AgentPrompt, AgentRuntime
 
 
 class AgentExecutionMetadata(BaseModel):
@@ -24,19 +28,105 @@ class AgentExecutionResponseOutput(BaseModel):
     traces: List = []
 
 
+def generate_id(prefix: str, num_bytes=24):
+    random_bytes = secrets.token_bytes(num_bytes)
+    random_string = (
+        base64.urlsafe_b64encode(random_bytes).rstrip(b"=").decode("utf-8")
+    )
+    return f"{prefix}_{random_string}"
+
+
 class AgentExecutionPipeline(BaseModel):
-    agent_input: AgentInput
+    agent_manifest: AgentManifest
+    agent_runtime: AgentRuntime
+    websocket: Optional[WebSocket]
+    sessions: Dict[str, List[AgentPrompt]] = {}
+    current_session_id: Optional[str] = None
+    agent_id: str = generate_id("agent")
 
-    def run(self):
+    agent_execution: Optional[AgentExecution] = None
+
+    def get_tools_json(self):
+        if self.agent_execution and self.agent_execution.tool_map:
+            tools = []
+            for tool in self.agent_execution.tool_map.values():
+                tools.append(tool)
+            return tools
+        return None
+
+    async def setup_agent(self):
+        print("=-=-=-=-=-=-=--=-= SETUP AGENT =-=-=-=-=-=-=-=-=-=-=")
+        print(self.agent_manifest)
+        print(self.agent_runtime)
+        print(self.sessions)
+        print("==========================================================")
+        session_id = generate_id("session")
+        self.current_session_id = session_id
+        self.sessions[session_id] = []
+        if self.agent_runtime.implementation.provider == "langchain":
+            if self.agent_runtime.implementation.type == "openai_tools_agent":
+                if True:
+                    from .agent_execution_implementations.agent_execution_with_operation_langchain import (
+                        AgentExecutionWithOperationLangchain,
+                    )
+
+                    self.agent_execution = AgentExecutionWithOperationLangchain(
+                        agent_manifest=self.agent_manifest,
+                        agent_runtime=self.agent_runtime,
+                        websocket=self.websocket,
+                    )
+                else:
+                    from .agent_execution_implementations.agent_execution_with_plugin_langchain import (
+                        AgentExecutionWithPluginLangchain,
+                    )
+
+                    self.agent_execution = AgentExecutionWithPluginLangchain(
+                        agent_manifest=self.agent_manifest,
+                        agent_runtime=self.agent_runtime,
+                        websocket=self.websocket,
+                    )
+
+        if not self.agent_execution:
+            print("====")
+            raise NotImplementedError("Agent implementation not supported.")
+
+    async def close_websocket(self):
+        if self.websocket:
+            await self.websocket.close()
+
+    async def send_json_message(
+        self,
+        response: InpResponse,
+        value: Optional[Dict] = None,
+        step_name: Optional[str] = None,
+    ):
+        """Helper function to send JSON message via websocket."""
+        obj = {"response": response.value, "description": response.description}  # type: ignore
+        if step_name:
+            obj["step_name"] = step_name
+        if value:
+            obj["value"] = value
+        if self.websocket:
+            await self.websocket.send_json(obj)
+
+    async def batch_run(self, agent_prompt: AgentPrompt, do_new_session=False):
         print("AgentExecutionPipeline started")
-        if self.agent_input.agent_implementation.provider == "langchain":
-            if self.agent_input.agent_implementation.type == "openai_tools_agent":
+        if self.agent_execution is None:
+            raise NotImplementedError("Agent builder not set")
+        if do_new_session:
+            session_id = generate_id("session")
+            self.current_session_id = session_id
+            self.sessions[session_id] = []
+        self.add_to_current_session(agent_prompt)
+        if self.agent_runtime.implementation.provider == "langchain":
+            if self.agent_runtime.implementation.type == "openai_tools_agent":
                 start = datetime.now()
-
-                agent_executor = setup_agent(self.agent_input)
-                response = run_agent(agent_executor, self.agent_input.prompt)
-                tools_called = response.get("tools_called", [])
-
+                response_obj: AgentExecutionResponse = (
+                    await self.agent_execution.run_agent_batch(
+                        self.get_current_session_prompts()
+                    )
+                )
+                tools_called = response_obj.tools_called
                 end = datetime.now()
                 elapsed_time = end - start
                 metadata = AgentExecutionMetadata(
@@ -45,22 +135,42 @@ class AgentExecutionPipeline(BaseModel):
                     total_time_taken_seconds=elapsed_time.total_seconds(),
                     total_time_taken_ms=elapsed_time.microseconds,
                 )
-
-                return AgentExecutionResponseOutput(
+                agent_execution_response = AgentExecutionResponseOutput(
                     run_completed=True,
                     metadata=metadata,
-                    final_response=response.get("final_response"),
+                    final_response=response_obj.final_response,
                     tools_called=tools_called,
                 )
+                await self.send_json_message(
+                    InpResponse.AGENT_JOB_COMPLETED,
+                    agent_execution_response.dict(exclude_none=True),
+                    step_name="result",
+                )
+                return agent_execution_response
         raise NotImplementedError("Agent implementation not supported")
 
-    def build_agent_script(self):
-        print("AgentExecutionPipeline started")
-        if self.agent_input.agent_implementation.provider == "langchain":
-            if self.agent_input.agent_implementation.type == "openai_tools_agent":
-                code_snippet = self.agent_input.get_langchain_openai_tools_agent()
-                return AgentExecutionResponseOutput(
-                    run_completed=True,
-                    code_snippet=code_snippet,
-                )
-        raise NotImplementedError("Agent implementation not supported")
+    def add_to_current_session(self, agent_prompt: AgentPrompt):
+        if self.current_session_id is None:
+            raise ValueError("Current session id not set")
+        self.sessions[self.current_session_id].append(agent_prompt)
+
+    async def interactive_run(self, agent_prompt: AgentPrompt):
+        print()
+
+    def interactive_run_next(self):
+        print()
+
+    def stop(self):
+        self.agent_execution.stop()
+
+    def get_current_session_prompts(self):
+        return self.sessions[self.current_session_id]
+
+    async def clear_current_session(self):
+        self.sessions[self.current_session_id] = []
+
+    async def clear_all_session(self):
+        self.sessions = {}
+
+    class Config:
+        arbitrary_types_allowed = True
