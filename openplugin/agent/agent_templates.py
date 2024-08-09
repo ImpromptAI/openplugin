@@ -24,7 +24,7 @@ def run_plugin(
     enable_ui_form_controls=True,
     auth_query_param={},
     conversation=[],
-    function_provider_name="OpenAI [gpt-4]",
+    function_provider_name="OpenAI [gpt-4o]",
     output_module_names=None,
     selected_operations=None,
     session_variables=None,
