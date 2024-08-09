@@ -140,7 +140,7 @@ async def batch_run_ws(websocket: WebSocket):
         step_name: Optional[str] = None,
     ):
         """Helper function to send JSON message via websocket."""
-        obj = {"response": response.value, "description": response.description}  # type: ignore
+        obj = {"message_type": response.value, "description": response.description}  # type: ignore
         if step_name:
             obj["step_name"] = step_name
         if value:
@@ -200,7 +200,7 @@ async def batch_run_ws(websocket: WebSocket):
                 )
                 if agent_runtime_json.get("prompt"):
                     agent_prompt = AgentPrompt(
-                        prompt=agent_runtime_json.get("prompt"),
+                        prompt=agent_runtime_json.get("prompt")
                     )
                     await pipeline.batch_run(agent_prompt)
             except Exception as e:

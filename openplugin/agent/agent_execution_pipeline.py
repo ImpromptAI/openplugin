@@ -101,7 +101,7 @@ class AgentExecutionPipeline(BaseModel):
         step_name: Optional[str] = None,
     ):
         """Helper function to send JSON message via websocket."""
-        obj = {"response": response.value, "description": response.description}  # type: ignore
+        obj = {"message_type": response.value, "description": response.description}  # type: ignore
         if step_name:
             obj["step_name"] = step_name
         if value:
@@ -117,6 +117,11 @@ class AgentExecutionPipeline(BaseModel):
             session_id = generate_id("session")
             self.current_session_id = session_id
             self.sessions[session_id] = []
+        agent_prompt.associated_job_id = generate_id("job")
+        await self.send_json_message(
+            InpResponse.AGENT_JOB_STARTED,
+            {"job_id": agent_prompt.associated_job_id},
+        )
         self.add_to_current_session(agent_prompt)
         if self.agent_runtime.implementation.provider == "langchain":
             if self.agent_runtime.implementation.type == "openai_tools_agent":
@@ -141,9 +146,11 @@ class AgentExecutionPipeline(BaseModel):
                     final_response=response_obj.final_response,
                     tools_called=tools_called,
                 )
+                result = agent_execution_response.dict(exclude_none=True)
+                result["job_id"] = agent_prompt.associated_job_id
                 await self.send_json_message(
                     InpResponse.AGENT_JOB_COMPLETED,
-                    agent_execution_response.dict(exclude_none=True),
+                    result,
                     step_name="result",
                 )
                 return agent_execution_response

@@ -419,7 +419,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                 if content:
                     final_response = final_response + content
             elif kind == "on_tool_start":
-                print("******************* ON_TOOL_START ******************")
+                print("\n\n******************* ON_TOOL_START ******************")
                 print(
                     f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
                 )
@@ -427,6 +427,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                     "tool": event["name"],
                     "plugin": self.tool_map.get(event["name"]),
                     "query": event["data"].get("input").get("query"),
+                    "execution_id": event["run_id"],
                 }
                 await self.send_json_message(
                     InpResponse.AGENT_JOB_STEP,
@@ -435,7 +436,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                     "plugin_started",
                 )
             elif kind == "on_tool_end":
-                print("******************* ON_TOOL_END ******************")
+                print("\n\n******************* ON_TOOL_END ******************")
                 print(f"Done tool: {event['name']}")
                 tuple_val = ast.literal_eval(event["data"].get("output"))
                 tool_action_obj = {
@@ -443,6 +444,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                     "query": event["data"].get("input").get("query"),
                     "plugin": self.tool_map.get(event["name"]),
                     "plugin_response": tuple_val[1],
+                    "execution_id": event["run_id"],
                 }
                 await self.send_json_message(
                     InpResponse.AGENT_JOB_STEP,

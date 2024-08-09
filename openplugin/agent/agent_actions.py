@@ -27,6 +27,7 @@ class InpResponse(Enum):
     AGENT_SESSION_PROMPTS = ("agent_session_prompts", "Agent session prompts")
     AGENT_JOB_FAILED = ("agent_job_failed", "Agent job failed")
     AGENT_ALREADY_SETUP = ("agent_already_setup", "Agent already setup")
+    AGENT_JOB_STARTED = ("agent_job_started", "Agent job started")
     AGENT_JOB_STEP = ("agent_job_step", "")
     AGENT_JOB_COMPLETED = ("agent_job_completed", "Agent job completed")
     INVALID_API_KEY = ("invalid_api_key", "Invalid API key")

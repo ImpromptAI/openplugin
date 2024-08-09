@@ -53,7 +53,7 @@ class AgentExecution(ABC):
         step_name: Optional[str] = None,
     ):
         """Helper function to send JSON message via websocket."""
-        obj = {"response": response.value, "description": response.description}  # type: ignore
+        obj = {"message_type": response.value, "description": response.description}  # type: ignore
         if step_name:
             obj["step_name"] = step_name
         if value:

@@ -132,3 +132,6 @@ class AgentRuntime(BaseModel):
 
 class AgentPrompt(BaseModel):
     prompt: str = Field(description="Prompt for the agent")
+    associated_job_id: Optional[str] = Field(
+        description="Associated job ID", default=None
+    )
