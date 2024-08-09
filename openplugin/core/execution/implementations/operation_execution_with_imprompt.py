@@ -214,9 +214,12 @@ def process_x_dep_array(
                         for key, value in lookup_additional_parameters.items():
                             if key.startswith("$request.query."):
                                 jsonpath_expression = parse(
-                                    "$." + lookup_parameter.split("$request.query.")[1]
+                                    "$."
+                                    + lookup_parameter.split("$request.query.")[1]
                                 )
-                                jsonpath_expression.update(query_params_obj, str(value))
+                                jsonpath_expression.update(
+                                    query_params_obj, str(value)
+                                )
                     server_url = (
                         server_url + "?" + urllib.parse.urlencode(query_params_obj)
                     )
@@ -246,9 +249,9 @@ def process_x_dep_array(
                 # add tracing
                 x_lookup_tracing["resolving_obj"] = r_obj
                 x_lookup_tracing["lookup_parameter"] = lookup_parameter
-                x_lookup_tracing[
-                    "lookup_additional_parameters"
-                ] = lookup_additional_parameters
+                x_lookup_tracing["lookup_additional_parameters"] = (
+                    lookup_additional_parameters
+                )
                 x_lookup_tracing["path"] = path
                 x_lookup_tracing["method"] = method
                 if parameter_name:
@@ -256,9 +259,9 @@ def process_x_dep_array(
                 x_lookup_tracing["server_url"] = server_url
                 if body_obj:
                     x_lookup_tracing["body"] = body_obj
-                x_lookup_tracing[
-                    "api_call_response_seconds"
-                ] = api_call_response_seconds
+                x_lookup_tracing["api_call_response_seconds"] = (
+                    api_call_response_seconds
+                )
                 x_lookup_tracing["status_code"] = status_code
                 x_lookup_tracing["response"] = rj
 
@@ -269,7 +272,9 @@ def process_x_dep_array(
                     else:
                         r_obj = rj
                 else:
-                    x_lookup_tracing["error"] = f"Error: API Return Code= {status_code}"
+                    x_lookup_tracing["error"] = (
+                        f"Error: API Return Code= {status_code}"
+                    )
                 responses.append(r_obj)
         except Exception as e:
             traceback.print_exc()

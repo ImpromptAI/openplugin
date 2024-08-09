@@ -20,7 +20,6 @@ from .operation_signature_builder_with_langchain import (
 
 # Custom API Signature Selector for OpenAI
 class CustomOperationSignatureBuilder(OperationSignatureBuilder):
-
     def __init__(
         self,
         plugin: Plugin,
@@ -133,9 +132,7 @@ class CustomOperationSignatureBuilder(OperationSignatureBuilder):
             if tool_calls and len(tool_calls) > 0:
                 function_name = tool_calls[0].function.name
                 detected_plugin = functions.get_plugin_from_func_name(function_name)
-                detected_function = functions.get_function_from_func_name(
-                    function_name
-                )
+                detected_function = functions.get_function_from_func_name(function_name)
                 mapped_parameters = json.loads(tool_calls[0].function.arguments)
                 p_detected = PluginDetectedParams(
                     plugin=detected_plugin,
