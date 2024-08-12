@@ -293,7 +293,7 @@ class AgentExecutionWithPluginLangchain(AgentExecution):
         self.websocket = websocket
 
     async def run_agent_batch(
-        self, agent_prompts: List[AgentPrompt]
+        self, agent_prompts: List[AgentPrompt], conversations: List[AgentPrompt]
     ) -> AgentExecutionResponse:
         input_prompt = agent_prompts[0].prompt
         print("----------------------------------------------------------------")

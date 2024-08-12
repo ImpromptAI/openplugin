@@ -30,7 +30,7 @@ class AgentExecution(ABC):
 
     @abstractmethod
     async def run_agent_batch(
-        self, agent_prompts: List[AgentPrompt]
+        self, agent_prompts: List[AgentPrompt], conversations: List[AgentPrompt]
     ) -> AgentExecutionResponse:
         pass
 

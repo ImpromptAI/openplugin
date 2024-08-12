@@ -1,4 +1,6 @@
 import json
+from enum import Enum
+from os import system
 from typing import Any, Dict, List, Optional
 
 from httpx import request
@@ -130,7 +132,16 @@ class AgentRuntime(BaseModel):
     implementation: AgentImplementation = Field(..., alias="implementation")
 
 
+class MessageType(Enum):
+    USER = "user"
+    SYSTEM = "system"
+    AGENT = "agent"
+
+
 class AgentPrompt(BaseModel):
+    message_type: MessageType = Field(
+        description="Type of the message", default=MessageType.USER
+    )
     prompt: str = Field(description="Prompt for the agent")
     associated_job_id: Optional[str] = Field(
         description="Associated job ID", default=None

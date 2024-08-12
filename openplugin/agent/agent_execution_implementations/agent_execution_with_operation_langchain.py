@@ -11,10 +11,11 @@ from langchain.callbacks.manager import (
     CallbackManagerForToolRun,
 )
 from langchain.tools import BaseTool
+from langchain_core.messages.ai import AIMessage
+from langchain_core.messages.human import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
-from regex import D
 
 from ..agent_actions import InpResponse
 from ..agent_execution import (
@@ -22,7 +23,7 @@ from ..agent_execution import (
     AgentExecutionResponse,
     AgentInteractiveExecutionResponse,
 )
-from ..agent_input import AgentManifest, AgentPrompt, AgentRuntime
+from ..agent_input import AgentManifest, AgentPrompt, AgentRuntime, MessageType
 
 
 def run_plugin(
@@ -385,19 +386,27 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
         self.websocket = websocket
 
     async def run_agent_batch(
-        self, agent_prompts: List[AgentPrompt]
+        self, agent_prompts: List[AgentPrompt], conversations: List[AgentPrompt]
     ) -> AgentExecutionResponse:
-        input_prompt = agent_prompts[0].prompt
+
+        input_prompt = agent_prompts[-1].prompt
         print("----------------------------------------------------------------")
-        print("INPUT: {}".format(input_prompt))
+        chat_history = self.build_chat_history(conversations)
+        for ch in chat_history:
+            print(f"INPUT: {ch}")
+            print("-------------------")
         print("----------------------------------------------------------------")
         tools_called = []
         final_response = ""
         async for event in self.agent.astream_events(
-            {"input": input_prompt},
+            {"input": input_prompt, "chat_history": chat_history},
             version="v1",
         ):
             kind = event["event"]
+            # if kind != "on_chat_model_stream":
+            #    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+            #    print(event)
+            #    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
             if kind == "on_chain_start":
                 if (
                     event["name"] == "Agent"
@@ -453,36 +462,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                     "plugin_ended",
                 )
                 tools_called.append(tool_action_obj)
-            """
-            print("-------")
-            event=
-            print("STEP: ", step)
-            print(type(step))
-            print("-------")
-            if output := step.get("intermediate_step"):
-                action, value = output[0]
-                print("\n======================STEP======================")
-                print(type(action))
-                print("\naction: ", action)
-                print(type(value))
-                print("\nvalue: ", value)
-                print(output)
-                tool_action_obj = {
-                    "tool": action.tool,
-                    "query": action.tool_input.get("query"),
-                    "agent_log": action.log,
-                    "plugin_response": value[1],
-                }
-                await self.send_json_message(
-                    InpResponse.AGENT_JOB_STEP,
-                    self.websocket,
-                    tool_action_obj,
-                    "ran_plugin",
-                )
-                tools_called.append(tool_action_obj)
-            else:
-                final_response = step.get("output")
-            """
+
         return AgentExecutionResponse(
             final_response=final_response, tools_called=tools_called
         )
@@ -495,3 +475,13 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
     def stop(self):
         # Not able to find a way to stop the agent in langchain yet. There is a way to force stop base on time limit.
         pass
+
+    def build_chat_history(self, conversations: List[AgentPrompt]):
+        history = []
+        if conversations:
+            for conversation in conversations:
+                if conversation.message_type == MessageType.USER:
+                    history.append(HumanMessage(content=conversation.prompt))
+                elif conversation.message_type == MessageType.AGENT:
+                    history.append(AIMessage(content=conversation.prompt))  # type: ignore
+        return history
