@@ -217,8 +217,8 @@ async def batch_run_ws(websocket: WebSocket):
                 continue
             if action == InpAction.AGENT_PROMPT:
                 try:
-                    agent_prompt_json = data.get("agent_prompt")
-                    agent_prompt = AgentPrompt(**agent_prompt_json)
+                    agent_prompt = data.get("prompt", "")
+                    agent_prompt = AgentPrompt(prompt=agent_prompt)
                     await pipeline.batch_run(agent_prompt)
                 except Exception as e:
                     await send_json_message(
