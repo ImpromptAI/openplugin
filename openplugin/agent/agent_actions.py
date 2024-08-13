@@ -5,6 +5,7 @@ class InpAction(Enum):
     AGENT_SETUP = "agent_setup"
     AGENT_PROMPT = "agent_prompt"
     AGENT_STOP = "agent_stop"
+    AGENT_AUTH = "agent_auth"
     AGENT_CURRENT_SESSION_CLEAR = "agent_current_session_clear"
     AGENT_CURRENT_SESSION_PROMPTS = "agent_current_session_prompts"
 
@@ -31,3 +32,4 @@ class InpResponse(Enum):
     AGENT_JOB_STEP = ("agent_job_step", "")
     AGENT_JOB_COMPLETED = ("agent_job_completed", "Agent job completed")
     INVALID_API_KEY = ("invalid_api_key", "Invalid API key")
+    AGENT_BLOCKED = ("agent_blocked", "Agent blocked")

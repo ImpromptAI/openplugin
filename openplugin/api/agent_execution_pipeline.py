@@ -6,6 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi.security.api_key import APIKey
 
 from openplugin.agent.agent_actions import InpAction, InpResponse
+from openplugin.agent.agent_execution_implementations.agent_execution_with_operation_langchain import (
+    ToolAuthMissingException,
+)
 from openplugin.agent.agent_execution_pipeline import (
     AgentExecutionPipeline,
     AgentExecutionResponseOutput,
@@ -203,10 +206,19 @@ async def batch_run_ws(websocket: WebSocket):
                         prompt=agent_runtime_json.get("prompt")
                     )
                     await pipeline.batch_run(agent_prompt)
+            except ToolAuthMissingException as e:
+                traceback.print_exc()
+                await send_json_message(
+                    InpResponse.AGENT_BLOCKED,
+                    value={"message": str(e), "openapi_doc_url": e.openapi_doc_url},
+                    step_name="auth_missing",
+                )
             except Exception as e:
                 traceback.print_exc()
-                print(e)
+                # print(e)
                 pipeline = None
+                print("===")
+                print(e)
                 await send_json_message(
                     InpResponse.AGENT_JOB_FAILED, value={"message": str(e)}
                 )
@@ -228,6 +240,17 @@ async def batch_run_ws(websocket: WebSocket):
             elif action == InpAction.AGENT_STOP:
                 await pipeline.stop()
                 await send_json_message(InpResponse.AGENT_STOPPED)
+                continue
+            elif action == InpAction.AGENT_AUTH:
+                await pipeline.set_agent_plugin_auth(data.get("plugin_keys", {}))
+                try:
+                    agent_prompt = data.get("prompt", "")
+                    agent_prompt = AgentPrompt(prompt=agent_prompt)  # type: ignore
+                    await pipeline.batch_run(agent_prompt)
+                except Exception as e:
+                    await send_json_message(
+                        InpResponse.AGENT_JOB_FAILED, value={"message": str(e)}
+                    )
                 continue
             elif action == InpAction.AGENT_CURRENT_SESSION_CLEAR:
                 await pipeline.clear_current_session()

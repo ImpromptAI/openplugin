@@ -67,26 +67,15 @@ class AgentExecutionPipeline(BaseModel):
         self.session_conversations[session_id] = []
         if self.agent_runtime.implementation.provider == "langchain":
             if self.agent_runtime.implementation.type == "openai_tools_agent":
-                if True:
-                    from .agent_execution_implementations.agent_execution_with_operation_langchain import (
-                        AgentExecutionWithOperationLangchain,
-                    )
+                from .agent_execution_implementations.agent_execution_with_operation_langchain import (
+                    AgentExecutionWithOperationLangchain,
+                )
 
-                    self.agent_execution = AgentExecutionWithOperationLangchain(
-                        agent_manifest=self.agent_manifest,
-                        agent_runtime=self.agent_runtime,
-                        websocket=self.websocket,
-                    )
-                else:
-                    from .agent_execution_implementations.agent_execution_with_plugin_langchain import (
-                        AgentExecutionWithPluginLangchain,
-                    )
-
-                    self.agent_execution = AgentExecutionWithPluginLangchain(
-                        agent_manifest=self.agent_manifest,
-                        agent_runtime=self.agent_runtime,
-                        websocket=self.websocket,
-                    )
+                self.agent_execution = AgentExecutionWithOperationLangchain(
+                    agent_manifest=self.agent_manifest,
+                    agent_runtime=self.agent_runtime,
+                    websocket=self.websocket,
+                )
 
         if not self.agent_execution:
             print("====")
@@ -197,6 +186,10 @@ class AgentExecutionPipeline(BaseModel):
     async def clear_current_session(self):
         self.session_prompts[self.current_session_id] = []
         self.session_conversations[self.current_session_id] = []
+
+    async def set_agent_plugin_auth(self, plugin_auths: Dict):
+        if self.agent_execution:
+            self.agent_execution.set_agent_plugin_auth(plugin_auths)
 
     async def clear_all_session(self):
         self.session_prompts = {}

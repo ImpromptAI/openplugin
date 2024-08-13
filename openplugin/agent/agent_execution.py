@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import WebSocket
 from pydantic import BaseModel
@@ -18,15 +18,20 @@ class AgentInteractiveExecutionResponse(BaseModel):
 
 
 class AgentExecution(ABC):
+
     def __init__(
         self,
         agent_manifest: AgentManifest,
         agent_runtime: AgentRuntime,
         tool_map: Dict[str, Dict],
+        openplugin_tools_by_name: Dict[str, Any],
+        openplugin_tools_by_url: Dict[str, Any],
     ):
         self.agent_manifest = agent_manifest
         self.agent_runtime = agent_runtime
         self.tool_map = tool_map
+        self.openplugin_tools_by_name = openplugin_tools_by_name
+        self.openplugin_tools_by_url = openplugin_tools_by_url
 
     @abstractmethod
     async def run_agent_batch(
@@ -43,6 +48,13 @@ class AgentExecution(ABC):
     @abstractmethod
     def stop(self):
         pass
+
+    def set_agent_plugin_auth(self, plugin_auths: Dict):
+        for openapi_doc_url in plugin_auths.keys():
+            plugin_auth = plugin_auths.get(openapi_doc_url)
+            plugin_tool = self.openplugin_tools_by_url.get(openapi_doc_url)
+            if plugin_tool:
+                plugin_tool.set_plugin_auth(plugin_auth)
 
     @classmethod
     async def send_json_message(

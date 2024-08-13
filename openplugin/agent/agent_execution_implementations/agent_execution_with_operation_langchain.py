@@ -1,5 +1,6 @@
 import ast
 import asyncio
+import base64
 import json
 from typing import Dict, List, Optional, Tuple, Type
 
@@ -14,6 +15,7 @@ from langchain.tools import BaseTool
 from langchain_core.messages.ai import AIMessage
 from langchain_core.messages.human import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import ToolException
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
@@ -24,6 +26,21 @@ from ..agent_execution import (
     AgentInteractiveExecutionResponse,
 )
 from ..agent_input import AgentManifest, AgentPrompt, AgentRuntime, MessageType
+
+
+class ToolAuthMissingException(ToolException):
+    """Exception raised when a specific tool is not found."""
+
+    def __init__(self, openapi_doc_url, message="Auth not provided for tool"):
+        self.openapi_doc_url = openapi_doc_url
+        self.message = f"{message}: {openapi_doc_url}"
+        super().__init__(self.message)
+
+
+def get_basic_token(username, password):
+    credentials = username + ":" + password
+    moz_auth_cred = base64.b64encode(credentials.encode())
+    return moz_auth_cred.decode("UTF-8")
 
 
 def run_plugin(
@@ -156,26 +173,6 @@ def build_llm_model(provider: str, model: str, temperature: float = 1):
     raise ValueError("Invalid LLM Provider")
 
 
-def build_plugin_auth_header(
-    x_plugin_auth: Dict, openapi_doc_url: str, tool_key_map: Optional[Dict]
-):
-    if x_plugin_auth.get("type") == "user_http":
-        if x_plugin_auth.get("authorizationType") == "bearer":
-            if not tool_key_map:
-                raise ValueError(
-                    "Provide key for plugin: {}".format(openapi_doc_url)
-                )
-            key = tool_key_map.get(openapi_doc_url, {}).get("key")
-            if key is None:
-                raise ValueError(
-                    "Provide key for plugin: {}".format(openapi_doc_url)
-                )
-            return {"Authorization": f"Bearer {key}"}
-    elif x_plugin_auth.get("type") == "none":
-        return {}
-    raise ValueError("Invalid x-plugin-auth header")
-
-
 def build_agent_executor(
     openai_api_key: str,
     instruction: Optional[str],
@@ -190,17 +187,15 @@ def build_agent_executor(
     llm = build_llm_model(provider, model, temperature)
     tools = []
     tool_map: Dict[str, Dict] = {}
+    openplugin_tools_by_name = {}
+    openplugin_tools_by_url = {}
     for tool_input in tools_input:
         openplugin_json = requests.get(tool_input["openapi_doc_url"]).json()
         name = openplugin_json.get("x-openplugin", {}).get("name")
-        key_name = name.upper().replace("-", "_").replace(" ", "_").replace(",", "")
-        header = build_plugin_auth_header(
-            openplugin_json.get("x-plugin-auth", {}),
-            tool_input["openapi_doc_url"],
-            tool_key_map,
-        )
+        plugin_key = None
+        if tool_key_map:
+            plugin_key = tool_key_map.get(tool_input["openapi_doc_url"])
         config = {"openai_api_key": openai_api_key}
-
         picked_operations = set()
         for ops in tool_input.get("operations", []):
             if ops.get("method") is not None and ops.get("path") is not None:
@@ -233,9 +228,14 @@ def build_agent_executor(
                         openplugin_server_url=openplugin_server_url,
                         openplugin_api_key=openplugin_api_key,
                         openapi_doc_url=tool_input["openapi_doc_url"],
-                        header=header,
+                        header=None,
+                        auth_obj=openplugin_json.get("x-plugin-auth", {}),
                         config=config,
                     )
+                    if plugin_key:
+                        tool.set_plugin_auth(plugin_key)
+                    openplugin_tools_by_name[name] = tool
+                    openplugin_tools_by_url[tool_input["openapi_doc_url"]] = tool
                     tool_map[method_obj.get("operationId")] = {
                         "plugin_name": name,
                         "path": path,
@@ -255,7 +255,12 @@ def build_agent_executor(
     )
     agent = create_openai_tools_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)  # type: ignore
-    return agent_executor, tool_map
+    return (
+        agent_executor,
+        tool_map,
+        openplugin_tools_by_name,
+        openplugin_tools_by_url,
+    )
 
 
 class SearchInput(BaseModel):
@@ -273,6 +278,7 @@ class OpenpluginOperationTool(BaseTool):
     few_shot_examples: Optional[List] = []
     openplugin_server_url: Optional[str] = None
     openplugin_api_key: Optional[str] = None
+    auth_obj: Dict = Field(description="Auth object")
     openapi_doc_url: str = Field(description="URL of the OpenAPI doc")
     header: Optional[Dict] = Field(description="Header for the tool")
     config: Dict = {}
@@ -283,6 +289,8 @@ class OpenpluginOperationTool(BaseTool):
         self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> Tuple[str, Dict]:
         """Use the tool."""
+        if not self.is_auth_provided():
+            raise ToolAuthMissingException(self.openapi_doc_url)
         if self.openplugin_server_url is not None:
             response_json = run_plugin_api(
                 openplugin_server_url=self.openplugin_server_url,
@@ -313,6 +321,8 @@ class OpenpluginOperationTool(BaseTool):
         self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> Tuple[str, Dict]:
         """Use the tool."""
+        if not self.is_auth_provided():
+            raise ToolAuthMissingException(self.openapi_doc_url)
         if self.openplugin_server_url is not None:
             response_json = run_plugin_api(
                 openplugin_server_url=self.openplugin_server_url,
@@ -339,6 +349,38 @@ class OpenpluginOperationTool(BaseTool):
         )
         return json.dumps(original_response), response_json
 
+    def is_auth_provided(self) -> bool:
+        if self.auth_obj.get("type") is None or self.auth_obj.get("type") == "none":
+            return True
+        if self.header:
+            return True
+        return False
+
+    def set_plugin_auth(self, plugin_auth):
+        if plugin_auth:
+            user_http_token = plugin_auth.get("user_http_token")
+            authorization_type = self.auth_obj.get("authorizationType")
+            query_param_key = self.auth_obj.get("query_param_key")
+            if user_http_token:
+                if authorization_type == "bearer":
+                    self.header = {"Authorization": f"Bearer {user_http_token}"}
+                    return
+                if authorization_type == "header_param":
+                    self.header = {query_param_key: user_http_token}
+                    return
+
+            basic_username = plugin_auth.get("basic_username")
+            basic_password = plugin_auth.get("basic_password")
+            if basic_username and basic_password:
+                basic_token = get_basic_token(basic_username, basic_password)
+                self.header = {"Authorization": f"Basic {basic_token}"}
+                return
+
+            oauth_access_token = plugin_auth.get("oauth_access_token")
+            if oauth_access_token is not None:
+                self.header = {"Authorization": f"Bearer {oauth_access_token}"}
+                return
+
     def get_selected_operation(self):
         return self.operation_method + "<PATH>" + self.operation_path
 
@@ -359,18 +401,25 @@ def get_langchain_agent(agent_manifest: AgentManifest, agent_runtime: AgentRunti
     model = agent_runtime.model.model
     temperature = agent_runtime.model.get_temperature()
 
-    agent_executor, tool_map = build_agent_executor(
-        openai_api_key=openai_api_key,
-        instruction=instruction,
-        tool_key_map=tool_key_map,
-        tools_input=tools_input,
-        provider=provider,
-        model=model,
-        temperature=temperature,
-        openplugin_server_url=openplugin_server_url,
-        openplugin_api_key=openplugin_api_key,
+    agent_executor, tool_map, openplugin_tools_by_name, openplugin_tools_by_url = (
+        build_agent_executor(
+            openai_api_key=openai_api_key,
+            instruction=instruction,
+            tool_key_map=tool_key_map,
+            tools_input=tools_input,
+            provider=provider,
+            model=model,
+            temperature=temperature,
+            openplugin_server_url=openplugin_server_url,
+            openplugin_api_key=openplugin_api_key,
+        )
     )
-    return agent_executor, tool_map
+    return (
+        agent_executor,
+        tool_map,
+        openplugin_tools_by_name,
+        openplugin_tools_by_url,
+    )
 
 
 class AgentExecutionWithOperationLangchain(AgentExecution):
@@ -381,8 +430,16 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
         agent_runtime: AgentRuntime,
         websocket: Optional[WebSocket] = None,
     ):
-        self.agent, tool_map = get_langchain_agent(agent_manifest, agent_runtime)
-        super().__init__(agent_manifest, agent_runtime, tool_map)
+        self.agent, tool_map, openplugin_tools_by_name, openplugin_tools_by_url = (
+            get_langchain_agent(agent_manifest, agent_runtime)
+        )
+        super().__init__(
+            agent_manifest,
+            agent_runtime,
+            tool_map,
+            openplugin_tools_by_name,
+            openplugin_tools_by_url,
+        )
         self.websocket = websocket
 
     async def run_agent_batch(
@@ -403,10 +460,11 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
             version="v1",
         ):
             kind = event["event"]
-            # if kind != "on_chat_model_stream":
-            #    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
-            #    print(event)
-            #    print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+
+            if kind != "on_chat_model_stream":
+                print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+                print(kind)
+                print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
             if kind == "on_chain_start":
                 if (
                     event["name"] == "Agent"
@@ -432,6 +490,10 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                 print(
                     f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
                 )
+                openplugin_tool = self.openplugin_tools_by_name.get(event["name"])
+                if openplugin_tool and not openplugin_tool.is_auth_provided():
+                    raise Exception("Auth not provided for tool")
+
                 tool_action_obj = {
                     "tool": event["name"],
                     "plugin": self.tool_map.get(event["name"]),
@@ -447,22 +509,22 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
             elif kind == "on_tool_end":
                 print("\n\n******************* ON_TOOL_END ******************")
                 print(f"Done tool: {event['name']}")
-                tuple_val = ast.literal_eval(event["data"].get("output"))
-                tool_action_obj = {
-                    "tool": event["name"],
-                    "query": event["data"].get("input").get("query"),
-                    "plugin": self.tool_map.get(event["name"]),
-                    "plugin_response": tuple_val[1],
-                    "execution_id": event["run_id"],
-                }
-                await self.send_json_message(
-                    InpResponse.AGENT_JOB_STEP,
-                    self.websocket,
-                    tool_action_obj,
-                    "plugin_ended",
-                )
-                tools_called.append(tool_action_obj)
-
+                if event["data"].get("output"):
+                    tuple_val = ast.literal_eval(event["data"].get("output"))
+                    tool_action_obj = {
+                        "tool": event["name"],
+                        "query": event["data"].get("input").get("query"),
+                        "plugin": self.tool_map.get(event["name"]),
+                        "plugin_response": tuple_val[1],
+                        "execution_id": event["run_id"],
+                    }
+                    await self.send_json_message(
+                        InpResponse.AGENT_JOB_STEP,
+                        self.websocket,
+                        tool_action_obj,
+                        "plugin_ended",
+                    )
+                    tools_called.append(tool_action_obj)
         return AgentExecutionResponse(
             final_response=final_response, tools_called=tools_called
         )
@@ -478,8 +540,8 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
 
     def build_chat_history(self, conversations: List[AgentPrompt]):
         history = []
-        if conversations:
-            for conversation in conversations:
+        if conversations and len(conversations) > 1:
+            for conversation in conversations[:-1]:
                 if conversation.message_type == MessageType.USER:
                     history.append(HumanMessage(content=conversation.prompt))
                 elif conversation.message_type == MessageType.AGENT:
