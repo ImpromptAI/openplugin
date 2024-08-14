@@ -32,13 +32,13 @@
         ]
     },
     {
-        "name": "OpenAI [gpt-3.5-turbo-0613]",
+        "name": "OpenAI [gpt-3.5-turbo]",
         "provider": "openai",
-        "model": "gpt-3.5-turbo-0613",
+        "model": "gpt-3.5-turbo",
         "type": "llm-based",
         "llm": {
             "provider": "OpenAI",
-            "model_name": "gpt-3.5-turbo-0613",
+            "model_name": "gpt-3.5-turbo",
             "configuration": {
                 "temperature": 0
             }

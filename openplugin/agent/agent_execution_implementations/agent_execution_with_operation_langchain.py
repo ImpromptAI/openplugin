@@ -102,7 +102,6 @@ async def arun_plugin(
     if header is None:
         header = {}
     config = Config(**config)
-    selected_operations = None
     response = await run_pipeline(
         openapi_doc_obj=None,
         openapi_doc_url=openapi_doc_url,
@@ -196,10 +195,12 @@ def build_agent_executor(
         if tool_key_map:
             plugin_key = tool_key_map.get(tool_input["openapi_doc_url"])
         config = {"openai_api_key": openai_api_key}
-        picked_operations = set()
+        picked_operations = {}
         for ops in tool_input.get("operations", []):
             if ops.get("method") is not None and ops.get("path") is not None:
-                picked_operations.add(ops.get("method") + "<PATH>" + ops.get("path"))
+                picked_operations[ops.get("method") + "<PATH>" + ops.get("path")] = (
+                    ops.get("output_module_name")
+                )
 
         for path, path_obj in openplugin_json.get("paths", {}).items():
             for method, method_obj in path_obj.items():
@@ -220,6 +221,7 @@ def build_agent_executor(
                         name=method_obj.get("operationId"),
                         operation_path=path,
                         operation_method=method,
+                        output_module_name=picked_operations.get(sp),
                         description=description,
                         summary=summary,
                         human_usage_examples=human_usage_examples,
@@ -271,6 +273,7 @@ class OpenpluginOperationTool(BaseTool):
     name: str
     operation_path: str
     operation_method: str
+    output_module_name: Optional[str] = None
     description: str = Field(description="Description of the tool")
     summary: Optional[str] = None
     human_usage_examples: Optional[List[str]] = []
@@ -299,7 +302,8 @@ class OpenpluginOperationTool(BaseTool):
                 openapi_doc_url=self.openapi_doc_url,
                 header=self.header,
                 config=self.config,
-                selected_operations=self.get_selected_operation(),
+                selected_operations=self.get_selected_operations(),
+                output_module_names=self.get_output_module_names(),
             )
         else:
             response_json = run_plugin(
@@ -307,7 +311,8 @@ class OpenpluginOperationTool(BaseTool):
                 openapi_doc_url=self.openapi_doc_url,
                 header=self.header,
                 config=self.config,
-                selected_operations=self.get_selected_operation(),
+                selected_operations=self.get_selected_operations(),
+                output_module_names=self.get_output_module_names(),
             )
         original_response = (
             response_json.get("response", {})
@@ -331,7 +336,8 @@ class OpenpluginOperationTool(BaseTool):
                 openapi_doc_url=self.openapi_doc_url,
                 header=self.header,
                 config=self.config,
-                selected_operations=self.get_selected_operation(),
+                selected_operations=self.get_selected_operations(),
+                output_module_names=self.get_output_module_names(),
             )
         else:
             response_json = await arun_plugin(
@@ -339,7 +345,8 @@ class OpenpluginOperationTool(BaseTool):
                 openapi_doc_url=self.openapi_doc_url,
                 header=self.header,
                 config=self.config,
-                selected_operations=self.get_selected_operation(),
+                selected_operations=self.get_selected_operations(),
+                output_module_names=self.get_output_module_names(),
             )
         original_response = (
             response_json.get("response", {})
@@ -355,6 +362,13 @@ class OpenpluginOperationTool(BaseTool):
         if self.header:
             return True
         return False
+
+    def get_output_module_names(self):
+        output_module_names = []
+        if self.output_module_name:
+            output_module_names.append(self.output_module_name)
+        output_module_names.append("original_response")
+        return output_module_names
 
     def set_plugin_auth(self, plugin_auth):
         if plugin_auth:
@@ -381,8 +395,8 @@ class OpenpluginOperationTool(BaseTool):
                 self.header = {"Authorization": f"Bearer {oauth_access_token}"}
                 return
 
-    def get_selected_operation(self):
-        return self.operation_method + "<PATH>" + self.operation_path
+    def get_selected_operations(self):
+        return [self.operation_method + "<PATH>" + self.operation_path]
 
 
 def get_langchain_agent(agent_manifest: AgentManifest, agent_runtime: AgentRuntime):
@@ -461,10 +475,10 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
         ):
             kind = event["event"]
 
-            if kind != "on_chat_model_stream":
-                print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
-                print(kind)
-                print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+            # if kind != "on_chat_model_stream":
+            # print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+            # print(kind)
+            # print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
             if kind == "on_chain_start":
                 if (
                     event["name"] == "Agent"
@@ -490,13 +504,16 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                 print(
                     f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
                 )
-                openplugin_tool = self.openplugin_tools_by_name.get(event["name"])
+                plugin_obj = self.tool_map.get(event["name"], {})
+                openplugin_tool = self.openplugin_tools_by_name.get(
+                    plugin_obj.get("plugin_name", "")
+                )
                 if openplugin_tool and not openplugin_tool.is_auth_provided():
                     raise Exception("Auth not provided for tool")
 
                 tool_action_obj = {
                     "tool": event["name"],
-                    "plugin": self.tool_map.get(event["name"]),
+                    "plugin": plugin_obj,
                     "query": event["data"].get("input").get("query"),
                     "execution_id": event["run_id"],
                 }
@@ -509,12 +526,22 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
             elif kind == "on_tool_end":
                 print("\n\n******************* ON_TOOL_END ******************")
                 print(f"Done tool: {event['name']}")
+                plugin_obj = self.tool_map.get(event["name"], {})
+                openplugin_tool = self.openplugin_tools_by_name.get(
+                    plugin_obj.get("plugin_name", "")
+                )
+
+                print(openplugin_tool)
+                display_response = False
+                if openplugin_tool and openplugin_tool.output_module_name:
+                    display_response = True
                 if event["data"].get("output"):
                     tuple_val = ast.literal_eval(event["data"].get("output"))
                     tool_action_obj = {
                         "tool": event["name"],
+                        "display_response": display_response,
                         "query": event["data"].get("input").get("query"),
-                        "plugin": self.tool_map.get(event["name"]),
+                        "plugin": plugin_obj,
                         "plugin_response": tuple_val[1],
                         "execution_id": event["run_id"],
                     }

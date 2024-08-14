@@ -1,6 +1,5 @@
 import json
 from enum import Enum
-from os import system
 from typing import Any, Dict, List, Optional
 
 from httpx import request
@@ -12,6 +11,9 @@ from .agent_templates import get_langchain_openai_agent_template
 class OperationInput(BaseModel):
     path: str = Field(description="Path of the operation")
     method: str = Field(description="HTTP method of the operation")
+    output_module_name: Optional[str] = Field(
+        description="Output module name", default=None
+    )
 
 
 class ToolInput(BaseModel):
@@ -26,6 +28,7 @@ class ToolInput(BaseModel):
             operation_input = {
                 "path": operation.path,
                 "method": operation.method,
+                "output_module_name": operation.output_module_name,
             }
             operations.append(operation_input)
         return operations
