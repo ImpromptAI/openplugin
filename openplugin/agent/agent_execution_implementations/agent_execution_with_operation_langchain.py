@@ -508,8 +508,8 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                 openplugin_tool = self.openplugin_tools_by_name.get(
                     plugin_obj.get("plugin_name", "")
                 )
-                if openplugin_tool and not openplugin_tool.is_auth_provided():
-                    raise Exception("Auth not provided for tool")
+                # if openplugin_tool and not openplugin_tool.is_auth_provided():
+                #    raise Exception("Auth not provided for tool")
 
                 tool_action_obj = {
                     "tool": event["name"],
