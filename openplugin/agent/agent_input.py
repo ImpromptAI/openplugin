@@ -1,4 +1,5 @@
 import json
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 from httpx import request
@@ -10,6 +11,9 @@ from .agent_templates import get_langchain_openai_agent_template
 class OperationInput(BaseModel):
     path: str = Field(description="Path of the operation")
     method: str = Field(description="HTTP method of the operation")
+    output_module_name: Optional[str] = Field(
+        description="Output module name", default=None
+    )
 
 
 class ToolInput(BaseModel):
@@ -24,6 +28,7 @@ class ToolInput(BaseModel):
             operation_input = {
                 "path": operation.path,
                 "method": operation.method,
+                "output_module_name": operation.output_module_name,
             }
             operations.append(operation_input)
         return operations
@@ -54,8 +59,10 @@ class Secret(BaseModel):
 
 class AgentManifest(BaseModel):
     agent_url: Optional[str] = None
-    name: str
+    agent_display_name: str
     instruction: str
+    agent_spec_version: str
+    agent_version: str
     tools: List[ToolInput]
 
     @model_validator(mode="before")
@@ -130,7 +137,16 @@ class AgentRuntime(BaseModel):
     implementation: AgentImplementation = Field(..., alias="implementation")
 
 
+class MessageType(Enum):
+    USER = "user"
+    SYSTEM = "system"
+    AGENT = "agent"
+
+
 class AgentPrompt(BaseModel):
+    message_type: MessageType = Field(
+        description="Type of the message", default=MessageType.USER
+    )
     prompt: str = Field(description="Prompt for the agent")
     associated_job_id: Optional[str] = Field(
         description="Associated job ID", default=None

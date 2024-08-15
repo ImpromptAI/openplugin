@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from .agent_actions import InpResponse
 from .agent_execution import AgentExecution, AgentExecutionResponse
-from .agent_input import AgentManifest, AgentPrompt, AgentRuntime
+from .agent_input import AgentManifest, AgentPrompt, AgentRuntime, MessageType
 
 
 class AgentExecutionMetadata(BaseModel):
@@ -40,7 +40,8 @@ class AgentExecutionPipeline(BaseModel):
     agent_manifest: AgentManifest
     agent_runtime: AgentRuntime
     websocket: Optional[WebSocket]
-    sessions: Dict[str, List[AgentPrompt]] = {}
+    session_prompts: Dict[str, List[AgentPrompt]] = {}
+    session_conversations: Dict[str, List[AgentPrompt]] = {}
     current_session_id: Optional[str] = None
     agent_id: str = generate_id("agent")
 
@@ -54,37 +55,32 @@ class AgentExecutionPipeline(BaseModel):
             return tools
         return None
 
+    def get_last_execution_id(self):
+        if self.agent_execution:
+            return self.agent_execution.get_last_execution_id()
+        return None
+
     async def setup_agent(self):
         print("=-=-=-=-=-=-=--=-= SETUP AGENT =-=-=-=-=-=-=-=-=-=-=")
         print(self.agent_manifest)
         print(self.agent_runtime)
-        print(self.sessions)
+        print(self.session_prompts)
         print("==========================================================")
         session_id = generate_id("session")
         self.current_session_id = session_id
-        self.sessions[session_id] = []
+        self.session_prompts[session_id] = []
+        self.session_conversations[session_id] = []
         if self.agent_runtime.implementation.provider == "langchain":
             if self.agent_runtime.implementation.type == "openai_tools_agent":
-                if True:
-                    from .agent_execution_implementations.agent_execution_with_operation_langchain import (
-                        AgentExecutionWithOperationLangchain,
-                    )
+                from .agent_execution_implementations.agent_execution_with_operation_langchain import (
+                    AgentExecutionWithOperationLangchain,
+                )
 
-                    self.agent_execution = AgentExecutionWithOperationLangchain(
-                        agent_manifest=self.agent_manifest,
-                        agent_runtime=self.agent_runtime,
-                        websocket=self.websocket,
-                    )
-                else:
-                    from .agent_execution_implementations.agent_execution_with_plugin_langchain import (
-                        AgentExecutionWithPluginLangchain,
-                    )
-
-                    self.agent_execution = AgentExecutionWithPluginLangchain(
-                        agent_manifest=self.agent_manifest,
-                        agent_runtime=self.agent_runtime,
-                        websocket=self.websocket,
-                    )
+                self.agent_execution = AgentExecutionWithOperationLangchain(
+                    agent_manifest=self.agent_manifest,
+                    agent_runtime=self.agent_runtime,
+                    websocket=self.websocket,
+                )
 
         if not self.agent_execution:
             print("====")
@@ -116,8 +112,10 @@ class AgentExecutionPipeline(BaseModel):
         if do_new_session:
             session_id = generate_id("session")
             self.current_session_id = session_id
-            self.sessions[session_id] = []
-        agent_prompt.associated_job_id = generate_id("job")
+            self.session_prompts[session_id] = []
+            self.session_conversations[session_id] = []
+        associated_job_id = generate_id("job")
+        agent_prompt.associated_job_id = associated_job_id
         await self.send_json_message(
             InpResponse.AGENT_JOB_STARTED,
             {"job_id": agent_prompt.associated_job_id},
@@ -128,7 +126,15 @@ class AgentExecutionPipeline(BaseModel):
                 start = datetime.now()
                 response_obj: AgentExecutionResponse = (
                     await self.agent_execution.run_agent_batch(
-                        self.get_current_session_prompts()
+                        self.get_current_session_prompts(),
+                        self.get_current_session_conversations(),
+                    )
+                )
+                self.add_to_current_conversation_session(
+                    AgentPrompt(
+                        prompt=response_obj.final_response,
+                        associated_job_id=associated_job_id,
+                        message_type=MessageType.AGENT,
                     )
                 )
                 tools_called = response_obj.tools_called
@@ -159,7 +165,13 @@ class AgentExecutionPipeline(BaseModel):
     def add_to_current_session(self, agent_prompt: AgentPrompt):
         if self.current_session_id is None:
             raise ValueError("Current session id not set")
-        self.sessions[self.current_session_id].append(agent_prompt)
+        self.session_prompts[self.current_session_id].append(agent_prompt)
+        self.session_conversations[self.current_session_id].append(agent_prompt)
+
+    def add_to_current_conversation_session(self, agent_prompt: AgentPrompt):
+        if self.current_session_id is None:
+            raise ValueError("Current session id not set")
+        self.session_conversations[self.current_session_id].append(agent_prompt)
 
     async def interactive_run(self, agent_prompt: AgentPrompt):
         print()
@@ -171,13 +183,22 @@ class AgentExecutionPipeline(BaseModel):
         self.agent_execution.stop()
 
     def get_current_session_prompts(self):
-        return self.sessions[self.current_session_id]
+        return self.session_prompts[self.current_session_id]
+
+    def get_current_session_conversations(self):
+        return self.session_conversations[self.current_session_id]
 
     async def clear_current_session(self):
-        self.sessions[self.current_session_id] = []
+        self.session_prompts[self.current_session_id] = []
+        self.session_conversations[self.current_session_id] = []
+
+    async def set_agent_plugin_auth(self, plugin_auths: Dict):
+        if self.agent_execution:
+            self.agent_execution.set_agent_plugin_auth(plugin_auths)
 
     async def clear_all_session(self):
-        self.sessions = {}
+        self.session_prompts = {}
+        self.session_conversations = {}
 
     class Config:
         arbitrary_types_allowed = True
