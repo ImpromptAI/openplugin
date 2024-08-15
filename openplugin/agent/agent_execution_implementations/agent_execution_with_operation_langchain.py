@@ -455,6 +455,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
             openplugin_tools_by_url,
         )
         self.websocket = websocket
+        self.last_execution_id = None
 
     async def run_agent_batch(
         self, agent_prompts: List[AgentPrompt], conversations: List[AgentPrompt]
@@ -479,6 +480,7 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
             # print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
             # print(kind)
             # print("=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+            self.last_execution_id = event["run_id"]
             if kind == "on_chain_start":
                 if (
                     event["name"] == "Agent"
@@ -505,12 +507,11 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                     f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
                 )
                 plugin_obj = self.tool_map.get(event["name"], {})
-                openplugin_tool = self.openplugin_tools_by_name.get(
-                    plugin_obj.get("plugin_name", "")
-                )
+                # openplugin_tool = self.openplugin_tools_by_name.get(
+                #    plugin_obj.get("plugin_name", "")
+                # )
                 # if openplugin_tool and not openplugin_tool.is_auth_provided():
                 #    raise Exception("Auth not provided for tool")
-
                 tool_action_obj = {
                     "tool": event["name"],
                     "plugin": plugin_obj,
@@ -530,8 +531,6 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                 openplugin_tool = self.openplugin_tools_by_name.get(
                     plugin_obj.get("plugin_name", "")
                 )
-
-                print(openplugin_tool)
                 display_response = False
                 if openplugin_tool and openplugin_tool.output_module_name:
                     display_response = True
@@ -574,3 +573,6 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
                 elif conversation.message_type == MessageType.AGENT:
                     history.append(AIMessage(content=conversation.prompt))  # type: ignore
         return history
+
+    def get_last_execution_id(self):
+        return self.last_execution_id

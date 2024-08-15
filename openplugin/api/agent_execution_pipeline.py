@@ -184,12 +184,13 @@ async def batch_run_ws(websocket: WebSocket):
 
             agent_runtime_json = data.get("agent_runtime")
             agent_runtime: AgentRuntime = AgentRuntime(**agent_runtime_json)
+
+            pipeline = AgentExecutionPipeline(
+                agent_manifest=agent_manifest,
+                agent_runtime=agent_runtime,
+                websocket=websocket,
+            )
             try:
-                pipeline = AgentExecutionPipeline(
-                    agent_manifest=agent_manifest,
-                    agent_runtime=agent_runtime,
-                    websocket=websocket,
-                )
                 await pipeline.setup_agent()
                 await send_json_message(
                     InpResponse.AGENT_JOB_STEP,
@@ -210,7 +211,11 @@ async def batch_run_ws(websocket: WebSocket):
                 traceback.print_exc()
                 await send_json_message(
                     InpResponse.AGENT_BLOCKED,
-                    value={"message": str(e), "openapi_doc_url": e.openapi_doc_url},
+                    value={
+                        "message": str(e),
+                        "execution_id": pipeline.get_last_execution_id(),
+                        "openapi_doc_url": e.openapi_doc_url,
+                    },
                     step_name="auth_missing",
                 )
             except Exception as e:

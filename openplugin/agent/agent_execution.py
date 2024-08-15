@@ -49,6 +49,10 @@ class AgentExecution(ABC):
     def stop(self):
         pass
 
+    @abstractmethod
+    def get_last_execution_id(self):
+        pass
+
     def set_agent_plugin_auth(self, plugin_auths: Dict):
         for openapi_doc_url in plugin_auths.keys():
             plugin_auth = plugin_auths.get(openapi_doc_url)

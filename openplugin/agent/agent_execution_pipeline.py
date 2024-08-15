@@ -55,6 +55,11 @@ class AgentExecutionPipeline(BaseModel):
             return tools
         return None
 
+    def get_last_execution_id(self):
+        if self.agent_execution:
+            return self.agent_execution.get_last_execution_id()
+        return None
+
     async def setup_agent(self):
         print("=-=-=-=-=-=-=--=-= SETUP AGENT =-=-=-=-=-=-=-=-=-=-=")
         print(self.agent_manifest)

@@ -59,8 +59,10 @@ class Secret(BaseModel):
 
 class AgentManifest(BaseModel):
     agent_url: Optional[str] = None
-    name: str
+    agent_display_name: str
     instruction: str
+    agent_spec_version: str
+    agent_version: str
     tools: List[ToolInput]
 
     @model_validator(mode="before")
