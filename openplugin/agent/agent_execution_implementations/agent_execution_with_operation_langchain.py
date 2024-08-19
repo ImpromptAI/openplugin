@@ -500,6 +500,15 @@ class AgentExecutionWithOperationLangchain(AgentExecution):
             if kind == "on_chat_model_stream":
                 content = event["data"]["chunk"].content
                 if content:
+                    await self.send_json_message(
+                        InpResponse.AGENT_MESSAGE_STREAMING,
+                        self.websocket,
+                        {
+                            "content": content,
+                            "execution_id": event["run_id"],
+                        },
+                        "response",
+                    )
                     final_response = final_response + content
             elif kind == "on_tool_start":
                 print("\n\n******************* ON_TOOL_START ******************")

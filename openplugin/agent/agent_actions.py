@@ -30,6 +30,7 @@ class InpResponse(Enum):
     AGENT_ALREADY_SETUP = ("agent_already_setup", "Agent already setup")
     AGENT_JOB_STARTED = ("agent_job_started", "Agent job started")
     AGENT_JOB_STEP = ("agent_job_step", "")
+    AGENT_MESSAGE_STREAMING = ("agent_message_streaming", "")
     AGENT_JOB_COMPLETED = ("agent_job_completed", "Agent job completed")
     INVALID_API_KEY = ("invalid_api_key", "Invalid API key")
     AGENT_BLOCKED = ("agent_blocked", "Agent blocked")
